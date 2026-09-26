@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <link rel="icon" href="data:," />
+  <title>Nigerian Stock Exchange Information</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --paper: #f5f8f4;
+      --surface: #ffffff;
+      --surface-2: #eaf1ec;
+      --ink: #102019;
+      --muted: #53625b;
+      --line: #cad6ce;
+      --line-strong: #a8bbb0;
+      --green: #087a4b;
+      --green-strong: #075f3c;
+      --green-soft: #dcefe4;
+      --red: #b43b3b;
+      --red-soft: #f5dddd;
+      --amber: #91691b;
+      --amber-soft: #f6ecca;
+      --blue: #35698a;
+      --focus: #cf8b18;
+      --shadow: 0 16px 45px rgba(24, 54, 37, .09);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0b1510;
+        --surface: #111e17;
+        --surface-2: #17271e;
+        --ink: #ecf4ef;
+        --muted: #a8bbb0;
+        --line: #2a4033;
+        --line-strong: #476554;
+        --green: #59d395;
+        --green-strong: #8be7b5;
+        --green-soft: #183829;
+        --red: #ff8e8a;
+        --red-soft: #3a2423;
+        --amber: #efc96c;
+        --amber-soft: #392f1b;
+        --blue: #8dc8eb;
+        --focus: #ffcb68;
+        --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 280px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Public Sans", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    button { font: inherit; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .live-ticker { border-bottom: 1px solid var(--line); }
+    .live-ticker iframe { display: block; width: 100%; height: 60px; border: 0; }
+    .topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px 0 15px;
+      border-bottom: 1px solid var(--line);
+      font: 500 12px/1.4 "IBM Plex Mono", monospace;
+      letter-spacing: .02em;
+    }
+    .status { display: flex; gap: 9px; align-items: center; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
+    .source-link { color: var(--green-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+    .source-link:hover { text-decoration-thickness: 2px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, .72fr);
+      gap: 28px;
+      padding: 44px 0 28px;
+      align-items: end;
+    }
+    .eyebrow { color: var(--green-strong); font: 600 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin: 12px 0 8px; font: 650 clamp(45px, 8vw, 86px)/.9 "Newsreader", serif; letter-spacing: -.055em; }
+    .ticker-name { color: var(--muted); font-size: 16px; }
+    .hero-move { display: flex; align-items: baseline; gap: 10px; margin-top: 19px; }
+    .hero-move .down { color: var(--red); font: 600 17px/1 "IBM Plex Mono", monospace; }
+    .hero-move .points { color: var(--muted); font: 500 13px/1 "IBM Plex Mono", monospace; }
+    .snapshot-note {
+      background: var(--surface);
+      border-top: 3px solid var(--green);
+      padding: 23px 24px 21px;
+      box-shadow: var(--shadow);
+    }
+    .snapshot-note strong { display: block; font-size: 17px; margin-bottom: 7px; }
+    .snapshot-note p { color: var(--muted); font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
+    .snapshot-note a { display: inline-flex; align-items: center; gap: 6px; color: var(--green-strong); font-weight: 700; font-size: 13px; text-decoration: none; }
+    .snapshot-note a:hover { text-decoration: underline; text-underline-offset: 4px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); background: var(--surface); }
+    .metric { min-width: 0; padding: 20px 22px 21px; border-right: 1px solid var(--line); }
+    .metric:last-child { border-right: 0; }
+    .metric-label { display: block; margin-bottom: 8px; color: var(--muted); font: 500 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
+    .metric-value { font: 650 clamp(21px, 3vw, 29px)/1 "Newsreader", serif; white-space: nowrap; }
+    .metric-detail { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .section { padding: 54px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 20px; }
+    .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 23px; }
+    .section-heading h2 { margin: 0; font: 650 clamp(29px, 4vw, 43px)/1 "Newsreader", serif; letter-spacing: -.025em; }
+    .section-heading p { max-width: 540px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+    .chart-card { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+    .chart-top { padding: 24px 26px 0; display: flex; align-items: start; justify-content: space-between; gap: 24px; }
+    .chart-value { font: 600 28px/1 "IBM Plex Mono", monospace; }
+    .chart-change { margin-top: 8px; color: var(--green-strong); font: 600 13px/1.3 "IBM Plex Mono", monospace; }
+    .range-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .range-button { border: 1px solid transparent; background: transparent; color: var(--muted); min-width: 44px; padding: 8px 10px; cursor: pointer; border-radius: 2px; font: 600 12px/1 "IBM Plex Mono", monospace; }
+    .range-button:hover { background: var(--surface-2); color: var(--ink); }
+    .range-button[aria-pressed="true"] { background: var(--green-soft); color: var(--green-strong); border-color: var(--green); }
+    .chart-wrap { position: relative; padding: 8px 13px 0; min-height: 360px; }
+    #asiChart { display: block; width: 100%; height: 360px; overflow: visible; }
+    .grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 5; }
+    .axis-label { fill: var(--muted); font: 10px "IBM Plex Mono", monospace; }
+    .area { fill: var(--green-soft); }
+    .series { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .chart-dot { fill: var(--surface); stroke: var(--green); stroke-width: 2.5; cursor: pointer; vector-effect: non-scaling-stroke; }
+    .chart-dot:hover, .chart-dot:focus { fill: var(--green); }
+    .chart-tooltip { position: absolute; pointer-events: none; transform: translate(-50%, calc(-100% - 14px)); background: var(--ink); color: var(--paper); padding: 8px 10px; border-radius: 2px; white-space: nowrap; font: 500 11px/1.4 "IBM Plex Mono", monospace; box-shadow: var(--shadow); opacity: 0; transition: opacity .12s ease; }
+    .chart-tooltip.visible { opacity: 1; }
+    .chart-caption { display: flex; justify-content: space-between; gap: 18px; padding: 13px 26px 20px; color: var(--muted); border-top: 1px solid var(--line); font-size: 12px; line-height: 1.5; }
+    .leaders { display: grid; grid-template-columns: .95fr 1.05fr; gap: 28px; align-items: start; }
+    .switcher { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); background: var(--surface); }
+    .switcher button { border: 0; border-bottom: 3px solid transparent; padding: 16px 12px 13px; background: transparent; color: var(--muted); font-weight: 700; cursor: pointer; }
+    .switcher button[aria-selected="true"] { border-bottom-color: var(--green); color: var(--ink); }
+    .market-table { background: var(--surface); border: 1px solid var(--line); border-top: 0; }
+    .market-row { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .market-row:last-child { border-bottom: 0; }
+    .rank { display: inline-block; width: 23px; color: var(--muted); font: 500 11px "IBM Plex Mono", monospace; }
+    .symbol { font: 600 13px/1.3 "IBM Plex Mono", monospace; }
+    .company { display: block; margin: 4px 0 0 23px; color: var(--muted); font-size: 11px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .price, .move { text-align: right; font: 600 12px/1.3 "IBM Plex Mono", monospace; }
+    .move.up { color: var(--green-strong); }
+    .move.down { color: var(--red); }
+    .table-tools { margin: 0 0 12px; }
+    .stock-search { width: 100%; padding: 13px 15px; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); color: var(--ink); font-size: 13px; }
+    .stock-search::placeholder { color: var(--muted); }
+    .sort-bar { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 11px 18px; background: var(--surface-2); border: 1px solid var(--line); border-bottom: 0; }
+    .sort-bar button { background: none; border: 0; padding: 2px 0; cursor: pointer; color: var(--muted); font: 600 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; text-align: right; }
+    .sort-bar button:first-of-type { text-align: left; }
+    .sort-bar button:hover { color: var(--ink); }
+    .sort-bar .arrow { color: var(--green-strong); }
+    .star { width: 30px; height: 30px; border: 0; background: none; padding: 0; cursor: pointer; color: var(--muted); font-size: 17px; line-height: 1; }
+    .star:hover { color: var(--amber); }
+    .star[aria-pressed="true"] { color: var(--amber); }
+    .row-main { background: none; border: 0; padding: 0; min-width: 0; text-align: left; cursor: pointer; color: inherit; }
+    .row-main:hover .symbol { color: var(--green-strong); text-decoration: underline; text-underline-offset: 3px; }
+    .list-tag { display: inline-block; margin-left: 8px; padding: 2px 7px; border: 1px solid var(--line-strong); border-radius: 20px; color: var(--muted); font: 600 9px/1.6 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; vertical-align: 2px; }
+    .empty-note { padding: 30px 22px; color: var(--muted); font-size: 13px; line-height: 1.6; text-align: center; }
+    .modal-backdrop { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(10, 20, 14, .55); }
+    .modal-backdrop[hidden] { display: none; }
+    .modal { position: relative; width: min(430px, 100%); background: var(--surface); border-top: 3px solid var(--green); padding: 28px 28px 24px; box-shadow: var(--shadow); }
+    .modal-close { position: absolute; top: 10px; right: 12px; border: 0; background: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--muted); padding: 6px; }
+    .modal-close:hover { color: var(--ink); }
+    .modal-eyebrow { color: var(--green-strong); font: 600 11px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
+    .modal-symbol { margin: 8px 0 4px; font: 650 34px/1 "Newsreader", serif; letter-spacing: -.02em; }
+    .modal-company { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 16px; }
+    .modal-cell { background: var(--surface); padding: 14px 16px; }
+    .modal-cell span { display: block; color: var(--muted); font: 500 10px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .modal-cell strong { font: 600 16px/1.2 "IBM Plex Mono", monospace; }
+    .modal-note { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 0 0 16px; }
+    .modal-note a { color: var(--green-strong); font-weight: 700; }
+    .modal-star { width: 100%; padding: 13px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); font-weight: 700; font-size: 13px; cursor: pointer; border-radius: 2px; }
+    .modal-star:hover { border-color: var(--amber); }
+    .watch-count { color: var(--muted); font-weight: 500; }
+    .news-feature { background: var(--surface); border-top: 3px solid var(--green); padding: 26px 28px 28px; }
+    .news-feature .date { color: var(--muted); font: 500 11px/1.4 "IBM Plex Mono", monospace; }
+    .news-feature h3 { margin: 14px 0 11px; font: 650 30px/1.05 "Newsreader", serif; letter-spacing: -.02em; }
+    .news-feature p { color: var(--muted); line-height: 1.6; font-size: 14px; }
+    .read-link { color: var(--green-strong); font-weight: 700; text-underline-offset: 4px; font-size: 13px; }
+    .listings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .listing { background: var(--surface); padding: 22px; min-height: 230px; display: flex; flex-direction: column; }
+    .listing-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font: 500 10px/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .listing h3 { margin: 28px 0 6px; font: 650 23px/1.08 "Newsreader", serif; }
+    .listing .ticker { color: var(--green-strong); font: 600 12px/1.3 "IBM Plex Mono", monospace; }
+    .listing-data { margin-top: auto; padding-top: 24px; }
+    .listing-data strong { display: block; font: 600 18px/1 "IBM Plex Mono", monospace; }
+    .listing-data span { display: block; margin-top: 7px; color: var(--muted); font-size: 11px; }
+    .listing a { margin-top: 14px; font-size: 11px; color: var(--muted); text-underline-offset: 3px; }
+    .ipo-radar { margin-top: 18px; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding: 17px 20px; background: var(--amber-soft); border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent); }
+    .radar-label { color: var(--amber); font: 700 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .ipo-radar p { margin: 0; font-size: 13px; line-height: 1.5; }
+    .ipo-radar strong { color: var(--ink); }
+    .ipo-radar a { color: var(--amber); font-size: 12px; font-weight: 700; white-space: nowrap; text-underline-offset: 4px; }
+    .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .news-card { display: flex; flex-direction: column; min-height: 245px; padding: 22px; background: var(--surface); text-decoration: none; }
+    .news-card:hover h3 { color: var(--green-strong); }
+    .news-meta { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font: 500 10px/1.4 "IBM Plex Mono", monospace; }
+    .news-card h3 { margin: 22px 0 10px; font: 650 22px/1.12 "Newsreader", serif; transition: color .15s ease; }
+    .news-card p { color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .news-card .arrow { margin-top: auto; color: var(--green-strong); font-size: 18px; }
+    .learn-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: stretch; }
+    .hours { background: var(--green-strong); color: #f8fff9; padding: 30px; }
+    .hours .small { color: rgba(255,255,255,.72); font: 500 11px/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; }
+    .hours strong { display: block; margin: 22px 0 2px; font: 650 clamp(36px, 6vw, 66px)/.95 "Newsreader", serif; letter-spacing: -.04em; }
+    .hours p { color: rgba(255,255,255,.78); line-height: 1.6; font-size: 14px; max-width: 580px; }
+    .hours .session { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+    .hours .session div { padding-top: 12px; border-top: 1px solid rgba(255,255,255,.3); }
+    .hours .session span { display: block; color: rgba(255,255,255,.68); font-size: 11px; margin-bottom: 4px; }
+    .hours .session b { font: 600 13px "IBM Plex Mono", monospace; }
+    .resources { background: var(--surface); border: 1px solid var(--line); padding: 8px 22px; }
+    .resource { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 17px 0; border-bottom: 1px solid var(--line); text-decoration: none; }
+    .resource:last-child { border-bottom: 0; }
+    .resource:hover strong { color: var(--green-strong); }
+    .resource strong { display: block; font-size: 13px; }
+    .resource span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .resource i { color: var(--green-strong); font-style: normal; }
+    .method { padding: 34px 0 44px; }
+    details { border-top: 1px solid var(--line); }
+    summary { padding: 20px 0; cursor: pointer; font-weight: 700; font-size: 13px; }
+    details p { max-width: 820px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .footer { display: flex; justify-content: space-between; gap: 24px; padding: 0 0 32px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .footer a { color: var(--green-strong); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; align-items: start; }
+      .snapshot-note { max-width: 590px; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .metric:nth-child(2) { border-right: 0; }
+      .metric:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .leaders { grid-template-columns: 1fr; }
+      .listings-grid { grid-template-columns: repeat(2, 1fr); }
+      .news-grid { grid-template-columns: repeat(2, 1fr); }
+      .learn-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .topline { align-items: flex-start; padding-top: 18px; }
+      .topline > span:last-child { text-align: right; }
+      .hero { padding-top: 34px; gap: 25px; }
+      h1 { font-size: clamp(51px, 18vw, 74px); }
+      .snapshot-note { padding: 20px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric { padding: 17px 15px; }
+      .metric-value { font-size: 21px; }
+      .section { padding: 43px 0; }
+      .section-heading { display: block; }
+      .section-heading p { margin-top: 12px; }
+      .chart-top { display: block; padding: 20px 16px 0; }
+      .range-controls { justify-content: stretch; margin-top: 20px; display: grid; grid-template-columns: repeat(5, 1fr); }
+      .range-button { min-width: 0; padding-inline: 4px; }
+      .chart-wrap { min-height: 300px; padding-inline: 2px; }
+      #asiChart { height: 300px; }
+      .chart-caption { display: block; padding: 13px 16px 18px; }
+      .chart-caption span + span { display: block; margin-top: 6px; }
+      .market-row { grid-template-columns: 30px minmax(0, 1fr) auto; }
+      .market-row .price { display: none; }
+      .sort-bar { grid-template-columns: 30px minmax(0, 1fr) auto; }
+      .sort-bar .sort-price { display: none; }
+      .switcher button { padding: 14px 6px 11px; font-size: 12px; }
+      .news-feature { padding: 22px; }
+      .listings-grid, .news-grid { grid-template-columns: 1fr; }
+      .listing { min-height: 210px; }
+      .ipo-radar { grid-template-columns: 1fr; gap: 8px; align-items: start; }
+      .ipo-radar a { white-space: normal; }
+      .news-card { min-height: 205px; }
+      .hours { padding: 24px 20px; }
+      .footer { display: block; }
+      .footer span { display: block; margin-top: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="live-ticker" role="region" aria-label="Live NGX price ticker">
+      <iframe
+        src="https://ngnmarket.com/widget/marquee"
+        width="100%"
+        height="60"
+        frameborder="0"
+        scrolling="no"
+        style="border:none;"
+        title="Live NGX market ticker"
+      ></iframe>
+    </div>
+    <div class="topline">
+      <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+      <span>SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
+    </div>
+
+    <main>
+      <section class="hero" aria-labelledby="market-heading">
+        <div>
+          <div class="eyebrow">NGX All-Share Index</div>
+          <h1 id="market-heading">252,113.41</h1>
+          <div class="ticker-name">Nigerian Exchange equities benchmark</div>
+          <div class="hero-move"><span class="down">−0.015%</span><span class="points">−36.60 points today</span></div>
+        </div>
+        <aside class="snapshot-note">
+          <strong>A close-of-market snapshot</strong>
+          <p>The ticker tape above streams live prices. Figures in the sections below are fixed at 25 September 2026 — for newer official quotes, use NGX’s market page, where prices are shown with a 30-minute delay.</p>
+          <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>
+        </aside>
+      </section>
+
+      <section class="metrics" aria-label="Market summary">
+        <article class="metric"><span class="metric-label">Market cap</span><span class="metric-value">₦163.655tn</span><span class="metric-detail">−₦24bn on the day</span></article>
+        <article class="metric"><span class="metric-label">Volume</span><span class="metric-value">708.81m</span><span class="metric-detail">shares traded</span></article>
+        <article class="metric"><span class="metric-label">Deals</span><span class="metric-value">42,434</span><span class="metric-detail">completed trades</span></article>
+        <article class="metric"><span class="metric-label">YTD</span><span class="metric-value" style="color:var(--green-strong)">+62.02%</span><span class="metric-detail">calculated from 31 Dec 2025</span></article>
+      </section>
+
+      <section class="section" id="performance">
+        <div class="section-heading">
+          <h2>Market performance</h2>
+          <p>Explore selected verified ASI closes. The line connects only sourced sessions; it is not an intraday feed.</p>
+        </div>
+        <div class="chart-card">
+          <div class="chart-top">
+            <div><div class="chart-value" id="chartValue">252,113.41</div><div class="chart-change" id="chartChange">+62.02% since 31 Dec 2025</div></div>
+            <div class="range-controls" role="group" aria-label="Chart period">
+              <button class="range-button" data-range="1W" aria-pressed="false">1W</button>
+              <button class="range-button" data-range="1M" aria-pressed="false">1M</button>
+              <button class="range-button" data-range="3M" aria-pressed="false">3M</button>
+              <button class="range-button" data-range="6M" aria-pressed="false">6M</button>
+              <button class="range-button" data-range="YTD" aria-pressed="true">YTD</button>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <svg id="asiChart" role="img" aria-labelledby="chartTitle chartDesc" viewBox="0 0 1000 360" preserveAspectRatio="none">
+              <title id="chartTitle">NGX All-Share Index selected closing values</title>
+              <desc id="chartDesc">Interactive chart showing selected verified market closes from 31 December 2025 to 25 September 2026.</desc>
+            </svg>
+            <div class="chart-tooltip" id="tooltip" aria-hidden="true"></div>
+          </div>
+          <div class="chart-caption"><span id="periodLabel">31 Dec 2025 — 25 Sep 2026</span><span>Selected sessions; gaps in source coverage are not interpolated.</span></div>
+        </div>
+      </section>
+
+      <section class="section" id="leaders">
+        <div class="section-heading">
+          <h2>Today’s tape</h2>
+          <p>Search any stock, sort the columns, tap a row for details, or star it to build a watchlist saved in your browser.</p>
+        </div>
+        <div class="leaders">
+          <div>
+            <div class="table-tools">
+              <input class="stock-search" id="stockSearch" type="search" placeholder="Search stocks — try “bank” or “FIDELITYBK”" aria-label="Search stocks" autocomplete="off" />
+            </div>
+            <div class="switcher" role="tablist" aria-label="Market rankings">
+              <button role="tab" id="tab-gainers" aria-controls="market-list" aria-selected="true" data-table="gainers">Gainers</button>
+              <button role="tab" id="tab-losers" aria-controls="market-list" aria-selected="false" data-table="losers">Losers</button>
+              <button role="tab" id="tab-volume" aria-controls="market-list" aria-selected="false" data-table="volume">Volume</button>
+              <button role="tab" id="tab-watchlist" aria-controls="market-list" aria-selected="false" data-table="watchlist">Watchlist <span class="watch-count" id="watchCount"></span></button>
+            </div>
+            <div class="sort-bar">
+              <span aria-hidden="true"></span>
+              <button type="button" data-sort="symbol">Symbol<span class="arrow" aria-hidden="true"></span></button>
+              <button type="button" class="sort-price" data-sort="price">Price<span class="arrow" aria-hidden="true"></span></button>
+              <button type="button" data-sort="move"><span class="sort-move-label">Change</span><span class="arrow" aria-hidden="true"></span></button>
+            </div>
+            <div class="market-table" id="market-list" role="tabpanel" aria-labelledby="tab-gainers"></div>
+          </div>
+          <article class="news-feature">
+            <div class="date">MARKET WRAP · 25 SEP</div>
+            <h3>Equities close flat at ₦163.66tn as Zichis Agro and R.T. Briscoe rally</h3>
+            <p>The benchmark eased 0.015% even as advancing stocks outnumbered decliners. Fidelity Bank accounted for the largest reported share volume.</p>
+            <a class="read-link" href="https://nairametrics.com/2026/09/25/nigerian-equity-market-closes-flat-at-n163-66-trillion-as-zichis-agro-r-t-briscoe-rally/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer">Read the market wrap ↗</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="listings">
+        <div class="section-heading">
+          <h2>New to the exchange</h2>
+          <p>Equity admissions from January 2025 through this snapshot date. Each was a listing by introduction, not a capital-raising IPO.</p>
+        </div>
+        <div class="listings-grid">
+          <article class="listing">
+            <div class="listing-meta"><span>Main Board</span><span>24 Apr 2025</span></div>
+            <h3>Legend Internet</h3><span class="ticker">LEGENDINT</span>
+            <div class="listing-data"><strong>2.0bn shares</strong><span>Introduced at ₦5.64</span></div>
+            <a href="https://nairametrics.com/2025/04/21/legend-internet-receives-approval-to-list-2-billion-ordinary-shares-on-ngx/" target="_blank" rel="noopener noreferrer">Source ↗</a>
+          </article>
+          <article class="listing">
+            <div class="listing-meta"><span>Main Board</span><span>31 Dec 2025</span></div>
+            <h3>Nigeria REIT</h3><span class="ticker">NREIT</span>
+            <div class="listing-data"><strong>1.59bn units</strong><span>Introduced at ₦103</span></div>
+            <a href="https://nairametrics.com/2025/12/31/chapel-hill-denham-lists-n163-6-billion-nreit-on-ngx/" target="_blank" rel="noopener noreferrer">Source ↗</a>
+          </article>
+          <article class="listing">
+            <div class="listing-meta"><span>Growth Board</span><span>20 Jan 2026</span></div>
+            <h3>Zichis Agro</h3><span class="ticker">ZICHIS</span>
+            <div class="listing-data"><strong>600m shares</strong><span>Introduced at ₦1.81</span></div>
+            <a href="https://nairametrics.com/2026/01/21/zichis-agro-lists-600-million-units-on-ngx-at-n1-81-per-share/" target="_blank" rel="noopener noreferrer">Source ↗</a>
+          </article>
+          <article class="listing">
+            <div class="listing-meta"><span>Main Board</span><span>31 Jul 2026</span></div>
+            <h3>AVA Capital</h3><span class="ticker">AVACAP</span>
+            <div class="listing-data"><strong>5.0bn shares</strong><span>Introduced at ₦7.50</span></div>
+            <a href="https://ngxgroup.com/ngx-weekly-turnover-climbs-32-to-%e2%82%a6404-76-billion-as-ava-capital-debuts-on-main-board/" target="_blank" rel="noopener noreferrer">Official NGX source ↗</a>
+          </article>
+        </div>
+        <aside class="ipo-radar">
+          <span class="radar-label">IPO radar</span>
+          <p><strong>Dangote Refinery:</strong> a ₦2.15tn offer opened 14 September at ₦525 per share and was due to close 13 October. It was not yet listed at this snapshot.</p>
+          <a href="https://punchng.com/just-in-dangote-refinery-opens-n2-15tn-ipo-on-ngx/?amp" target="_blank" rel="noopener noreferrer">Read report ↗</a>
+        </aside>
+      </section>
+
+      <section class="section" id="news">
+        <div class="section-heading">
+          <h2>Market newsroom</h2>
+          <p>Recent reporting selected for market context, monetary policy, listings and weekly performance.</p>
+        </div>
+        <div class="news-grid">
+          <a class="news-card" href="https://nairametrics.com/2026/09/23/cbns-350bps-rate-cut-reshapes-stocks-bonds-and-bank-earnings-outlook/" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>NAIRAMETRICS</span><span>23 SEP</span></div><h3>CBN’s 350bps rate cut reshapes the outlook for equities, bonds and banks</h3><p>Coverage of how the policy move may alter valuations, yields and bank earnings expectations.</p><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="news-card" href="https://nairametrics.com/2026/09/23/ngx-market-capitalization-hits-record-n163-06-trillion-as-asi-rises-0-23/" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>NAIRAMETRICS</span><span>23 SEP</span></div><h3>Market capitalisation reaches a record ₦163.06tn</h3><p>The ASI gained 0.23% during the session, extending a run of record market values.</p><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="news-card" href="https://punchng.com/banking-stock-rally-drives-2-78-ngx-weekly-growth/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>PUNCH</span><span>W/E 18 SEP</span></div><h3>Banking stocks drive 2.78% weekly NGX growth</h3><p>A look at the sector rotation behind the week’s broad-market advance.</p><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="news-card" href="https://nairametrics.com/2026/09/18/ngx-market-cap-hits-n162-trillion-for-the-first-time-ever/" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>NAIRAMETRICS</span><span>18 SEP</span></div><h3>NGX market cap crosses ₦162tn for the first time</h3><p>The milestone came amid a broad rise in listed-equity value.</p><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="news-card" href="https://punchng.com/just-in-dangote-refinery-opens-n2-15tn-ipo-on-ngx/?amp" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>PUNCH</span><span>14 SEP</span></div><h3>Dangote Refinery opens ₦2.15tn public offer</h3><p>The offer comprises 4.1 billion new shares at ₦525, with a minimum application of 10 shares.</p><span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="news-card" href="https://investdata.com.ng/ngx-performance-for-week-ended-august-28-2026-benchmark-sectors-close-positive/" target="_blank" rel="noopener noreferrer"><div class="news-meta"><span>INVESTDATA</span><span>28 AUG</span></div><h3>Benchmark and sector indices finish the week positive</h3><p>The ASI closed at 241,298.47 for the week ended 28 August.</p><span class="arrow" aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+
+      <section class="section" id="learn">
+        <div class="section-heading">
+          <h2>Know the market</h2>
+          <p>Session timing and direct routes to official NGX information.</p>
+        </div>
+        <div class="learn-grid">
+          <article class="hours">
+            <div class="small">Regular trading window · WAT</div>
+            <strong>09:00–16:00</strong>
+            <p>The extended seven-hour session took effect on 27 April 2026. The opening phase begins before continuous trading.</p>
+            <div class="session"><div><span>Pre-open</span><b>09:00</b></div><div><span>Continuous trading</span><b>09:30–16:00</b></div></div>
+          </article>
+          <nav class="resources" aria-label="Official NGX resources">
+            <a class="resource" href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer"><span><strong>Market snapshot</strong><span>Official delayed prices</span></span><i aria-hidden="true">↗</i></a>
+            <a class="resource" href="https://invest.ngxgroup.com/" target="_blank" rel="noopener noreferrer"><span><strong>NGX Invest</strong><span>Official investor portal</span></span><i aria-hidden="true">↗</i></a>
+            <a class="resource" href="https://ngxgroup.com/ngx-download/amendments-to-the-listings-rules/" target="_blank" rel="noopener noreferrer"><span><strong>Listing rules</strong><span>Official amendments archive</span></span><i aria-hidden="true">↗</i></a>
+            <a class="resource" href="https://ngxgroup.com/regulation/media-center/?album=36712&amp;album_ses=1" target="_blank" rel="noopener noreferrer"><span><strong>Regulation media centre</strong><span>Notices and releases</span></span><i aria-hidden="true">↗</i></a>
+          </nav>
+        </div>
+      </section>
+
+      <section class="method">
+        <details>
+          <summary>Sources, calculations and limitations</summary>
+          <p>Session figures follow Nairametrics’ 25 September report; THEWILL corroborated the index close and market capitalisation. The Investor Side reported a slightly different volume and deal count, so those two figures are shown here from one internally consistent source. Historical closes combine official NGX weekly reports with dated market reporting. Percentage returns are calculated from those sourced closes. April, May and early-September weekly closes were not available in the reviewed material, so the performance line shows selected sessions rather than a continuous series. This page is informational and is not investment advice.</p>
+        </details>
+      </section>
+    </main>
+
+    <footer class="footer"><strong>Data fixed at market close · 25 Sep 2026</strong><span>Prices may have changed. Confirm before acting.</span></footer>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalSymbol">
+      <button class="modal-close" id="modalClose" aria-label="Close stock details">×</button>
+      <div class="modal-eyebrow" id="modalList">Snapshot · 25 Sep 2026</div>
+      <div class="modal-symbol" id="modalSymbol"></div>
+      <div class="modal-company" id="modalCompany"></div>
+      <div class="modal-grid">
+        <div class="modal-cell"><span>Price</span><strong id="modalPrice"></strong></div>
+        <div class="modal-cell"><span id="modalMoveLabel">Day change</span><strong id="modalMove"></strong></div>
+      </div>
+      <p class="modal-note">Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
+      <button class="modal-star" id="modalStar" type="button"></button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var history = [
+        { d: '2025-12-31', label: '31 Dec 2025', v: 155613.03 },
+        { d: '2026-03-06', label: '6 Mar 2026', v: 196968.15 },
+        { d: '2026-03-13', label: '13 Mar 2026', v: 198407.30 },
+        { d: '2026-06-11', label: '11 Jun 2026', v: 244738.74 },
+        { d: '2026-06-19', label: '19 Jun 2026', v: 235941.27 },
+        { d: '2026-06-26', label: '26 Jun 2026', v: 232049.02 },
+        { d: '2026-07-03', label: '3 Jul 2026', v: 229240.34 },
+        { d: '2026-07-10', label: '10 Jul 2026', v: 243798.76 },
+        { d: '2026-07-17', label: '17 Jul 2026', v: 243462.13 },
+        { d: '2026-07-24', label: '24 Jul 2026', v: 247357.40 },
+        { d: '2026-08-14', label: '14 Aug 2026', v: 242619.20 },
+        { d: '2026-08-21', label: '21 Aug 2026', v: 239351.16 },
+        { d: '2026-08-28', label: '28 Aug 2026', v: 241298.47 },
+        { d: '2026-09-18', label: '18 Sep 2026', v: 249804.56 },
+        { d: '2026-09-21', label: '21 Sep 2026', v: 250156.80 },
+        { d: '2026-09-22', label: '22 Sep 2026', v: 250614.66 },
+        { d: '2026-09-23', label: '23 Sep 2026', v: 251191.02 },
+        { d: '2026-09-24', label: '24 Sep 2026', v: 252150.01 },
+        { d: '2026-09-25', label: '25 Sep 2026', v: 252113.41 }
+      ];
+      var cutoffs = { '1W': '2026-09-18', '1M': '2026-08-28', '3M': '2026-06-26', '6M': '2026-03-13', 'YTD': '2025-12-31' };
+      var changes = { '1W': '+0.92% since 18 Sep 2026', '1M': '+4.48% since 28 Aug 2026', '3M': '+8.65% since 26 Jun 2026', '6M': '+27.07% since 13 Mar 2026', 'YTD': '+62.02% since 31 Dec 2025' };
+      var svg = document.getElementById('asiChart');
+      var tooltip = document.getElementById('tooltip');
+      var periodLabel = document.getElementById('periodLabel');
+      var chartChange = document.getElementById('chartChange');
+      var NS = 'http://www.w3.org/2000/svg';
+
+      function formatNumber(n) { return n.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+      function node(name, attrs) {
+        var el = document.createElementNS(NS, name);
+        Object.keys(attrs || {}).forEach(function (key) { el.setAttribute(key, attrs[key]); });
+        return el;
+      }
+      function draw(range) {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index selected closing values'; svg.appendChild(title);
+        var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending 25 September 2026.'; svg.appendChild(desc);
+        var points = history.filter(function (p) { return p.d >= cutoffs[range]; });
+        var W = 1000, H = 360, L = 72, R = 28, T = 34, B = 46;
+        var vals = points.map(function (p) { return p.v; });
+        var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
+        var pad = Math.max((max - min) * .16, 300);
+        min -= pad; max += pad;
+        function x(i) { return points.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (points.length - 1); }
+        function y(v) { return T + (max - v) * (H - T - B) / (max - min); }
+        for (var i = 0; i < 4; i++) {
+          var gy = T + i * (H - T - B) / 3;
+          svg.appendChild(node('line', { x1: L, x2: W - R, y1: gy, y2: gy, 'class': 'grid-line' }));
+          var label = node('text', { x: L - 12, y: gy + 4, 'text-anchor': 'end', 'class': 'axis-label' });
+          label.textContent = Math.round(max - i * (max - min) / 3).toLocaleString('en-NG'); svg.appendChild(label);
+        }
+        var coords = points.map(function (p, idx) { return [x(idx), y(p.v)]; });
+        var lineD = coords.map(function (c, idx) { return (idx ? 'L' : 'M') + c[0].toFixed(1) + ',' + c[1].toFixed(1); }).join(' ');
+        var areaD = lineD + ' L' + coords[coords.length - 1][0].toFixed(1) + ',' + (H-B) + ' L' + coords[0][0].toFixed(1) + ',' + (H-B) + ' Z';
+        svg.appendChild(node('path', { d: areaD, 'class': 'area' }));
+        svg.appendChild(node('path', { d: lineD, 'class': 'series' }));
+        points.forEach(function (p, idx) {
+          var dot = node('circle', { cx: coords[idx][0], cy: coords[idx][1], r: 5, 'class': 'chart-dot', tabindex: '0', role: 'button', 'aria-label': p.label + ': ' + formatNumber(p.v) });
+          function show() {
+            var wrap = svg.parentElement.getBoundingClientRect();
+            var box = svg.getBoundingClientRect();
+            tooltip.textContent = p.label + ' · ' + formatNumber(p.v);
+            tooltip.style.left = ((coords[idx][0] / W) * box.width + box.left - wrap.left) + 'px';
+            tooltip.style.top = ((coords[idx][1] / H) * box.height + box.top - wrap.top) + 'px';
+            tooltip.classList.add('visible'); tooltip.setAttribute('aria-hidden', 'false');
+          }
+          function hide() { tooltip.classList.remove('visible'); tooltip.setAttribute('aria-hidden', 'true'); }
+          dot.addEventListener('mouseenter', show); dot.addEventListener('focus', show); dot.addEventListener('click', show); dot.addEventListener('mouseleave', hide); dot.addEventListener('blur', hide);
+          svg.appendChild(dot);
+        });
+        var first = node('text', { x: L, y: H - 17, 'text-anchor': 'start', 'class': 'axis-label' }); first.textContent = points[0].label; svg.appendChild(first);
+        var last = node('text', { x: W - R, y: H - 17, 'text-anchor': 'end', 'class': 'axis-label' }); last.textContent = points[points.length-1].label; svg.appendChild(last);
+        chartChange.textContent = changes[range];
+        periodLabel.textContent = points[0].label + ' — ' + points[points.length-1].label;
+      }
+      document.querySelectorAll('.range-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          document.querySelectorAll('.range-button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+          button.setAttribute('aria-pressed', 'true'); draw(button.getAttribute('data-range'));
+        });
+      });
+
+      var tables = {
+        gainers: [
+          { s: 'ZICHIS', c: 'Zichis Agro Allied Industries', p: '₦17.60', m: '+10.00%', d: 'up', pv: 17.60, cv: 10.00 },
+          { s: 'CMFC', c: 'Critical Minerals Financing Corp', p: '₦3.26', m: '+9.76%', d: 'up', pv: 3.26, cv: 9.76 },
+          { s: 'RTBRISCOE', c: 'R.T. Briscoe Nigeria', p: '₦10.70', m: '+9.74%', d: 'up', pv: 10.70, cv: 9.74 },
+          { s: 'ABCTRANS', c: 'ABC Transport', p: '₦5.10', m: '+9.68%', d: 'up', pv: 5.10, cv: 9.68 },
+          { s: 'ROYALEX', c: 'Royal Exchange', p: '₦1.08', m: '+9.09%', d: 'up', pv: 1.08, cv: 9.09 }
+        ],
+        losers: [
+          { s: 'TOTAL', c: 'TotalEnergies Marketing Nigeria', p: '₦518.40', m: '−10.00%', d: 'down', pv: 518.40, cv: -10.00 },
+          { s: 'LEGENDINT', c: 'Legend Internet', p: '₦3.50', m: '−9.09%', d: 'down', pv: 3.50, cv: -9.09 },
+          { s: 'HMCALL', c: 'Haldane McCall', p: '₦3.00', m: '−8.54%', d: 'down', pv: 3.00, cv: -8.54 },
+          { s: 'CAVERTON', c: 'Caverton Offshore Support Group', p: '₦4.00', m: '−8.05%', d: 'down', pv: 4.00, cv: -8.05 },
+          { s: 'FIRSTHOLDCO', c: 'First HoldCo', p: '₦156.60', m: '−5.09%', d: 'down', pv: 156.60, cv: -5.09 }
+        ],
+        volume: [
+          { s: 'FIDELITYBK', c: 'Fidelity Bank', p: '—', m: '212.77m', d: 'up', pv: null, cv: 212.77, vol: true },
+          { s: 'ACCESSCORP', c: 'Access Holdings', p: '—', m: '72.60m', d: 'up', pv: null, cv: 72.60, vol: true },
+          { s: 'TRANSCORP', c: 'Transnational Corporation', p: '—', m: '65.74m', d: 'up', pv: null, cv: 65.74, vol: true },
+          { s: 'CHAMS', c: 'Chams Holding Company', p: '—', m: '33.27m', d: 'up', pv: null, cv: 33.27, vol: true },
+          { s: 'UBA', c: 'United Bank for Africa', p: '—', m: '23.14m', d: 'up', pv: null, cv: 23.14, vol: true }
+        ]
+      };
+      var listNames = { gainers: 'Top gainer', losers: 'Top loser', volume: 'Most traded' };
+      var marketList = document.getElementById('market-list');
+      var searchInput = document.getElementById('stockSearch');
+      var watchCount = document.getElementById('watchCount');
+      var sortLabel = document.querySelector('.sort-move-label');
+      var state = { table: 'gainers', query: '', sortKey: null, sortDir: 1 };
+      var watchlist = [];
+      try { watchlist = JSON.parse(localStorage.getItem('ngxWatchlist') || '[]'); } catch (e) { watchlist = []; }
+      function saveWatchlist() { try { localStorage.setItem('ngxWatchlist', JSON.stringify(watchlist)); } catch (e) {} }
+      function isStarred(s) { return watchlist.indexOf(s) !== -1; }
+      function updateWatchCount() { watchCount.textContent = watchlist.length ? '(' + watchlist.length + ')' : ''; }
+      function findStock(s) {
+        for (var k in tables) {
+          for (var i = 0; i < tables[k].length; i++) {
+            if (tables[k][i].s === s) return { row: tables[k][i], list: k };
+          }
+        }
+        return null;
+      }
+      function toggleStar(s) {
+        var i = watchlist.indexOf(s);
+        if (i === -1) watchlist.push(s); else watchlist.splice(i, 1);
+        saveWatchlist(); updateWatchCount(); render();
+        if (currentModal === s) paintModalStar(s);
+      }
+      function currentRows() {
+        var rows;
+        if (state.query) {
+          var q = state.query.toLowerCase();
+          rows = [];
+          ['gainers', 'losers', 'volume'].forEach(function (k) {
+            tables[k].forEach(function (r) {
+              if (r.s.toLowerCase().indexOf(q) !== -1 || r.c.toLowerCase().indexOf(q) !== -1) {
+                rows.push({ row: r, list: k });
+              }
+            });
+          });
+        } else if (state.table === 'watchlist') {
+          rows = watchlist.map(findStock).filter(Boolean);
+        } else {
+          rows = tables[state.table].map(function (r) { return { row: r, list: state.table }; });
+        }
+        if (state.sortKey) {
+          var key = state.sortKey, dir = state.sortDir;
+          rows.sort(function (a, b) {
+            var av, bv;
+            if (key === 'symbol') { av = a.row.s; bv = b.row.s; return dir * (av < bv ? -1 : av > bv ? 1 : 0); }
+            if (key === 'price') {
+              av = a.row.pv; bv = b.row.pv;
+              if (av === null && bv === null) return 0;
+              if (av === null) return 1; if (bv === null) return -1;
+              return dir * (av - bv);
+            }
+            return dir * (a.row.cv - b.row.cv);
+          });
+        }
+        return rows;
+      }
+      function paintTabs() {
+        document.querySelectorAll('.switcher button').forEach(function (b) {
+          b.setAttribute('aria-selected', state.query ? 'false' : (b.getAttribute('data-table') === state.table ? 'true' : 'false'));
+        });
+      }
+      function paintSortArrows() {
+        document.querySelectorAll('.sort-bar button').forEach(function (b) {
+          var arrow = b.querySelector('.arrow');
+          arrow.textContent = b.getAttribute('data-sort') === state.sortKey ? (state.sortDir === 1 ? ' ▲' : ' ▼') : '';
+        });
+      }
+      function render() {
+        paintTabs();
+        marketList.innerHTML = '';
+        var rows = currentRows();
+        sortLabel.textContent = state.table === 'volume' && !state.query ? 'Volume' : 'Change';
+        if (!rows.length) {
+          var empty = document.createElement('div'); empty.className = 'empty-note';
+          empty.textContent = (state.table === 'watchlist' && !state.query)
+            ? 'Your watchlist is empty. Tap the ☆ on any stock to pin it here — it stays saved in this browser.'
+            : 'No stocks match your search.';
+          marketList.appendChild(empty);
+          return;
+        }
+        rows.forEach(function (entry, i) {
+          var r = entry.row;
+          var item = document.createElement('div'); item.className = 'market-row';
+          var star = document.createElement('button'); star.type = 'button'; star.className = 'star';
+          var starred = isStarred(r.s);
+          star.setAttribute('aria-pressed', starred ? 'true' : 'false');
+          star.setAttribute('aria-label', (starred ? 'Remove ' : 'Add ') + r.s + (starred ? ' from' : ' to') + ' watchlist');
+          star.textContent = starred ? '★' : '☆';
+          star.addEventListener('click', function (ev) { ev.stopPropagation(); toggleStar(r.s); });
+          var main = document.createElement('button'); main.type = 'button'; main.className = 'row-main';
+          main.setAttribute('aria-label', r.s + ', ' + r.c + ' — view details');
+          var symbol = document.createElement('span'); symbol.className = 'symbol'; symbol.textContent = (i + 1) + '. ' + r.s;
+          if (state.query || state.table === 'watchlist') {
+            var tag = document.createElement('span'); tag.className = 'list-tag'; tag.textContent = listNames[entry.list];
+            symbol.appendChild(tag);
+          }
+          var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
+          main.appendChild(symbol); main.appendChild(company);
+          main.addEventListener('click', function () { openModal(r.s, main); });
+          var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
+          var move = document.createElement('div'); move.className = 'move ' + r.d; move.textContent = r.m;
+          item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
+          marketList.appendChild(item);
+        });
+      }
+      document.querySelectorAll('.sort-bar button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = b.getAttribute('data-sort');
+          if (state.sortKey === key) { state.sortDir *= -1; }
+          else { state.sortKey = key; state.sortDir = key === 'symbol' ? 1 : -1; }
+          paintSortArrows(); render();
+        });
+      });
+      document.querySelectorAll('.switcher button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          state.table = button.getAttribute('data-table');
+          state.query = ''; searchInput.value = '';
+          state.sortKey = null; paintSortArrows();
+          marketList.setAttribute('aria-labelledby', button.id);
+          render();
+        });
+      });
+      var searchTimer = null;
+      searchInput.addEventListener('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () { state.query = searchInput.value.trim(); render(); }, 160);
+      });
+      var backdrop = document.getElementById('modalBackdrop');
+      var modalClose = document.getElementById('modalClose');
+      var modalStar = document.getElementById('modalStar');
+      var currentModal = null, lastFocused = null;
+      function paintModalStar(s) {
+        modalStar.textContent = isStarred(s) ? '★ Starred — tap to remove from watchlist' : '☆ Add to watchlist';
+      }
+      function openModal(s, opener) {
+        var found = findStock(s); if (!found) return;
+        var r = found.row;
+        currentModal = s; lastFocused = opener || document.activeElement;
+        document.getElementById('modalList').textContent = listNames[found.list] + ' · Snapshot 25 Sep 2026';
+        document.getElementById('modalSymbol').textContent = r.s;
+        document.getElementById('modalCompany').textContent = r.c;
+        document.getElementById('modalPrice').textContent = r.p;
+        document.getElementById('modalMoveLabel').textContent = r.vol ? 'Volume' : 'Day change';
+        var mm = document.getElementById('modalMove');
+        mm.textContent = r.m + (r.vol ? ' shares' : '');
+        mm.style.color = r.d === 'up' ? 'var(--green-strong)' : 'var(--red)';
+        paintModalStar(s);
+        backdrop.hidden = false;
+        document.body.style.overflow = 'hidden';
+        modalClose.focus();
+      }
+      function closeModal() {
+        backdrop.hidden = true;
+        document.body.style.overflow = '';
+        currentModal = null;
+        if (lastFocused && lastFocused.focus) lastFocused.focus();
+      }
+      modalClose.addEventListener('click', closeModal);
+      backdrop.addEventListener('click', function (ev) { if (ev.target === backdrop) closeModal(); });
+      document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !backdrop.hidden) closeModal(); });
+      modalStar.addEventListener('click', function () { if (currentModal) toggleStar(currentModal); });
+      updateWatchCount();
+      draw('YTD');
+      render();
+    }());
+  </script>
+</body>
+</html>
