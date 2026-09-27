@@ -135,6 +135,33 @@
       if (/portfolio$/.test(here)) a.className = 'active';
       nav.appendChild(a);
     }());
+    /* ---- Nav link icons: every header link gets a small inline SVG icon. ---- */
+    (function navIcons() {
+      var S = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+      var ICONS = {
+        'home': S + '<path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+        'stocks': S + '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
+        'screener': S + '<path d="M4 5h16l-6 7v5l-4 2v-7z"/></svg>',
+        'offers': S + '<path d="M20.6 13.4 12 22 2 12V2h10l8.6 8.6a2 2 0 0 0 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+        'calendar': S + '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+        'news': S + '<path d="M4 6h13v12H6a2 2 0 0 1-2-2z"/><path d="M17 8h2a1 1 0 0 1 1 1v9a2 2 0 0 1-2 2H4"/><path d="M7 10h7M7 14h5"/></svg>',
+        'learn': S + '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>',
+        'portfolio': S + '<path d="M21.2 15.9A10 10 0 1 1 8 2.8"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>'
+      };
+      function paint() {
+        var nav = document.querySelector('.site-nav');
+        if (!nav) return;
+        Array.prototype.forEach.call(nav.querySelectorAll('a'), function (a) {
+          if (a.querySelector('svg')) return;
+          var key = a.textContent.trim().toLowerCase();
+          if (ICONS[key]) a.insertAdjacentHTML('afterbegin', ICONS[key]);
+        });
+      }
+      paint();
+      /* Re-run after any late nav injection so new links get icons too. */
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paint);
+      else setTimeout(paint, 0);
+    }());
     (function () {
       
       var rangeSessions = { '1W': 5, '1M': 22, '3M': 66, '6M': 132, 'YTD': 'ytd' };
