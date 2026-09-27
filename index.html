@@ -215,6 +215,19 @@
     .news-card h3 { margin: 22px 0 10px; font: 650 22px/1.12 "Newsreader", serif; transition: color .15s ease; }
     .news-card p { color: var(--muted); font-size: 13px; line-height: 1.55; }
     .news-card .arrow { margin-top: auto; color: var(--green-strong); font-size: 18px; }
+    .ad-slot { display: none; margin: 0 auto; max-width: 100%; text-align: center; }
+    .ad-slot.ad-live { display: block; }
+    .ad-label { font: 500 9px/1 "IBM Plex Mono", monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .ad-leaderboard { padding: 24px 0 8px; }
+    .ad-leaderboard ins.adsbygoogle { min-height: 90px; }
+    .ad-rectangle { padding: 12px 0; }
+    .ad-rectangle ins.adsbygoogle { min-height: 250px; max-width: 336px; margin: 0 auto; }
+    .ad-sticky-mobile { display: none; }
+    @media (max-width: 620px) {
+      .ad-sticky-mobile.ad-live { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 300; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
+      .ad-sticky-mobile .ad-close { position: absolute; top: -14px; right: 10px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 15px; line-height: 1; cursor: pointer; }
+      body.ad-sticky-on { padding-bottom: 78px; }
+    }
     .news-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
     .news-sector { display: inline-block; padding: 2px 9px; border: 1px solid var(--green); border-radius: 20px; color: var(--green-strong); font-weight: 700; white-space: nowrap; }
     .learn-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: stretch; }
@@ -291,6 +304,9 @@
       *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
     }
   </style>
+  <!-- Google AdSense: replace ca-pub-XXXXXXXXXXXXXXXX with your publisher ID once approved -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
 </head>
 <body>
   <div class="shell">
@@ -324,6 +340,17 @@
           <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>
         </aside>
       </section>
+
+      <!-- Ad slot: leaderboard. Replace data-ad-client and data-ad-slot with your AdSense IDs after approval. -->
+      <div class="ad-slot ad-leaderboard" aria-hidden="true">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="1111111111"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
 
       <section class="metrics" aria-label="Market summary">
         <article class="metric"><span class="metric-label">Market cap</span><span class="metric-value">₦163.655tn</span><span class="metric-detail">−₦24bn on the day</span></article>
@@ -391,6 +418,17 @@
           </article>
         </div>
       </section>
+
+      <!-- Ad slot: rectangle. Replace data-ad-client and data-ad-slot with your AdSense IDs after approval. -->
+      <div class="ad-slot ad-rectangle" aria-hidden="true">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="2222222222"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
 
       <section class="section" id="directory">
         <div class="section-heading">
@@ -468,6 +506,17 @@
 
         </div>
       </section>
+
+      <!-- Ad slot: leaderboard. Replace data-ad-client and data-ad-slot with your AdSense IDs after approval. -->
+      <div class="ad-slot ad-leaderboard" aria-hidden="true">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+             data-ad-slot="3333333333"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
 
       <section class="section" id="learn">
         <div class="section-heading">
@@ -1065,11 +1114,52 @@
         newsChips.appendChild(b);
       });
       renderNews();
+      var stickyClosed = false;
+      function revealAds() {
+        var anySticky = false;
+        document.querySelectorAll('.ad-slot').forEach(function (slot) {
+          if (slot.id === 'adSticky' && stickyClosed) return;
+          if (slot.querySelector('iframe')) {
+            slot.classList.add('ad-live');
+            if (slot.id === 'adSticky') anySticky = true;
+          }
+        });
+        document.body.classList.toggle('ad-sticky-on', anySticky);
+      }
+      var adTries = 0;
+      function pollAds() {
+        revealAds();
+        if (++adTries < 15 && !document.querySelector('.ad-slot.ad-live')) setTimeout(pollAds, 1000);
+      }
+      window.addEventListener('load', function () { setTimeout(pollAds, 1500); });
+      var adClose = document.getElementById('adStickyClose');
+      if (adClose) adClose.addEventListener('click', function () {
+        stickyClosed = true;
+        document.getElementById('adSticky').classList.remove('ad-live');
+        document.body.classList.remove('ad-sticky-on');
+      });
       updateWatchCount();
       draw('YTD');
       render();
       renderDirectory();
     }());
   </script>
+    <!-- Ad slot: sticky mobile banner (320x50). Dismissible. Replace IDs after AdSense approval. -->
+    <div class="ad-slot ad-sticky-mobile" id="adSticky" aria-hidden="true">
+      <button class="ad-close" id="adStickyClose" type="button" aria-label="Close advertisement">×</button>
+      <div class="ad-label">Advertisement</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="4444444444"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+    <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 </body>
 </html>

@@ -1,0 +1,2 @@
+# Nairaview ads.txt - replace pub-XXXXXXXXXXXXXXXX with your AdSense publisher ID after approval
+google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f45b96eda5247b47
