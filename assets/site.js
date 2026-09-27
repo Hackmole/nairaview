@@ -314,13 +314,13 @@
       if (modalStar) modalStar.addEventListener('click', function () { if (currentModal) toggleStar(currentModal); });
       var newsState = { sector: 'All' };
       var newsChips = document.getElementById('newsChips');
-      var newsCards = Array.prototype.slice.call(document.querySelectorAll('.news-card'));
+      function getNewsCards() { return Array.prototype.slice.call(document.querySelectorAll('.news-card')); }
       var newsSectors = ['All', 'Market-wide', 'Banking', 'Insurance', 'Oil & Gas', 'Consumer Goods', 'Industrial Goods'];
       var newsKeys = { 'All': 'all', 'Market-wide': 'market', 'Banking': 'banking', 'Insurance': 'insurance', 'Oil & Gas': 'oilgas', 'Consumer Goods': 'consumer', 'Industrial Goods': 'industrial' };
       function renderNews() {
         var key = newsKeys[newsState.sector];
         var n = 0;
-        newsCards.forEach(function (c) {
+        getNewsCards().forEach(function (c) {
           var show = key === 'all' || c.getAttribute('data-sector') === key;
           c.style.display = show ? '' : 'none';
           if (show) n++;
@@ -339,6 +339,47 @@
         newsChips.appendChild(b);
       });
       renderNews();
+      // Live headlines from the auto newsroom (worker refreshes the feed every few hours).
+      (function loadLiveNews() {
+        var grid = document.getElementById('liveNewsGrid');
+        if (!grid) return;
+        var section = document.getElementById('liveNewsSection');
+        var updatedEl = document.getElementById('liveNewsUpdated');
+        var sectorKey = { 'market-wide': 'market', 'banking': 'banking', 'insurance': 'insurance', 'oil & gas': 'oilgas', 'consumer goods': 'consumer', 'industrial goods': 'industrial' };
+        var sectorLabel = { 'market-wide': 'Market-wide', 'banking': 'Banking', 'insurance': 'Insurance', 'oil & gas': 'Oil & Gas', 'consumer goods': 'Consumer Goods', 'industrial goods': 'Industrial Goods' };
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+        function fmtDate(ts) {
+          var d = new Date(ts);
+          var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+          return d.getDate() + ' ' + months[d.getMonth()];
+        }
+        function ago(ts) {
+          var m = Math.round((Date.now() - ts) / 60000);
+          if (m < 1) return 'just now';
+          if (m < 60) return m + 'm ago';
+          var h = Math.round(m / 60);
+          return h < 24 ? h + 'h ago' : Math.round(h / 24) + 'd ago';
+        }
+        fetch('https://nairaview-api.meetomidiora.workers.dev/api/news')
+          .then(function (r) { if (!r.ok) throw new Error('news feed unavailable'); return r.json(); })
+          .then(function (data) {
+            var items = (data && data.items) || [];
+            if (!items.length) { if (section) section.style.display = 'none'; return; }
+            var html = '';
+            items.slice(0, 24).forEach(function (it) {
+              var key = sectorKey[it.sector] || 'market';
+              html += '<a class="news-card" data-sector="' + key + '" href="' + esc(it.link) + '" target="_blank" rel="noopener noreferrer">'
+                + '<div class="news-meta"><span>' + esc((it.source || '').toUpperCase()) + '</span><span>' + esc(fmtDate(it.published_at)) + '</span><span class="news-sector">' + esc(sectorLabel[it.sector] || 'Market-wide') + '</span></div>'
+                + '<h3>' + esc(it.title) + '</h3>'
+                + (it.description ? '<p>' + esc(it.description) + '</p>' : '')
+                + '<span class="arrow" aria-hidden="true">\u2197</span></a>';
+            });
+            grid.innerHTML = html;
+            if (updatedEl && data.updated_at) updatedEl.textContent = 'Updated ' + ago(data.updated_at) + ' \u00B7 headlines refresh automatically';
+            renderNews();
+          })
+          .catch(function () { if (section) section.style.display = 'none'; });
+      })();
       document.querySelectorAll('.news-card[data-tickers]').forEach(function (card) {
         var tickers = card.getAttribute('data-tickers').split(',');
         var wrap = document.createElement('div');
