@@ -10,7 +10,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Account — Sign up or log in | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927g" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927h" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -46,24 +46,15 @@
         </div>
 
         <div id="authForms" class="auth-wrap" hidden>
-          <div class="auth-tabs" role="tablist">
-            <button type="button" class="sector-chip" id="tabLogin" aria-pressed="true">Log in</button>
-            <button type="button" class="sector-chip" id="tabSignup" aria-pressed="false">Sign up</button>
-          </div>
-
-          <form id="loginForm" class="auth-form">
+          <form id="authForm" class="auth-form">
             <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" /></label>
-            <label>Password<input type="password" name="password" required autocomplete="current-password" placeholder="Your password" /></label>
-            <p class="form-error" id="loginError" role="alert" hidden></p>
-            <button type="submit" class="btn-primary">Log in</button>
-          </form>
-
-          <form id="signupForm" class="auth-form" hidden>
-            <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" /></label>
-            <label>Password<input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" /></label>
-            <p class="form-error" id="signupError" role="alert" hidden></p>
-            <button type="submit" class="btn-primary">Create account</button>
-            <p class="form-note">By signing up you agree to keep your login private. We store only your email and a scrambled password &mdash; never your broker details.</p>
+            <label>Password<input type="password" name="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters" /></label>
+            <p class="form-error" id="authError" role="alert" hidden></p>
+            <div class="auth-actions">
+              <button type="submit" class="btn-primary" id="btnLogin">Log in</button>
+              <button type="submit" class="btn-ghost" id="btnSignup">Create account</button>
+            </div>
+            <p class="form-note">New to Nairaview? Tap <strong>Create account</strong> &mdash; it takes a minute. We store only your email and a scrambled password &mdash; never your broker details.</p>
           </form>
         </div>
 
@@ -95,25 +86,16 @@
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
   </div>
-  <script src="assets/data.js?v=20260927g"></script>
-  <script src="assets/site.js?v=20260927g"></script>
+  <script src="assets/data.js?v=20260927h"></script>
+  <script src="assets/site.js?v=20260927h"></script>
   <script>
   (function () {
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
-    var loginForm = document.getElementById('loginForm');
-    var signupForm = document.getElementById('signupForm');
-    var tabLogin = document.getElementById('tabLogin');
-    var tabSignup = document.getElementById('tabSignup');
-
-    function showTab(which) {
-      var login = which === 'login';
-      loginForm.hidden = !login;
-      signupForm.hidden = login;
-      tabLogin.setAttribute('aria-pressed', login ? 'true' : 'false');
-      tabSignup.setAttribute('aria-pressed', login ? 'false' : 'true');
-    }
-    tabLogin.addEventListener('click', function () { showTab('login'); });
-    tabSignup.addEventListener('click', function () { showTab('signup'); });
+    var authForm = document.getElementById('authForm');
+    // Which submit button was pressed: click fires before submit, so this is reliable.
+    var authMode = 'login';
+    document.getElementById('btnLogin').addEventListener('click', function () { authMode = 'login'; });
+    document.getElementById('btnSignup').addEventListener('click', function () { authMode = 'signup'; });
 
     function fail(id, msg) {
       var el = document.getElementById(id);
@@ -121,9 +103,12 @@
       el.hidden = false;
     }
 
-    async function submit(url, form, errId) {
+    async function submit(url, errId) {
       document.getElementById(errId).hidden = true;
-      var data = { email: form.email.value.trim(), password: form.password.value };
+      var data = {
+        email: authForm.querySelector('[name="email"]').value.trim(),
+        password: authForm.querySelector('[name="password"]').value,
+      };
       try {
         var res = await fetch(url, {
           method: 'POST',
@@ -138,8 +123,10 @@
         fail(errId, 'Could not reach the server. Check your connection and try again.');
       }
     }
-    loginForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit(API + '/api/auth/login', loginForm, 'loginError'); });
-    signupForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit(API + '/api/auth/signup', signupForm, 'signupError'); });
+    authForm.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      submit(authMode === 'signup' ? API + '/api/auth/signup' : API + '/api/auth/login', 'authError');
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async function () {
       try { await fetch(API + '/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch (e) {}
