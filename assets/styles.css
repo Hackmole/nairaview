@@ -393,6 +393,19 @@
 .num.down { color: #c0392b; }
 .ticker-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ticker-chip { font: 600 11px "IBM Plex Mono", monospace; background: var(--green-soft); color: var(--green-strong); border-radius: 20px; padding: 4px 10px; cursor: pointer; }
+.stock-price { font: 600 34px "IBM Plex Mono", monospace; color: var(--green-strong); margin: 10px 0 2px; }
+.asof { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 6px; }
+.fact { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
+.fact span { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; }
+.fact strong { font-size: 15.5px; }
+.health { margin: 20px 0; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; background: var(--surface); }
+.health h3 { margin: 0 0 4px; }
+.health-note { font-size: 12.5px; color: var(--muted); margin: 0 0 10px; }
+.health-row { display: grid; grid-template-columns: 92px 1fr 34px; gap: 10px; align-items: center; margin: 9px 0; font-size: 13.5px; }
+.health-bar { height: 8px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.health-bar i { display: block; height: 100%; border-radius: 6px; }
+.health-score { font-family: "IBM Plex Mono", monospace; text-align: right; font-size: 12.5px; }
 .ticker-chip:hover { text-decoration: underline; }
 @media (max-width: 700px) { .movers-duo { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .fact-grid { grid-template-columns: repeat(2, 1fr); } }
