@@ -1,2 +1,2 @@
-# Nairaview ads.txt - replace pub-XXXXXXXXXXXXXXXX with your AdSense publisher ID after approval
-google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f45b96eda5247b47
+# Nairaview ads.txt — Ezoic seller entries will be pasted here after account approval.
+# (Copy the lines from your Ezoic dashboard > Settings > Ads.txt manager.)
