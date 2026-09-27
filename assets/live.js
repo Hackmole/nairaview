@@ -103,7 +103,7 @@
     if (!hist || !hist.length || typeof asiHistory === 'undefined') return;
     asiHistory.length = 0;
     hist.forEach(function (p) {
-      asiHistory.push({ d: String(p.date).slice(0, 10), label: fmtDate(p.date) + ' ' + String(p.date).slice(0, 4), v: Number(p.value) });
+      asiHistory.push({ d: String(p.date).slice(0, 10), label: fmtDate(p.date), v: Number(p.value) });
     });
     /* YTD computed from the first session of the current year (worker supplies
        the base; the 120-point chart window alone would not reach January). */
