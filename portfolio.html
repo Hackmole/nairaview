@@ -51,9 +51,9 @@
           <div class="facts" id="portfolioTotals">
             <div class="fact"><span>Total value</span><strong id="totValue">&mdash;</strong></div>
             <div class="fact"><span>Total cost</span><strong id="totCost">&mdash;</strong></div>
-            <div class="fact"><span>Gain / loss</span><strong id="totGain">&mdash;</strong></div>
+            <div class="fact"><span>Gain / loss (covered)</span><strong id="totGain">&mdash;</strong></div>
           </div>
-          <p class="asof">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only.</p>
+          <p class="asof">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only, and gain/loss is calculated on covered holdings only.</p>
 
           <div class="movers-col">
             <table class="movers-table" id="holdingsTable">
@@ -80,6 +80,7 @@
   <script src="assets/site.js"></script>
   <script>
   (function () {
+    var API = 'https://nairaview-api.meetomidiora.workers.dev';
     // Snapshot prices, 25 Sep 2026 close (verified research).
     var PRICES = { DANGCEM: 1066.70, SEPLAT: 16000.10, GTCO: 137, ZENITHBANK: 134.90, FIRSTHOLDCO: 156.60, UBA: 45.20, ACCESSCORP: 31.55, STANBIC: 164, TRANSCORP: 37, NESTLE: 2950, NB: 76 };
     var PAGES = { DANGCEM: 1, SEPLAT: 1, GTCO: 1, ZENITHBANK: 1, FIRSTHOLDCO: 1, UBA: 1, ACCESSCORP: 1, STANBIC: 1, TRANSCORP: 1, NESTLE: 1, NB: 1 };
@@ -89,7 +90,7 @@
     }
 
     function load() {
-      fetch('/api/holdings').then(function (res) {
+      fetch(API + '/api/holdings', { credentials: 'include' }).then(function (res) {
         if (res.status === 401) { document.getElementById('needLogin').hidden = false; return; }
         if (!res.ok) throw new Error('down');
         return res.json();
@@ -105,7 +106,7 @@
     function render(holdings) {
       var table = document.getElementById('holdingsTable');
       while (table.rows.length > 1) table.deleteRow(1);
-      var totValue = 0, totCost = 0, valued = 0;
+      var totValue = 0, totCost = 0, totCoveredCost = 0, valued = false;
       holdings.forEach(function (h) {
         var price = PRICES[h.ticker];
         var cost = h.shares * h.avg_cost;
@@ -113,7 +114,7 @@
         var valueCell = '&mdash;', gainCell = '&mdash;';
         if (price !== undefined) {
           var value = h.shares * price;
-          totValue += value; valued += value;
+          totValue += value; totCoveredCost += cost; valued = true;
           var gain = value - cost;
           valueCell = naira(value);
           gainCell = '<span style="color:' + (gain >= 0 ? 'var(--green-strong)' : 'var(--red)') + '">' + (gain >= 0 ? '+' : '') + naira(gain) + '</span>';
@@ -132,7 +133,7 @@
       document.getElementById('emptyMsg').hidden = holdings.length > 0;
       document.getElementById('totValue').textContent = valued ? naira(totValue) : '\u2014';
       document.getElementById('totCost').textContent = naira(totCost);
-      var tg = totValue - totCost;
+      var tg = totValue - totCoveredCost;
       var tgEl = document.getElementById('totGain');
       tgEl.textContent = valued ? (tg >= 0 ? '+' : '') + naira(tg) : '\u2014';
       tgEl.style.color = valued ? (tg >= 0 ? 'var(--green-strong)' : 'var(--red)') : '';
@@ -140,7 +141,7 @@
       table.querySelectorAll('[data-del]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           if (!confirm('Remove ' + btn.getAttribute('data-del') + ' from your portfolio?')) return;
-          fetch('/api/holdings?ticker=' + encodeURIComponent(btn.getAttribute('data-del')), { method: 'DELETE' })
+          fetch(API + '/api/holdings?ticker=' + encodeURIComponent(btn.getAttribute('data-del')), { method: 'DELETE', credentials: 'include' })
             .then(function () { load(); });
         });
       });
@@ -156,8 +157,9 @@
         shares: parseFloat(f.shares.value),
         avg_cost: parseFloat(f.avg_cost.value),
       };
-      fetch('/api/holdings', {
+      fetch(API + '/api/holdings', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })

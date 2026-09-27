@@ -67,6 +67,12 @@
 
         <div id="authState" class="auth-wrap" hidden>
           <p class="guide-p">Signed in as <strong id="authEmail"></strong>.</p>
+          <form id="profileForm" class="auth-form">
+            <label>Display name (optional)<input type="text" id="profileName" maxlength="40" placeholder="What should we call you?" autocomplete="nickname" /></label>
+            <p class="form-error" id="profileError" role="alert" hidden></p>
+            <p class="form-note" id="profileSaved" hidden>Saved.</p>
+            <button type="submit" class="btn-primary">Save profile</button>
+          </form>
           <p>
             <a class="btn-primary" href="portfolio">Open my portfolio</a>
             <button type="button" class="btn-ghost" id="logoutBtn">Log out</button>
@@ -79,7 +85,7 @@
 
         <h2 class="guide-h2">Privacy, briefly</h2>
         <ul class="guide-list">
-          <li>We store your email, a salted-and-hashed password (we cannot see your actual password), and the holdings you enter.</li>
+          <li>We store your email, an optional display name, a salted-and-hashed password (we cannot see your actual password), and the holdings you enter.</li>
           <li>Your portfolio is visible only to you, only while logged in.</li>
           <li>We never ask for your broker login, bank details, or CSCS credentials &mdash; anyone who does is not us. See <a href="verify-investment-platform">how to spot scams</a>.</li>
         </ul>
@@ -91,6 +97,7 @@
   <script src="assets/site.js"></script>
   <script>
   (function () {
+    var API = 'https://nairaview-api.meetomidiora.workers.dev';
     var loginForm = document.getElementById('loginForm');
     var signupForm = document.getElementById('signupForm');
     var tabLogin = document.getElementById('tabLogin');
@@ -118,6 +125,7 @@
       try {
         var res = await fetch(url, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
@@ -128,22 +136,43 @@
         fail(errId, 'Could not reach the server. Check your connection and try again.');
       }
     }
-    loginForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit('/api/auth/login', loginForm, 'loginError'); });
-    signupForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit('/api/auth/signup', signupForm, 'signupError'); });
+    loginForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit(API + '/api/auth/login', loginForm, 'loginError'); });
+    signupForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit(API + '/api/auth/signup', signupForm, 'signupError'); });
 
     document.getElementById('logoutBtn').addEventListener('click', async function () {
-      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+      try { await fetch(API + '/api/auth/logout', { method: 'POST', credentials: 'include' }); } catch (e) {}
       window.location.reload();
     });
 
+    document.getElementById('profileForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var err = document.getElementById('profileError');
+      var saved = document.getElementById('profileSaved');
+      err.hidden = true; saved.hidden = true;
+      fetch(API + '/api/auth/profile', {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ display_name: document.getElementById('profileName').value }),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { err.textContent = r.out.error || 'Could not save.'; err.hidden = false; return; }
+          saved.hidden = false;
+        }).catch(function () {
+          err.textContent = 'Could not reach the server.';
+          err.hidden = false;
+        });
+    });
+
     // Initial state
-    fetch('/api/auth/me').then(function (res) {
+    fetch(API + '/api/auth/me', { credentials: 'include' }).then(function (res) {
       if (res.status === 503) {
         document.getElementById('authDown').hidden = false;
         return;
       }
       if (res.ok) return res.json().then(function (me) {
-        document.getElementById('authEmail').textContent = me.email;
+        document.getElementById('authEmail').textContent = me.display_name ? me.display_name + ' (' + me.email + ')' : me.email;
+        document.getElementById('profileName').value = me.display_name || '';
         document.getElementById('authState').hidden = false;
       });
       document.getElementById('authForms').hidden = false;
