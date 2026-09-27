@@ -448,6 +448,12 @@
           ? 'No snapshot price held for this stock. <a href="https://ngnmarket.com/stocks/' + s + '" target="_blank" rel="noopener noreferrer">See its live quote on NGN Market ↗</a>'
           : 'Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a>';
         document.getElementById('modalLive').href = 'https://ngnmarket.com/stocks/' + s;
+        var mpEl = document.getElementById('modalPage');
+        if (mpEl) {
+          var hasPage = !!(window.NV_STOCK_PAGES && window.NV_STOCK_PAGES[s]);
+          mpEl.hidden = !hasPage;
+          if (hasPage) mpEl.href = 'stocks/' + s;
+        }
         paintModalStar(s);
         backdrop.hidden = false;
         document.body.style.overflow = 'hidden';
