@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="description" content="Screen Nigerian Exchange stocks by gainers, losers, most traded, sector, price and day change." />
+  <link rel="icon" href="data:," />
+  <title>NGX Stock Screener — Filter Nigerian Stocks | Nairaview</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">Naira<span>view</span></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="stocks.html">Stocks</a>
+          <a href="screener.html" class="active">Screener</a>
+          <a href="offers.html">Offers</a>
+          <a href="calendar.html">Calendar</a>
+          <a href="news.html">News</a>
+          <a href="learn.html">Learn</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="live-ticker" role="region" aria-label="Live NGX price ticker">
+          <iframe
+            src="https://ngnmarket.com/widget/marquee"
+            width="100%"
+            height="60"
+            frameborder="0"
+            scrolling="no"
+            style="border:none;"
+            title="Live NGX market ticker"
+          ></iframe>
+        </div>
+    <div class="topline">
+          <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+          <span>SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
+        </div>
+    <main>
+      <section class="section" id="screener">
+              <div class="section-heading">
+                <h2>Stock screener</h2>
+                <p>Filter the market by mover type, sector, price and day&rsquo;s change. Price and change filters use the 25 September 2026 snapshot figures.</p>
+              </div>
+              <div class="screen-controls">
+                <div class="screen-chips" id="screenMover" role="group" aria-label="Filter by mover type"></div>
+                <div class="screen-fields">
+                  <label>Sector
+                    <select id="screenSector" aria-label="Filter by sector"></select>
+                  </label>
+                  <label>Min price (&#8358;)
+                    <input id="screenMinP" type="number" min="0" step="0.01" placeholder="0" inputmode="decimal">
+                  </label>
+                  <label>Max price (&#8358;)
+                    <input id="screenMaxP" type="number" min="0" step="0.01" placeholder="Any" inputmode="decimal">
+                  </label>
+                  <label>Min % change
+                    <input id="screenMinC" type="number" step="0.1" placeholder="-10" inputmode="decimal">
+                  </label>
+                  <label>Max % change
+                    <input id="screenMaxC" type="number" step="0.1" placeholder="+10" inputmode="decimal">
+                  </label>
+                  <label>Sort by
+                    <select id="screenSort" aria-label="Sort results">
+                      <option value="chg-desc">% change &darr;</option>
+                      <option value="chg-asc">% change &uarr;</option>
+                      <option value="price-desc">Price &darr;</option>
+                      <option value="price-asc">Price &uarr;</option>
+                      <option value="vol-desc">Volume &darr;</option>
+                      <option value="name">Name A&ndash;Z</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="screen-actions">
+                  <button type="button" class="ghost-btn" id="screenReset">Reset filters</button>
+                  <div class="dir-count" id="screenCount" aria-live="polite"></div>
+                </div>
+              </div>
+              <div class="directory-list" id="screenList"></div>
+            </section>
+    </main>
+    <footer class="footer"><strong>Data fixed at market close · 25 Sep 2026</strong><span>Prices may have changed. Confirm before acting.</span></footer>
+  </div>
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalSymbol">
+      <button class="modal-close" id="modalClose" aria-label="Close stock details">×</button>
+      <div class="modal-eyebrow" id="modalList">Snapshot · 25 Sep 2026</div>
+      <div class="modal-symbol" id="modalSymbol"></div>
+      <div class="modal-company" id="modalCompany"></div>
+      <div class="modal-grid">
+        <div class="modal-cell"><span>Price</span><strong id="modalPrice"></strong></div>
+        <div class="modal-cell"><span id="modalMoveLabel">Day change</span><strong id="modalMove"></strong></div>
+      </div>
+      <p class="modal-note" id="modalNote">Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
+      <a class="modal-live" id="modalLive" href="#" target="_blank" rel="noopener noreferrer">Live chart &amp; full quote ↗</a>
+      <button class="modal-star" id="modalStar" type="button"></button>
+    </div>
+  </div>
+
+
+    <!-- Ad slot: sticky mobile banner (320x50). Dismissible. Replace IDs after AdSense approval. -->
+    <div class="ad-slot ad-sticky-mobile" id="adSticky" aria-hidden="true">
+      <button class="ad-close" id="adStickyClose" type="button" aria-label="Close advertisement">×</button>
+      <div class="ad-label">Advertisement</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="4444444444"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  <script src="assets/data.js"></script>
+  <script src="assets/site.js"></script>
+  <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</body>
+</html>

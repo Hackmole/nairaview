@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="description" content="Nairaview tracks the Nigerian Exchange: ASI snapshot, top gainers and losers, a market heatmap, every listed stock, public offers, dividends calendar and market news." />
+  <link rel="icon" href="data:," />
+  <title>Nairaview — Nigerian Stock Exchange (NGX) Market Data, News & Tools</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">Naira<span>view</span></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="index.html" class="active">Home</a>
+          <a href="stocks.html">Stocks</a>
+          <a href="screener.html">Screener</a>
+          <a href="offers.html">Offers</a>
+          <a href="calendar.html">Calendar</a>
+          <a href="news.html">News</a>
+          <a href="learn.html">Learn</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="live-ticker" role="region" aria-label="Live NGX price ticker">
+          <iframe
+            src="https://ngnmarket.com/widget/marquee"
+            width="100%"
+            height="60"
+            frameborder="0"
+            scrolling="no"
+            style="border:none;"
+            title="Live NGX market ticker"
+          ></iframe>
+        </div>
+    <div class="topline">
+          <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+          <span>SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
+        </div>
+    <main>
+      <section class="hero" aria-labelledby="market-heading">
+              <div>
+                <div class="eyebrow">NGX All-Share Index</div>
+                <h1 id="market-heading">252,113.41</h1>
+                <div class="ticker-name">Nigerian Exchange equities benchmark</div>
+                <div class="hero-move"><span class="down">−0.015%</span><span class="points">−36.60 points today</span></div>
+              </div>
+              <aside class="snapshot-note">
+                <strong>A close-of-market snapshot</strong>
+                <p>The ticker tape above streams live prices. Figures in the sections below are fixed at 25 September 2026 — for newer official quotes, use NGX’s market page, where prices are shown with a 30-minute delay.</p>
+                <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>
+              </aside>
+            </section>
+            <!-- Ad slot: leaderboard. Replace data-ad-client and data-ad-slot with your AdSense IDs after approval. -->
+            <div class="ad-slot ad-leaderboard" aria-hidden="true">
+              <div class="ad-label">Advertisement</div>
+              <ins class="adsbygoogle"
+                   style="display:block"
+                   data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                   data-ad-slot="1111111111"
+                   data-ad-format="auto"
+                   data-full-width-responsive="true"></ins>
+            </div>
+      <section class="metrics" aria-label="Market summary">
+              <article class="metric"><span class="metric-label">Market cap</span><span class="metric-value">₦163.655tn</span><span class="metric-detail">−₦24bn on the day</span></article>
+              <article class="metric"><span class="metric-label">Volume</span><span class="metric-value">708.81m</span><span class="metric-detail">shares traded</span></article>
+              <article class="metric"><span class="metric-label">Deals</span><span class="metric-value">42,434</span><span class="metric-detail">completed trades</span></article>
+              <article class="metric"><span class="metric-label">YTD</span><span class="metric-value" style="color:var(--green-strong)">+62.02%</span><span class="metric-detail">calculated from 31 Dec 2025</span></article>
+            </section>
+      <section class="section" id="performance">
+              <div class="section-heading">
+                <h2>Market performance</h2>
+                <p>Explore selected verified ASI closes. The line connects only sourced sessions; it is not an intraday feed.</p>
+              </div>
+              <div class="chart-card">
+                <div class="chart-top">
+                  <div><div class="chart-value" id="chartValue">252,113.41</div><div class="chart-change" id="chartChange">+62.02% since 31 Dec 2025</div></div>
+                  <div class="range-controls" role="group" aria-label="Chart period">
+                    <button class="range-button" data-range="1W" aria-pressed="false">1W</button>
+                    <button class="range-button" data-range="1M" aria-pressed="false">1M</button>
+                    <button class="range-button" data-range="3M" aria-pressed="false">3M</button>
+                    <button class="range-button" data-range="6M" aria-pressed="false">6M</button>
+                    <button class="range-button" data-range="YTD" aria-pressed="true">YTD</button>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <svg id="asiChart" role="img" aria-labelledby="chartTitle chartDesc" viewBox="0 0 1000 360" preserveAspectRatio="none">
+                    <title id="chartTitle">NGX All-Share Index selected closing values</title>
+                    <desc id="chartDesc">Interactive chart showing selected verified market closes from 31 December 2025 to 25 September 2026.</desc>
+                  </svg>
+                  <div class="chart-tooltip" id="tooltip" aria-hidden="true"></div>
+                </div>
+                <div class="chart-caption"><span id="periodLabel">31 Dec 2025 — 25 Sep 2026</span><span>Selected sessions; gaps in source coverage are not interpolated.</span></div>
+              </div>
+            </section>
+      <section class="section" id="leaders">
+              <div class="section-heading">
+                <h2>Today’s tape</h2>
+                <p>Search any stock, sort the columns, tap a row for details, or star it to build a watchlist saved in your browser.</p>
+              </div>
+              <div class="leaders">
+                <div>
+                  <div class="table-tools">
+                    <input class="stock-search" id="stockSearch" type="search" placeholder="Search stocks — try “bank” or “FIDELITYBK”" aria-label="Search stocks" autocomplete="off" />
+                  </div>
+                  <div class="switcher" role="tablist" aria-label="Market rankings">
+                    <button role="tab" id="tab-gainers" aria-controls="market-list" aria-selected="true" data-table="gainers">Gainers</button>
+                    <button role="tab" id="tab-losers" aria-controls="market-list" aria-selected="false" data-table="losers">Losers</button>
+                    <button role="tab" id="tab-volume" aria-controls="market-list" aria-selected="false" data-table="volume">Volume</button>
+                    <button role="tab" id="tab-watchlist" aria-controls="market-list" aria-selected="false" data-table="watchlist">Watchlist <span class="watch-count" id="watchCount"></span></button>
+                  </div>
+                  <div class="sort-bar">
+                    <span aria-hidden="true"></span>
+                    <button type="button" data-sort="symbol">Symbol<span class="arrow" aria-hidden="true"></span></button>
+                    <button type="button" class="sort-price" data-sort="price">Price<span class="arrow" aria-hidden="true"></span></button>
+                    <button type="button" data-sort="move"><span class="sort-move-label">Change</span><span class="arrow" aria-hidden="true"></span></button>
+                  </div>
+                  <div class="market-table" id="market-list" role="tabpanel" aria-labelledby="tab-gainers"></div>
+                </div>
+                <article class="news-feature">
+                  <div class="date">MARKET WRAP · 25 SEP</div>
+                  <h3>Equities close flat at ₦163.66tn as Zichis Agro and R.T. Briscoe rally</h3>
+                  <p>The benchmark eased 0.015% even as advancing stocks outnumbered decliners. Fidelity Bank accounted for the largest reported share volume.</p>
+                  <a class="read-link" href="https://nairametrics.com/2026/09/25/nigerian-equity-market-closes-flat-at-n163-66-trillion-as-zichis-agro-r-t-briscoe-rally/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer">Read the market wrap ↗</a>
+                </article>
+              </div>
+            </section>
+      <section class="section" id="heatmap">
+              <div class="section-heading">
+                <h2>Market heatmap</h2>
+                <p>Tile size and shade show the day&rsquo;s percentage move &mdash; 25 September 2026 snapshot. Select a tile for details.</p>
+              </div>
+              <div class="heatmap" id="heatTiles" role="list" aria-label="Market heatmap, 25 September 2026"></div>
+              <div class="heatmap-legend" aria-hidden="true"><span><i class="sw up"></i>Gainers</span><span><i class="sw down"></i>Losers</span></div>
+            </section>
+            <!-- Ad slot: rectangle. Replace data-ad-client and data-ad-slot with your AdSense IDs after approval. -->
+            <div class="ad-slot ad-rectangle" aria-hidden="true">
+              <div class="ad-label">Advertisement</div>
+              <ins class="adsbygoogle"
+                   style="display:block"
+                   data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                   data-ad-slot="2222222222"
+                   data-ad-format="auto"
+                   data-full-width-responsive="true"></ins>
+            </div>
+    </main>
+    <footer class="footer"><strong>Data fixed at market close · 25 Sep 2026</strong><span>Prices may have changed. Confirm before acting.</span></footer>
+  </div>
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalSymbol">
+      <button class="modal-close" id="modalClose" aria-label="Close stock details">×</button>
+      <div class="modal-eyebrow" id="modalList">Snapshot · 25 Sep 2026</div>
+      <div class="modal-symbol" id="modalSymbol"></div>
+      <div class="modal-company" id="modalCompany"></div>
+      <div class="modal-grid">
+        <div class="modal-cell"><span>Price</span><strong id="modalPrice"></strong></div>
+        <div class="modal-cell"><span id="modalMoveLabel">Day change</span><strong id="modalMove"></strong></div>
+      </div>
+      <p class="modal-note" id="modalNote">Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
+      <a class="modal-live" id="modalLive" href="#" target="_blank" rel="noopener noreferrer">Live chart &amp; full quote ↗</a>
+      <button class="modal-star" id="modalStar" type="button"></button>
+    </div>
+  </div>
+
+
+    <!-- Ad slot: sticky mobile banner (320x50). Dismissible. Replace IDs after AdSense approval. -->
+    <div class="ad-slot ad-sticky-mobile" id="adSticky" aria-hidden="true">
+      <button class="ad-close" id="adStickyClose" type="button" aria-label="Close advertisement">×</button>
+      <div class="ad-label">Advertisement</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="4444444444"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  <script src="assets/data.js"></script>
+  <script src="assets/site.js"></script>
+  <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</body>
+</html>

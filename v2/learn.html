@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="description" content="A plain-English glossary of Nigerian stock market terms and how Nairaview builds its market snapshot." />
+  <link rel="icon" href="data:," />
+  <title>Learn — NGX Glossary & Method | Nairaview</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="index.html">Naira<span>view</span></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="stocks.html">Stocks</a>
+          <a href="screener.html">Screener</a>
+          <a href="offers.html">Offers</a>
+          <a href="calendar.html">Calendar</a>
+          <a href="news.html">News</a>
+          <a href="learn.html" class="active">Learn</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="live-ticker" role="region" aria-label="Live NGX price ticker">
+          <iframe
+            src="https://ngnmarket.com/widget/marquee"
+            width="100%"
+            height="60"
+            frameborder="0"
+            scrolling="no"
+            style="border:none;"
+            title="Live NGX market ticker"
+          ></iframe>
+        </div>
+    <div class="topline">
+          <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+          <span>SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
+        </div>
+    <main>
+      <section class="section" id="learn">
+              <div class="section-heading">
+                <h2>Know the market</h2>
+                <p>Session timing and direct routes to official NGX information.</p>
+              </div>
+              <div class="learn-grid">
+                <article class="hours">
+                  <div class="small">Regular trading window · WAT</div>
+                  <strong>09:00–16:00</strong>
+                  <p>The extended seven-hour session took effect on 27 April 2026. The opening phase begins before continuous trading.</p>
+                  <div class="session"><div><span>Pre-open</span><b>09:00</b></div><div><span>Continuous trading</span><b>09:30–16:00</b></div></div>
+                </article>
+                <nav class="resources" aria-label="Official NGX resources">
+                  <a class="resource" href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer"><span><strong>Market snapshot</strong><span>Official delayed prices</span></span><i aria-hidden="true">↗</i></a>
+                  <a class="resource" href="https://invest.ngxgroup.com/" target="_blank" rel="noopener noreferrer"><span><strong>NGX Invest</strong><span>Official investor portal</span></span><i aria-hidden="true">↗</i></a>
+                  <a class="resource" href="https://ngxgroup.com/ngx-download/amendments-to-the-listings-rules/" target="_blank" rel="noopener noreferrer"><span><strong>Listing rules</strong><span>Official amendments archive</span></span><i aria-hidden="true">↗</i></a>
+                  <a class="resource" href="https://ngxgroup.com/regulation/media-center/?album=36712&amp;album_ses=1" target="_blank" rel="noopener noreferrer"><span><strong>Regulation media centre</strong><span>Notices and releases</span></span><i aria-hidden="true">↗</i></a>
+                </nav>
+              </div>
+            </section>
+      <section class="method">
+              <details>
+                <summary>Sources, calculations and limitations</summary>
+                <p>Session figures follow Nairametrics’ 25 September report; THEWILL corroborated the index close and market capitalisation. The Investor Side reported a slightly different volume and deal count, so those two figures are shown here from one internally consistent source. Historical closes combine official NGX weekly reports with dated market reporting. Percentage returns are calculated from those sourced closes. April, May and early-September weekly closes were not available in the reviewed material, so the performance line shows selected sessions rather than a continuous series. This page is informational and is not investment advice.</p>
+              </details>
+            </section>
+    </main>
+    <footer class="footer"><strong>Data fixed at market close · 25 Sep 2026</strong><span>Prices may have changed. Confirm before acting.</span></footer>
+  </div>
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalSymbol">
+      <button class="modal-close" id="modalClose" aria-label="Close stock details">×</button>
+      <div class="modal-eyebrow" id="modalList">Snapshot · 25 Sep 2026</div>
+      <div class="modal-symbol" id="modalSymbol"></div>
+      <div class="modal-company" id="modalCompany"></div>
+      <div class="modal-grid">
+        <div class="modal-cell"><span>Price</span><strong id="modalPrice"></strong></div>
+        <div class="modal-cell"><span id="modalMoveLabel">Day change</span><strong id="modalMove"></strong></div>
+      </div>
+      <p class="modal-note" id="modalNote">Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
+      <a class="modal-live" id="modalLive" href="#" target="_blank" rel="noopener noreferrer">Live chart &amp; full quote ↗</a>
+      <button class="modal-star" id="modalStar" type="button"></button>
+    </div>
+  </div>
+
+
+    <!-- Ad slot: sticky mobile banner (320x50). Dismissible. Replace IDs after AdSense approval. -->
+    <div class="ad-slot ad-sticky-mobile" id="adSticky" aria-hidden="true">
+      <button class="ad-close" id="adStickyClose" type="button" aria-label="Close advertisement">×</button>
+      <div class="ad-label">Advertisement</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="4444444444"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
+  <script src="assets/data.js"></script>
+  <script src="assets/site.js"></script>
+  <script>
+      (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</body>
+</html>
