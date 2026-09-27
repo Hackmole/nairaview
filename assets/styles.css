@@ -54,8 +54,16 @@
     button { font: inherit; }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
     .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
-    .live-ticker { border-bottom: 1px solid var(--line); }
-    .live-ticker iframe { display: block; width: 100%; height: 60px; border: 0; }
+    .live-ticker { border-bottom: 1px solid var(--line); overflow: hidden; }
+    /* Native market ticker (replaces blocked third-party iframe, 2026-09-27) */
+    .ticker-track { display: flex; width: max-content; animation: ticker-scroll 45s linear infinite; }
+    .live-ticker:hover .ticker-track { animation-play-state: paused; }
+    .ticker-item { display: inline-flex; align-items: baseline; gap: 8px; padding: 21px 26px 21px 0; margin-right: 26px; border-right: 1px solid var(--line); font: 600 12px/1 "IBM Plex Mono", monospace; white-space: nowrap; }
+    .ticker-item .tk-s { color: var(--ink); }
+    .ticker-item .tk-p { color: var(--muted); font-weight: 500; }
+    .ticker-item .tk-m.up { color: var(--green-strong); }
+    .ticker-item .tk-m.down { color: var(--red); }
+    @keyframes ticker-scroll { to { transform: translateX(-50%); } }
     .topline {
       display: flex;
       align-items: center;
@@ -290,6 +298,8 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+      .ticker-track { animation: none !important; }
+      .live-ticker { overflow-x: auto; }
     /* Market heatmap */
     .heatmap { display: flex; flex-wrap: wrap; gap: 1px; background: var(--line); border: 1px solid var(--line); }
     .heat-tile { border: 0; padding: 18px 16px; text-align: left; cursor: pointer; background: var(--surface); color: var(--ink); }

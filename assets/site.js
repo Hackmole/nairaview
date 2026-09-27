@@ -390,6 +390,19 @@
         document.getElementById('adSticky').classList.remove('ad-live');
         document.body.classList.remove('ad-sticky-on');
       });
+      /* ---- Native market ticker (own snapshot data; replaces blocked ngnmarket iframe) ---- */
+      (function () {
+        var track = document.getElementById('tickerTrack');
+        if (!track) return;
+        var rows = (typeof tables !== 'undefined') ? tables.gainers.concat(tables.losers) : [];
+        if (!rows.length) { track.parentNode.style.display = 'none'; return; }
+        var html = rows.map(function (r) {
+          return '<span class="ticker-item"><span class="tk-s">' + r.s + '</span>' +
+            '<span class="tk-p">' + r.p + '</span>' +
+            '<span class="tk-m ' + (r.d === 'up' ? 'up' : 'down') + '">' + r.m + '</span></span>';
+        }).join('');
+        track.innerHTML = html + html; /* duplicate for a seamless -50% loop */
+      }());
       /* ---- Market heatmap ---- */
       (function buildHeatmap() {
         var host = document.getElementById('heatTiles');
