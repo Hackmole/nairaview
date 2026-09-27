@@ -201,6 +201,16 @@
     var priceEl = document.querySelector('.stock-price');
     var px = map[sym];
     var tradeDate = '';
+    /* Per-stock icon on the stock page header. */
+    try {
+      if (priceEl && typeof window.nvBadge === 'function') {
+        var h1 = priceEl.parentNode.querySelector('h1');
+        if (h1 && !h1.querySelector('.stk-badge')) {
+          h1.classList.add('stock-head-badged');
+          h1.insertBefore(window.nvBadge(sym, 'lg'), h1.firstChild);
+        }
+      }
+    } catch (e) {}
     if (priceEl && px) {
       priceEl.textContent = '₦' + fmt2(px);
       var asof = document.querySelector('p.asof');

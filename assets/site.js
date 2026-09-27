@@ -1,3 +1,31 @@
+    /* ---- Per-stock monogram badges: every listed stock gets a deterministic
+       two-letter icon (initials + hash color), so no stock renders icon-less. ---- */
+    (function stockBadges() {
+      var PALETTE = ['#1d4ed8', '#0e7490', '#0f766e', '#15803d', '#4d7c0f', '#a16207',
+                     '#b45309', '#b91c1c', '#be123c', '#7c3aed', '#6d28d9', '#0c4a6e'];
+      function initials(sym) {
+        var s = String(sym || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (!s) return '?';
+        return s.length <= 2 ? s : s.charAt(0) + s.charAt(1);
+      }
+      function colorFor(sym) {
+        var s = String(sym || '').toUpperCase();
+        var h = 0, i;
+        for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
+        return PALETTE[h % PALETTE.length];
+      }
+      window.nvBadgeHTML = function (sym, size) {
+        var cls = 'stk-badge' + (size ? ' ' + size : '');
+        return '<span class="' + cls + '" style="background:' + colorFor(sym) +
+               '" aria-hidden="true">' + initials(sym) + '</span>';
+      };
+      window.nvBadge = function (sym, size) {
+        var d = document.createElement('div');
+        d.innerHTML = window.nvBadgeHTML(sym, size);
+        return d.firstChild;
+      };
+    }());
+
     /* ---- Theme: manual light/dark override, runs before first paint where possible ---- */
     (function themeInit() {
       function saved() { try { return localStorage.getItem('nv-theme'); } catch (e) { return null; } }
@@ -203,7 +231,7 @@
           var tag = document.createElement('span'); tag.className = 'list-tag'; tag.textContent = r.g;
           symbol.appendChild(tag);
           var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
-          main.appendChild(symbol); main.appendChild(company);
+          var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
           var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = r.m;
@@ -332,7 +360,7 @@
             symbol.appendChild(tag);
           }
           var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
-          main.appendChild(symbol); main.appendChild(company);
+          var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
           var move = document.createElement('div'); move.className = 'move ' + r.d; move.textContent = r.m;
@@ -375,7 +403,10 @@
         var isDir = found.list === 'directory';
         currentModal = s; lastFocused = opener || document.activeElement;
         document.getElementById('modalList').textContent = isDir ? 'Market directory' : (listNames[found.list] + ' \u00b7 Snapshot 25 Sep 2026');
-        document.getElementById('modalSymbol').textContent = r.s;
+        var msEl = document.getElementById('modalSymbol');
+        msEl.innerHTML = '';
+        msEl.appendChild(window.nvBadge(r.s, 'lg'));
+        var msTx = document.createElement('span'); msTx.textContent = r.s; msEl.appendChild(msTx);
         document.getElementById('modalCompany').textContent = r.c + (isDir && r.g ? ' \u00b7 ' + r.g : '');
         document.getElementById('modalPrice').textContent = r.p;
         document.getElementById('modalMoveLabel').textContent = r.vol ? 'Volume' : (r.noSnap ? 'Sector' : 'Day change');
@@ -518,7 +549,7 @@
         var rows = (typeof tables !== 'undefined') ? tables.gainers.concat(tables.losers) : [];
         if (!rows.length) { track.parentNode.style.display = 'none'; return; }
         var html = rows.map(function (r) {
-          return '<span class="ticker-item"><span class="tk-s">' + r.s + '</span>' +
+          return '<span class="ticker-item">' + window.nvBadgeHTML(r.s, 'sm') + '<span class="tk-s">' + r.s + '</span>' +
             '<span class="tk-p">' + r.p + '</span>' +
             '<span class="tk-m ' + (r.d === 'up' ? 'up' : 'down') + '">' + r.m + '</span></span>';
         }).join('');
@@ -541,6 +572,7 @@
           var s1 = document.createElement('span'); s1.className = 'ht-s'; s1.textContent = r.s;
           var s2 = document.createElement('span'); s2.className = 'ht-c'; s2.textContent = r.m;
           var s3 = document.createElement('span'); s3.className = 'ht-p'; s3.textContent = r.p;
+          t.insertBefore(window.nvBadge(r.s, 'sm'), t.firstChild);
           t.appendChild(s1); t.appendChild(s2); t.appendChild(s3);
           t.setAttribute('aria-label', r.s + ', ' + r.c + ', day change ' + r.m + ' — view details');
           t.addEventListener('click', function () { openModal(r.s, t); });
@@ -617,7 +649,7 @@
           var tag = document.createElement('span'); tag.className = 'list-tag'; tag.textContent = r.g;
           symbol.appendChild(tag);
           var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
-          main.appendChild(symbol); main.appendChild(company);
+          var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
           var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = r.vol ? r.m + ' shares' : r.m;

@@ -22,7 +22,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>My Portfolio | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927p" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927q" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -87,9 +87,9 @@
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
   </div>
-  <script src="assets/data.js?v=20260927p"></script>
-  <script src="assets/site.js?v=20260927p"></script>
-  <script src="assets/live.js?v=20260927p"></script>
+  <script src="assets/data.js?v=20260927q"></script>
+  <script src="assets/site.js?v=20260927q"></script>
+  <script src="assets/live.js?v=20260927q"></script>
   <script>
   (function () {
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
@@ -149,8 +149,9 @@
         }
         var tr = table.insertRow();
         var tickHtml = PAGES[h.ticker] ? '<a href="stocks/' + h.ticker + '">' + h.ticker + '</a>' : h.ticker;
+        var badgeHtml = (typeof window.nvBadgeHTML === 'function') ? window.nvBadgeHTML(h.ticker, 'sm') + ' ' : '';
         tr.innerHTML =
-          '<td style="text-align:left"><strong>' + tickHtml + '</strong></td>' +
+          '<td style="text-align:left;white-space:nowrap">' + badgeHtml + '<strong>' + tickHtml + '</strong></td>' +
           '<td class="num">' + Number(h.shares).toLocaleString('en-NG') + '</td>' +
           '<td class="num">' + naira(h.avg_cost) + '</td>' +
           '<td class="num">' + (price !== undefined ? naira(price) : '&mdash;') + '</td>' +
