@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="description" content="Track your NGX holdings: shares, average cost, and portfolio value at Nairaview's latest snapshot prices." />
+  <link rel="icon" href="data:," />
+  <title>My Portfolio | Nairaview</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./">Naira<span>view</span></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="./">Home</a>
+          <a href="stocks">Stocks</a>
+          <a href="screener">Screener</a>
+          <a href="offers">Offers</a>
+          <a href="calendar">Calendar</a>
+          <a href="news">News</a>
+          <a href="learn">Learn</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="topline">
+      <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+      <span>SNAPSHOT &middot; FRI 25 SEP 2026 &middot; WAT</span>
+    </div>
+    <main>
+      <section class="section">
+        <div class="section-heading">
+          <p class="kicker">PORTFOLIO TRACKER</p>
+          <h1>My portfolio</h1>
+          <p class="guide-p" id="portfolioIntro">Your holdings, valued at our latest snapshot prices.</p>
+        </div>
+
+        <div id="needLogin" hidden>
+          <p class="guide-p">You need an account to track a portfolio. <a href="account">Sign up or log in</a> &mdash; it takes a minute.</p>
+        </div>
+
+        <div id="portfolioApp" hidden>
+          <div class="facts" id="portfolioTotals">
+            <div class="fact"><span>Total value</span><strong id="totValue">&mdash;</strong></div>
+            <div class="fact"><span>Total cost</span><strong id="totCost">&mdash;</strong></div>
+            <div class="fact"><span>Gain / loss</span><strong id="totGain">&mdash;</strong></div>
+          </div>
+          <p class="asof">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only.</p>
+
+          <div class="movers-col">
+            <table class="movers-table" id="holdingsTable">
+              <tr><th style="text-align:left">Ticker</th><th>Shares</th><th>Avg cost</th><th>Price</th><th>Value</th><th>Gain/loss</th><th></th></tr>
+            </table>
+          </div>
+          <p class="guide-p" id="emptyMsg" hidden>You have no holdings yet &mdash; add your first one below.</p>
+
+          <h2 class="guide-h2">Add or update a holding</h2>
+          <form id="holdingForm" class="auth-form">
+            <label>Ticker<input name="ticker" required maxlength="12" placeholder="GTCO" style="text-transform:uppercase" /></label>
+            <label>Shares<input name="shares" required type="number" min="0" step="any" placeholder="100" /></label>
+            <label>Average cost per share (&#8358;)<input name="avg_cost" required type="number" min="0" step="any" placeholder="120.50" /></label>
+            <p class="form-error" id="holdingError" role="alert" hidden></p>
+            <button type="submit" class="btn-primary">Save holding</button>
+            <p class="form-note">Saving the same ticker again updates it. This is a personal tracker &mdash; not connected to your broker.</p>
+          </form>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
+  </div>
+  <script src="assets/data.js"></script>
+  <script src="assets/site.js"></script>
+  <script>
+  (function () {
+    // Snapshot prices, 25 Sep 2026 close (verified research).
+    var PRICES = { DANGCEM: 1066.70, SEPLAT: 16000.10, GTCO: 137, ZENITHBANK: 134.90, FIRSTHOLDCO: 156.60, UBA: 45.20, ACCESSCORP: 31.55, STANBIC: 164, TRANSCORP: 37, NESTLE: 2950, NB: 76 };
+    var PAGES = { DANGCEM: 1, SEPLAT: 1, GTCO: 1, ZENITHBANK: 1, FIRSTHOLDCO: 1, UBA: 1, ACCESSCORP: 1, STANBIC: 1, TRANSCORP: 1, NESTLE: 1, NB: 1 };
+
+    function naira(n) {
+      return '\u20A6' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function load() {
+      fetch('/api/holdings').then(function (res) {
+        if (res.status === 401) { document.getElementById('needLogin').hidden = false; return; }
+        if (!res.ok) throw new Error('down');
+        return res.json();
+      }).then(function (out) {
+        if (!out) return;
+        document.getElementById('portfolioApp').hidden = false;
+        render(out.holdings || []);
+      }).catch(function () {
+        document.getElementById('needLogin').hidden = false;
+      });
+    }
+
+    function render(holdings) {
+      var table = document.getElementById('holdingsTable');
+      while (table.rows.length > 1) table.deleteRow(1);
+      var totValue = 0, totCost = 0, valued = 0;
+      holdings.forEach(function (h) {
+        var price = PRICES[h.ticker];
+        var cost = h.shares * h.avg_cost;
+        totCost += cost;
+        var valueCell = '&mdash;', gainCell = '&mdash;';
+        if (price !== undefined) {
+          var value = h.shares * price;
+          totValue += value; valued += value;
+          var gain = value - cost;
+          valueCell = naira(value);
+          gainCell = '<span style="color:' + (gain >= 0 ? 'var(--green-strong)' : 'var(--red)') + '">' + (gain >= 0 ? '+' : '') + naira(gain) + '</span>';
+        }
+        var tr = table.insertRow();
+        var tickHtml = PAGES[h.ticker] ? '<a href="stocks/' + h.ticker + '">' + h.ticker + '</a>' : h.ticker;
+        tr.innerHTML =
+          '<td style="text-align:left"><strong>' + tickHtml + '</strong></td>' +
+          '<td class="num">' + Number(h.shares).toLocaleString('en-NG') + '</td>' +
+          '<td class="num">' + naira(h.avg_cost) + '</td>' +
+          '<td class="num">' + (price !== undefined ? naira(price) : '&mdash;') + '</td>' +
+          '<td class="num">' + valueCell + '</td>' +
+          '<td class="num">' + gainCell + '</td>' +
+          '<td><button type="button" class="btn-ghost btn-sm" data-del="' + h.ticker + '">Remove</button></td>';
+      });
+      document.getElementById('emptyMsg').hidden = holdings.length > 0;
+      document.getElementById('totValue').textContent = valued ? naira(totValue) : '\u2014';
+      document.getElementById('totCost').textContent = naira(totCost);
+      var tg = totValue - totCost;
+      var tgEl = document.getElementById('totGain');
+      tgEl.textContent = valued ? (tg >= 0 ? '+' : '') + naira(tg) : '\u2014';
+      tgEl.style.color = valued ? (tg >= 0 ? 'var(--green-strong)' : 'var(--red)') : '';
+
+      table.querySelectorAll('[data-del]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (!confirm('Remove ' + btn.getAttribute('data-del') + ' from your portfolio?')) return;
+          fetch('/api/holdings?ticker=' + encodeURIComponent(btn.getAttribute('data-del')), { method: 'DELETE' })
+            .then(function () { load(); });
+        });
+      });
+    }
+
+    document.getElementById('holdingForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var err = document.getElementById('holdingError');
+      err.hidden = true;
+      var f = ev.target;
+      var payload = {
+        ticker: f.ticker.value.trim().toUpperCase(),
+        shares: parseFloat(f.shares.value),
+        avg_cost: parseFloat(f.avg_cost.value),
+      };
+      fetch('/api/holdings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { err.textContent = r.out.error || 'Could not save.'; err.hidden = false; return; }
+          f.reset();
+          load();
+        }).catch(function () {
+          err.textContent = 'Could not reach the server.';
+          err.hidden = false;
+        });
+    });
+
+    load();
+  })();
+  </script>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</body>
+</html>

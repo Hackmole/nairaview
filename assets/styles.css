@@ -407,5 +407,16 @@
 .health-bar i { display: block; height: 100%; border-radius: 6px; }
 .health-score { font-family: "IBM Plex Mono", monospace; text-align: right; font-size: 12.5px; }
 .ticker-chip:hover { text-decoration: underline; }
+.auth-wrap { max-width: 460px; margin: 18px 0; }
+.auth-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.auth-form { display: grid; gap: 12px; max-width: 460px; margin: 6px 0 18px; }
+.auth-form label { display: grid; gap: 6px; font-size: 13.5px; font-weight: 600; }
+.auth-form input { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: var(--surface); color: inherit; width: 100%; box-sizing: border-box; }
+.btn-primary { display: inline-block; padding: 10px 20px; border: none; border-radius: 10px; background: var(--green); color: #fff; font: 600 14.5px "Public Sans", sans-serif; cursor: pointer; text-decoration: none; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { display: inline-block; padding: 10px 16px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: inherit; font: 600 14px "Public Sans", sans-serif; cursor: pointer; margin-left: 8px; }
+.btn-sm { padding: 6px 10px; font-size: 12.5px; margin-left: 0; }
+.form-error { color: var(--red); font-size: 13.5px; margin: 0; }
+.form-note { font-size: 12.5px; color: var(--muted); margin: 0; }
 @media (max-width: 700px) { .movers-duo { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .fact-grid { grid-template-columns: repeat(2, 1fr); } }

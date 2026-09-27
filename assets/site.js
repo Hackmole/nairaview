@@ -524,4 +524,25 @@
       if (document.getElementById('asiChart')) draw('YTD');
       render();
       renderDirectory();
+    }());    /* ---- Auth nav: Portfolio link + sign-in state ---- */
+    (function authNav() {
+      var nav = document.querySelector('.site-nav');
+      if (!nav || nav.querySelector('[data-authnav]')) return;
+      var prefix = window.location.pathname.indexOf('/stocks/') === 0 ? '../' : '';
+      var here = window.location.pathname.replace(/\/$/, '');
+      function link(href, text, active) {
+        var a = document.createElement('a');
+        a.href = href; a.textContent = text; a.setAttribute('data-authnav', '1');
+        if (active) a.className = 'active';
+        nav.appendChild(a);
+        return a;
+      }
+      link(prefix + 'portfolio', 'Portfolio', /portfolio$/.test(here));
+      var acct = link(prefix + 'account', 'Sign in', /account$/.test(here));
+      fetch('/api/auth/me').then(function (res) {
+        if (!res.ok) return;
+        return res.json();
+      }).then(function (me) {
+        if (me && me.email) acct.textContent = 'Account';
+      }).catch(function () {});
     }());

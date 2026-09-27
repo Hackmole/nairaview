@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="description" content="Create a free Nairaview account to track your NGX portfolio. Your holdings are private to you." />
+  <link rel="icon" href="data:," />
+  <title>Account — Sign up or log in | Nairaview</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./">Naira<span>view</span></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="./">Home</a>
+          <a href="stocks">Stocks</a>
+          <a href="screener">Screener</a>
+          <a href="offers">Offers</a>
+          <a href="calendar">Calendar</a>
+          <a href="news">News</a>
+          <a href="learn">Learn</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="topline">
+      <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
+      <span>SNAPSHOT &middot; FRI 25 SEP 2026 &middot; WAT</span>
+    </div>
+    <main>
+      <section class="section">
+        <div class="section-heading">
+          <p class="kicker">YOUR ACCOUNT</p>
+          <h1>Sign up or log in</h1>
+          <p class="guide-p">One free account unlocks your <a href="portfolio">portfolio tracker</a>. Your holdings are private &mdash; only you can see them.</p>
+        </div>
+
+        <div id="authForms" class="auth-wrap" hidden>
+          <div class="auth-tabs" role="tablist">
+            <button type="button" class="sector-chip" id="tabLogin" aria-pressed="true">Log in</button>
+            <button type="button" class="sector-chip" id="tabSignup" aria-pressed="false">Sign up</button>
+          </div>
+
+          <form id="loginForm" class="auth-form">
+            <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" /></label>
+            <label>Password<input type="password" name="password" required autocomplete="current-password" placeholder="Your password" /></label>
+            <p class="form-error" id="loginError" role="alert" hidden></p>
+            <button type="submit" class="btn-primary">Log in</button>
+          </form>
+
+          <form id="signupForm" class="auth-form" hidden>
+            <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" /></label>
+            <label>Password<input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" /></label>
+            <p class="form-error" id="signupError" role="alert" hidden></p>
+            <button type="submit" class="btn-primary">Create account</button>
+            <p class="form-note">By signing up you agree to keep your login private. We store only your email and a scrambled password &mdash; never your broker details.</p>
+          </form>
+        </div>
+
+        <div id="authState" class="auth-wrap" hidden>
+          <p class="guide-p">Signed in as <strong id="authEmail"></strong>.</p>
+          <p>
+            <a class="btn-primary" href="portfolio">Open my portfolio</a>
+            <button type="button" class="btn-ghost" id="logoutBtn">Log out</button>
+          </p>
+        </div>
+
+        <div id="authDown" class="auth-wrap" hidden>
+          <p class="guide-p">Accounts are not available right now &mdash; our user database is still being connected. Please check back shortly.</p>
+        </div>
+
+        <h2 class="guide-h2">Privacy, briefly</h2>
+        <ul class="guide-list">
+          <li>We store your email, a salted-and-hashed password (we cannot see your actual password), and the holdings you enter.</li>
+          <li>Your portfolio is visible only to you, only while logged in.</li>
+          <li>We never ask for your broker login, bank details, or CSCS credentials &mdash; anyone who does is not us. See <a href="verify-investment-platform">how to spot scams</a>.</li>
+        </ul>
+      </section>
+    </main>
+    <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
+  </div>
+  <script src="assets/data.js"></script>
+  <script src="assets/site.js"></script>
+  <script>
+  (function () {
+    var loginForm = document.getElementById('loginForm');
+    var signupForm = document.getElementById('signupForm');
+    var tabLogin = document.getElementById('tabLogin');
+    var tabSignup = document.getElementById('tabSignup');
+
+    function showTab(which) {
+      var login = which === 'login';
+      loginForm.hidden = !login;
+      signupForm.hidden = login;
+      tabLogin.setAttribute('aria-pressed', login ? 'true' : 'false');
+      tabSignup.setAttribute('aria-pressed', login ? 'false' : 'true');
+    }
+    tabLogin.addEventListener('click', function () { showTab('login'); });
+    tabSignup.addEventListener('click', function () { showTab('signup'); });
+
+    function fail(id, msg) {
+      var el = document.getElementById(id);
+      el.textContent = msg;
+      el.hidden = false;
+    }
+
+    async function submit(url, form, errId) {
+      document.getElementById(errId).hidden = true;
+      var data = { email: form.email.value.trim(), password: form.password.value };
+      try {
+        var res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        var out = await res.json();
+        if (!res.ok) { fail(errId, out.error || 'Something went wrong.'); return; }
+        window.location.href = 'portfolio';
+      } catch (e) {
+        fail(errId, 'Could not reach the server. Check your connection and try again.');
+      }
+    }
+    loginForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit('/api/auth/login', loginForm, 'loginError'); });
+    signupForm.addEventListener('submit', function (ev) { ev.preventDefault(); submit('/api/auth/signup', signupForm, 'signupError'); });
+
+    document.getElementById('logoutBtn').addEventListener('click', async function () {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch (e) {}
+      window.location.reload();
+    });
+
+    // Initial state
+    fetch('/api/auth/me').then(function (res) {
+      if (res.status === 503) {
+        document.getElementById('authDown').hidden = false;
+        return;
+      }
+      if (res.ok) return res.json().then(function (me) {
+        document.getElementById('authEmail').textContent = me.email;
+        document.getElementById('authState').hidden = false;
+      });
+      document.getElementById('authForms').hidden = false;
+    }).catch(function () {
+      document.getElementById('authDown').hidden = false;
+    });
+  })();
+  </script>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</body>
+</html>
