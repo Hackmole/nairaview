@@ -326,6 +326,24 @@
         newsChips.appendChild(b);
       });
       renderNews();
+      document.querySelectorAll('.news-card[data-tickers]').forEach(function (card) {
+        var tickers = card.getAttribute('data-tickers').split(',');
+        var wrap = document.createElement('div');
+        wrap.className = 'ticker-chips';
+        tickers.forEach(function (t) {
+          var chip = document.createElement('span');
+          chip.className = 'ticker-chip';
+          chip.textContent = t;
+          chip.setAttribute('role', 'link');
+          chip.setAttribute('tabindex', '0');
+          chip.setAttribute('aria-label', 'View ' + t + ' stock page');
+          function go(ev) { ev.preventDefault(); ev.stopPropagation(); window.location.href = 'stocks/' + t; }
+          chip.addEventListener('click', go);
+          chip.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') go(ev); });
+          wrap.appendChild(chip);
+        });
+        card.appendChild(wrap);
+      });
       var stickyClosed = false;
       function revealAds() {
         var anySticky = false;

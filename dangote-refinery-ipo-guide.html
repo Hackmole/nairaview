@@ -52,6 +52,10 @@
                 <p class="kicker">IPO GUIDE &middot; UPDATED 27 SEP 2026</p>
                 <h1>How to Buy Dangote Refinery IPO Shares (2026)</h1>
                 <p>The Dangote Petroleum Refinery IPO &mdash; 4.1 billion shares at &#8358;525 &mdash; is open until <strong>13 October 2026</strong>. Here is exactly how to subscribe, what you need, and what it costs. Not investment advice.</p>
+                <div class="tldr">
+                  <span class="tldr-label">In short</span>
+                  <p><strong>To buy Dangote Refinery IPO shares:</strong> pick an approved channel (NGX Invest, your bank, a fintech app like Bamboo or i-invest, or a Moniepoint agent), have your BVN and a valid ID ready, apply for at least 10 shares (&#8358;5,250) and pay in full before <strong>13 October 2026</strong>. No stockbroker account is required to apply.</p>
+                </div>
               </div>
               <div class="fact-grid">
                 <div class="fact"><span>Offer price</span><strong>&#8358;525 / share</strong></div>
@@ -59,6 +63,27 @@
                 <div class="fact"><span>Offer size</span><strong>4.1bn shares &middot; ~&#8358;2.15tn</strong></div>
                 <div class="fact"><span>Closes</span><strong>13 Oct 2026</strong></div>
               </div>
+              <div class="calc" id="ipoCalc">
+                <label for="ipoShares">How many shares do you want?</label>
+                <input type="number" id="ipoShares" min="10" step="10" value="10" inputmode="numeric" />
+                <div class="calc-out" id="ipoCalcOut" aria-live="polite"></div>
+                <p class="calc-note">Offer price &#8358;525 per share. Applications start at 10 shares, in multiples of 10. Full payment is due with your application.</p>
+              </div>
+              <script>
+                (function () {
+                  var input = document.getElementById('ipoShares');
+                  var out = document.getElementById('ipoCalcOut');
+                  function fmt(n) { return '&#8358;' + n.toLocaleString('en-NG'); }
+                  function update() {
+                    var shares = Math.max(0, Math.floor(Number(input.value) || 0));
+                    if (shares > 0 && shares < 10) { out.innerHTML = 'Minimum application is <strong>10 shares</strong> (' + fmt(5250) + ').'; return; }
+                    if (shares % 10 !== 0) { out.innerHTML = 'Shares must be in <strong>multiples of 10</strong>.'; return; }
+                    out.innerHTML = '<strong>' + shares.toLocaleString('en-NG') + ' shares</strong> &times; &#8358;525 = <strong>' + fmt(shares * 525) + '</strong>';
+                  }
+                  input.addEventListener('input', update);
+                  update();
+                })();
+              </script>
               <div class="ad-slot ad-leaderboard" aria-hidden="true">
                     <div class="ad-label">Advertisement</div>
                     <ins class="adsbygoogle"
@@ -102,6 +127,23 @@
                 <details><summary>Do I need a stockbroker?</summary><p>Not necessarily. Banks, fintech apps, NGX Invest and Moniepoint agents all accept subscriptions. A stockbroker/CSCS account helps you hold and later trade the shares.</p></details>
                 <details><summary>I have never bought shares before. Can I still apply?</summary><p>Yes &mdash; the offer was designed for first-time investors (&ldquo;the IPO for the people&rdquo;). Digital channels can create your CSCS account during the process, or you can be allotted via a temporary Registrar ID.</p></details>
                 <details><summary>When will the shares start trading?</summary><p>They are expected to list on the NGX after the offer closes and allotment is completed.</p></details>
+              </div>
+              <h2 class="guide-h2">Quick summary</h2>
+              <ul class="guide-list">
+                <li><strong>What:</strong> 4.1 billion Dangote Petroleum Refinery shares at &#8358;525 each (~&#8358;2.15 trillion total).</li>
+                <li><strong>Minimum:</strong> 10 shares = &#8358;5,250, in multiples of 10, paid in full with your application.</li>
+                <li><strong>How:</strong> NGX Invest, 20 banks, 32 fintech/investment firms, or a Moniepoint agent &mdash; about 55 approved channels. BVN and a valid ID (NIN accepted) required.</li>
+                <li><strong>Deadline:</strong> 13 October 2026. Heavy demand means allotment may be pro-rated if oversubscribed.</li>
+                <li><strong>After:</strong> shares are allotted and credited via CSCS, then expected to list on the NGX for trading.</li>
+              </ul>
+              <div class="nextbox">
+                <h3>What to do right now</h3>
+                <ul>
+                  <li><a href="dangote-refinery-ipo-guide">Start here</a> if you have not read the full subscription steps above.</li>
+                  <li><a href="ipo-allotment-explained">Understand oversubscription and allotment</a> &mdash; what happens to your money if demand beats supply.</li>
+                  <li><a href="ipo-prospectus-guide">Read the prospectus the smart way</a> &mdash; the 7 sections that actually matter.</li>
+                  <li><a href="ipo-mistakes">Avoid the 7 mistakes</a> that could cost you your allocation.</li>
+                </ul>
               </div>
               <h2 class="guide-h2">Sources</h2>
               <ul class="sources">
