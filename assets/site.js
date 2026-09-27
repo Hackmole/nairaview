@@ -1,5 +1,6 @@
-    /* ---- Per-stock monogram badges: every listed stock gets a deterministic
-       two-letter icon (initials + hash color), so no stock renders icon-less. ---- */
+    /* ---- Per-stock icons: real company logos where we have them
+       (assets/logos/{TICKER}.png, see window.NV_LOGOS), falling back to a
+       deterministic two-letter monogram badge so no stock renders icon-less. ---- */
     (function stockBadges() {
       var PALETTE = ['#1d4ed8', '#0e7490', '#0f766e', '#15803d', '#4d7c0f', '#a16207',
                      '#b45309', '#b91c1c', '#be123c', '#7c3aed', '#6d28d9', '#0c4a6e'];
@@ -14,16 +15,43 @@
         for (i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) % 997;
         return PALETTE[h % PALETTE.length];
       }
-      window.nvBadgeHTML = function (sym, size) {
+      function monoHTML(sym, size) {
         var cls = 'stk-badge' + (size ? ' ' + size : '');
         return '<span class="' + cls + '" style="background:' + colorFor(sym) +
                '" aria-hidden="true">' + initials(sym) + '</span>';
+      }
+      window.nvMonoHTML = monoHTML;
+      /* Old directory tickers that were renamed on the NGX. */
+      var LOGO_ALIAS = { GUARANTY: 'GTCO', ACCESS: 'ACCESSCORP', TOTALNG: 'TOTAL', CCNN: 'BUACEMENT' };
+      function logoKey(sym) { return LOGO_ALIAS[sym] || sym; }
+      function logoBase() {
+        return window.location.pathname.indexOf('/stocks/') !== -1 ? '../assets/logos/' : 'assets/logos/';
+      }
+      window.nvBadgeHTML = function (sym, size) {
+        var cls = 'stk-badge' + (size ? ' ' + size : '');
+        var key = logoKey(sym);
+        if (window.NV_LOGOS && window.NV_LOGOS[key]) {
+          return '<span class="' + cls + ' stk-logo" aria-hidden="true">' +
+            '<img class="stk-img" data-sym="' + sym + '" data-size="' + (size || '') + '"' +
+            ' src="' + logoBase() + key + '.png" alt="" loading="lazy"></span>';
+        }
+        return monoHTML(sym, size);
       };
       window.nvBadge = function (sym, size) {
         var d = document.createElement('div');
         d.innerHTML = window.nvBadgeHTML(sym, size);
         return d.firstChild;
       };
+      /* If a logo image fails to load, swap in the monogram badge. */
+      document.addEventListener('error', function (ev) {
+        var t = ev.target;
+        if (t && t.tagName === 'IMG' && t.className.indexOf('stk-img') !== -1 && !t.getAttribute('data-fbk')) {
+          t.setAttribute('data-fbk', '1');
+          var d = document.createElement('div');
+          d.innerHTML = monoHTML(t.getAttribute('data-sym'), t.getAttribute('data-size') || undefined);
+          if (t.parentNode) t.parentNode.replaceWith(d.firstChild);
+        }
+      }, true);
     }());
 
     /* ---- Theme: manual light/dark override, runs before first paint where possible ---- */
