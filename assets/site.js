@@ -1,3 +1,25 @@
+    /* ---- Auth nav: runs FIRST so links appear even if a widget below throws ---- */
+    (function authNav() {
+      var nav = document.querySelector('.site-nav');
+      if (!nav || nav.querySelector('[data-authnav]')) return;
+      var prefix = window.location.pathname.indexOf('/stocks/') === 0 ? '../' : '';
+      var here = window.location.pathname.replace(/\/$/, '');
+      function link(href, text, active) {
+        var a = document.createElement('a');
+        a.href = href; a.textContent = text; a.setAttribute('data-authnav', '1');
+        if (active) a.className = 'active';
+        nav.appendChild(a);
+        return a;
+      }
+      link(prefix + 'portfolio', 'Portfolio', /portfolio$/.test(here));
+      var acct = link(prefix + 'account', 'Sign in', /account$/.test(here));
+      fetch('https://nairaview-api.meetomidiora.workers.dev/api/auth/me', { credentials: 'include' }).then(function (res) {
+        if (!res.ok) return;
+        return res.json();
+      }).then(function (me) {
+        if (me && me.email) acct.textContent = 'Account';
+      }).catch(function () {});
+    }());
     (function () {
       
       var cutoffs = { '1W': '2026-09-18', '1M': '2026-08-28', '3M': '2026-06-26', '6M': '2026-03-13', 'YTD': '2025-12-31' };
@@ -18,7 +40,7 @@
         while (svg.firstChild) svg.removeChild(svg.firstChild);
         var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index selected closing values'; svg.appendChild(title);
         var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending 25 September 2026.'; svg.appendChild(desc);
-        var points = history.filter(function (p) { return p.d >= cutoffs[range]; });
+        var points = asiHistory.filter(function (p) { return p.d >= cutoffs[range]; });
         var W = 1000, H = 360, L = 72, R = 28, T = 34, B = 46;
         var vals = points.map(function (p) { return p.v; });
         var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
@@ -524,25 +546,4 @@
       if (document.getElementById('asiChart')) draw('YTD');
       render();
       renderDirectory();
-    }());    /* ---- Auth nav: Portfolio link + sign-in state ---- */
-    (function authNav() {
-      var nav = document.querySelector('.site-nav');
-      if (!nav || nav.querySelector('[data-authnav]')) return;
-      var prefix = window.location.pathname.indexOf('/stocks/') === 0 ? '../' : '';
-      var here = window.location.pathname.replace(/\/$/, '');
-      function link(href, text, active) {
-        var a = document.createElement('a');
-        a.href = href; a.textContent = text; a.setAttribute('data-authnav', '1');
-        if (active) a.className = 'active';
-        nav.appendChild(a);
-        return a;
-      }
-      link(prefix + 'portfolio', 'Portfolio', /portfolio$/.test(here));
-      var acct = link(prefix + 'account', 'Sign in', /account$/.test(here));
-      fetch('https://nairaview-api.meetomidiora.workers.dev/api/auth/me', { credentials: 'include' }).then(function (res) {
-        if (!res.ok) return;
-        return res.json();
-      }).then(function (me) {
-        if (me && me.email) acct.textContent = 'Account';
-      }).catch(function () {});
     }());
