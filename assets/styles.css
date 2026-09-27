@@ -20,7 +20,7 @@
       --shadow: 0 16px 45px rgba(24, 54, 37, .09);
     }
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root:not([data-theme="light"]) {
         --paper: #0b1510;
         --surface: #111e17;
         --surface-2: #17271e;
@@ -42,6 +42,42 @@
     }
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    /* Manual theme override (theme toggle). Duplicates the OS-dark palette so an
+       explicit choice wins over prefers-color-scheme. */
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --paper: #0b1510;
+      --surface: #111e17;
+      --surface-2: #17271e;
+      --ink: #ecf4ef;
+      --muted: #a8bbb0;
+      --line: #2a4033;
+      --line-strong: #476554;
+      --green: #59d395;
+      --green-strong: #8be7b5;
+      --green-soft: #183829;
+      --red: #ff8e8a;
+      --red-soft: #3a2423;
+      --amber: #efc96c;
+      --amber-soft: #392f1b;
+      --blue: #8dc8eb;
+      --focus: #ffcb68;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    }
+    .theme-toggle {
+      margin-left: auto;
+      flex: 0 0 auto;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 18px; line-height: 1;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .theme-toggle:hover { border-color: var(--green); }
+    @media (pointer: coarse) { .theme-toggle { width: 44px; height: 44px; } }
     body {
       margin: 0;
       min-width: 280px;
@@ -76,6 +112,7 @@
     }
     .status { display: flex; gap: 9px; align-items: center; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
+    .status.closed .status-dot { background: var(--muted); box-shadow: 0 0 0 4px var(--surface-2); }
     .source-link { color: var(--green-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
     .source-link:hover { text-decoration-thickness: 2px; }
     .hero {

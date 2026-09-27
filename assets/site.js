@@ -1,3 +1,71 @@
+    /* ---- Theme: manual light/dark override, runs before first paint where possible ---- */
+    (function themeInit() {
+      function saved() { try { return localStorage.getItem('nv-theme'); } catch (e) { return null; } }
+      function apply(t) {
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        else document.documentElement.removeAttribute('data-theme');
+        paintLogo();
+      }
+      function isDark() {
+        var t = document.documentElement.getAttribute('data-theme');
+        if (t) return t === 'dark';
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      function paintLogo() {
+        var img = document.querySelector('.brand img');
+        if (!img) return;
+        var src = img.getAttribute('src') || '';
+        var base = src.replace(/logo(-dark)?\.svg$/, '');
+        if (!base) return;
+        img.setAttribute('src', base + (isDark() ? 'logo-dark.svg' : 'logo.svg'));
+        var pic = img.closest('picture');
+        if (pic) { var s = pic.querySelector('source'); if (s) s.remove(); }
+      }
+      apply(saved());
+      if (window.matchMedia) {
+        var mq = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mq.addEventListener) mq.addEventListener('change', function () { if (!saved()) paintLogo(); });
+      }
+      /* Toggle button: auto -> light -> dark -> auto. Injected into the header. */
+      var header = document.querySelector('.header-inner');
+      if (header && !header.querySelector('.theme-toggle')) {
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'theme-toggle';
+        var icons = { auto: '\u25D0', light: '\u2600', dark: '\u263E' };
+        var labels = { auto: 'Appearance: automatic', light: 'Appearance: light', dark: 'Appearance: dark' };
+        function state() { return saved() || 'auto'; }
+        function paint() {
+          var st = state();
+          btn.textContent = icons[st];
+          btn.setAttribute('aria-label', labels[st] + ' — activate to change');
+          btn.title = labels[st];
+        }
+        btn.addEventListener('click', function () {
+          var next = state() === 'auto' ? 'light' : state() === 'light' ? 'dark' : 'auto';
+          try {
+            if (next === 'auto') localStorage.removeItem('nv-theme');
+            else localStorage.setItem('nv-theme', next);
+          } catch (e) {}
+          apply(next === 'auto' ? null : next);
+          paint();
+        });
+        paint();
+        header.appendChild(btn);
+      }
+    }());
+    /* ---- Market status: NGX trades Mon–Fri 9:30–14:30 WAT (UTC+1) ---- */
+    (function marketStatus() {
+      var statusEl = document.querySelector('.topline .status');
+      if (!statusEl) return;
+      var now = new Date();
+      var wat = new Date(now.getTime() + (now.getTimezoneOffset() + 60) * 60000);
+      var day = wat.getDay(), mins = wat.getHours() * 60 + wat.getMinutes();
+      var open = day >= 1 && day <= 5 && mins >= 570 && mins < 870;
+      statusEl.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (open ? 'MARKET OPEN' : 'MARKET CLOSED');
+      statusEl.classList.toggle('closed', !open);
+      var hh = String(wat.getHours()).padStart(2, '0'), mm = String(wat.getMinutes()).padStart(2, '0');
+      statusEl.title = 'Nigerian Exchange trading hours: Mon–Fri 9:30–14:30 WAT. Now ' + hh + ':' + mm + ' WAT.';
+    }());
     /* ---- Auth nav: runs FIRST so links appear even if a widget below throws ---- */
     (function authNav() {
       var nav = document.querySelector('.site-nav');
