@@ -22,7 +22,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Nairaview — Nigerian Stock Exchange (NGX) Market Data, News & Tools</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927n" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927o" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -50,7 +50,7 @@
     </div>
     <div class="topline">
           <span class="status"><i class="status-dot" aria-hidden="true"></i> MARKET CLOSED</span>
-          <span>SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
+          <span id="toplineDate">SNAPSHOT · FRI 25 SEP 2026 · WAT</span>
         </div>
     <main>
       <section class="hero" aria-labelledby="market-heading">
@@ -58,9 +58,9 @@
                 <div class="eyebrow">NGX All-Share Index</div>
                 <h1 id="market-heading">252,113.41</h1>
                 <div class="ticker-name">Nigerian Exchange equities benchmark</div>
-                <div class="hero-move"><span class="down">−0.015%</span><span class="points">−36.60 points today</span></div>
+                <div class="hero-move" id="heroMove"><span class="down">−0.015%</span><span class="points">−36.60 points today</span></div>
               </div>
-              <aside class="snapshot-note">
+              <aside class="snapshot-note" id="heroNote">
                 <strong>A close-of-market snapshot</strong>
                 <p>The ticker tape above shows the day's biggest movers as of 25 September 2026. Figures in the sections below are fixed at the same date — for newer official quotes, use NGX’s market page, where prices are shown with a 30-minute delay.</p>
                 <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>
@@ -77,15 +77,15 @@
                    data-full-width-responsive="true"></ins>
             </div>
       <section class="metrics" aria-label="Market summary">
-              <article class="metric"><span class="metric-label">Market cap</span><span class="metric-value">₦163.655tn</span><span class="metric-detail">−₦24bn on the day</span></article>
-              <article class="metric"><span class="metric-label">Volume</span><span class="metric-value">708.81m</span><span class="metric-detail">shares traded</span></article>
-              <article class="metric"><span class="metric-label">Deals</span><span class="metric-value">42,434</span><span class="metric-detail">completed trades</span></article>
-              <article class="metric"><span class="metric-label">YTD</span><span class="metric-value" style="color:var(--green-strong)">+62.02%</span><span class="metric-detail">calculated from 31 Dec 2025</span></article>
+              <article class="metric"><span class="metric-label">Market cap</span><span class="metric-value" id="metricMcap">₦163.655tn</span><span class="metric-detail" id="metricMcapDetail">−₦24bn on the day</span></article>
+              <article class="metric"><span class="metric-label">Volume</span><span class="metric-value" id="metricVol">708.81m</span><span class="metric-detail" id="metricVolDetail">shares traded</span></article>
+              <article class="metric"><span class="metric-label">Deals</span><span class="metric-value" id="metricDeals">42,434</span><span class="metric-detail" id="metricDealsDetail">completed trades</span></article>
+              <article class="metric"><span class="metric-label">YTD</span><span class="metric-value" style="color:var(--green-strong)" id="metricYtd">+62.02%</span><span class="metric-detail" id="metricYtdDetail">calculated from 31 Dec 2025</span></article>
             </section>
       <section class="section" id="performance">
               <div class="section-heading">
                 <h2>Market performance</h2>
-                <p>Explore selected verified ASI closes. The line connects only sourced sessions; it is not an intraday feed.</p>
+                <p id="chartSub">Explore selected verified ASI closes. The line connects only sourced sessions; it is not an intraday feed.</p>
               </div>
               <div class="chart-card">
                 <div class="chart-top">
@@ -189,8 +189,9 @@
            data-ad-format="auto"
            data-full-width-responsive="true"></ins>
     </div>
-  <script src="assets/data.js?v=20260927n"></script>
-  <script src="assets/site.js?v=20260927n"></script>
+  <script src="assets/data.js?v=20260927o"></script>
+  <script src="assets/site.js?v=20260927o"></script>
+  <script src="assets/live.js?v=20260927o"></script>
   <script>
       (adsbygoogle = window.adsbygoogle || []).push({});
       (adsbygoogle = window.adsbygoogle || []).push({});

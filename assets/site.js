@@ -81,8 +81,23 @@
     }());
     (function () {
       
-      var cutoffs = { '1W': '2026-09-18', '1M': '2026-08-28', '3M': '2026-06-26', '6M': '2026-03-13', 'YTD': '2025-12-31' };
-      var changes = { '1W': '+0.92% since 18 Sep 2026', '1M': '+4.48% since 28 Aug 2026', '3M': '+8.65% since 26 Jun 2026', '6M': '+27.07% since 13 Mar 2026', 'YTD': '+62.02% since 31 Dec 2025' };
+      var rangeSessions = { '1W': 5, '1M': 22, '3M': 66, '6M': 132, 'YTD': 'ytd' };
+      var currentRange = 'YTD';
+      /* Points for a range: last N sessions, or every session since 1 Jan for YTD.
+         Works on the snapshot asiHistory and on live data swapped in later. */
+      function rangePoints(range) {
+        if (range === 'YTD') {
+          var yr = String(new Date().getFullYear());
+          var pts = asiHistory.filter(function (p) { return p.d >= yr + '-01-01'; });
+          return pts.length > 1 ? pts : asiHistory.slice(-22);
+        }
+        return asiHistory.slice(-Math.min(rangeSessions[range] || 22, asiHistory.length));
+      }
+      function fmtAsiLabel(iso) {
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var parts = String(iso).split('-');
+        return parts[2].replace(/^0/, '') + ' ' + months[Number(parts[1]) - 1] + ' ' + parts[0];
+      }
       var svg = document.getElementById('asiChart');
       var tooltip = document.getElementById('tooltip');
       var periodLabel = document.getElementById('periodLabel');
@@ -97,9 +112,11 @@
       }
       function draw(range) {
         while (svg.firstChild) svg.removeChild(svg.firstChild);
-        var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index selected closing values'; svg.appendChild(title);
-        var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending 25 September 2026.'; svg.appendChild(desc);
-        var points = asiHistory.filter(function (p) { return p.d >= cutoffs[range]; });
+        var points = rangePoints(range);
+        if (!points.length) return;
+        function plabel(p) { return p.label || fmtAsiLabel(p.d); }
+        var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index closing values'; svg.appendChild(title);
+        var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending ' + plabel(points[points.length - 1]) + '.'; svg.appendChild(desc);
         var W = 1000, H = 360, L = 72, R = 28, T = 34, B = 46;
         var vals = points.map(function (p) { return p.v; });
         var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
@@ -119,11 +136,11 @@
         svg.appendChild(node('path', { d: areaD, 'class': 'area' }));
         svg.appendChild(node('path', { d: lineD, 'class': 'series' }));
         points.forEach(function (p, idx) {
-          var dot = node('circle', { cx: coords[idx][0], cy: coords[idx][1], r: 5, 'class': 'chart-dot', tabindex: '0', role: 'button', 'aria-label': p.label + ': ' + formatNumber(p.v) });
+          var dot = node('circle', { cx: coords[idx][0], cy: coords[idx][1], r: 5, 'class': 'chart-dot', tabindex: '0', role: 'button', 'aria-label': plabel(p) + ': ' + formatNumber(p.v) });
           function show() {
             var wrap = svg.parentElement.getBoundingClientRect();
             var box = svg.getBoundingClientRect();
-            tooltip.textContent = p.label + ' · ' + formatNumber(p.v);
+            tooltip.textContent = plabel(p) + ' · ' + formatNumber(p.v);
             tooltip.style.left = ((coords[idx][0] / W) * box.width + box.left - wrap.left) + 'px';
             tooltip.style.top = ((coords[idx][1] / H) * box.height + box.top - wrap.top) + 'px';
             tooltip.classList.add('visible'); tooltip.setAttribute('aria-hidden', 'false');
@@ -132,15 +149,19 @@
           dot.addEventListener('mouseenter', show); dot.addEventListener('focus', show); dot.addEventListener('click', show); dot.addEventListener('mouseleave', hide); dot.addEventListener('blur', hide);
           svg.appendChild(dot);
         });
-        var first = node('text', { x: L, y: H - 17, 'text-anchor': 'start', 'class': 'axis-label' }); first.textContent = points[0].label; svg.appendChild(first);
-        var last = node('text', { x: W - R, y: H - 17, 'text-anchor': 'end', 'class': 'axis-label' }); last.textContent = points[points.length-1].label; svg.appendChild(last);
-        chartChange.textContent = changes[range];
-        periodLabel.textContent = points[0].label + ' — ' + points[points.length-1].label;
+        var first = node('text', { x: L, y: H - 17, 'text-anchor': 'start', 'class': 'axis-label' }); first.textContent = plabel(points[0]); svg.appendChild(first);
+        var last = node('text', { x: W - R, y: H - 17, 'text-anchor': 'end', 'class': 'axis-label' }); last.textContent = plabel(points[points.length-1]); svg.appendChild(last);
+        var chgPct = (points[points.length - 1].v - points[0].v) / points[0].v * 100;
+        chartChange.textContent = (chgPct < 0 ? '−' : '+') + Math.abs(chgPct).toFixed(2) + '% since ' + plabel(points[0]);
+        chartChange.className = 'chart-change ' + (chgPct < 0 ? 'down' : 'up');
+        periodLabel.textContent = plabel(points[0]) + ' — ' + plabel(points[points.length-1]);
       }
       document.querySelectorAll('.range-button').forEach(function (button) {
         button.addEventListener('click', function () {
           document.querySelectorAll('.range-button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
-          button.setAttribute('aria-pressed', 'true'); draw(button.getAttribute('data-range'));
+          button.setAttribute('aria-pressed', 'true');
+          currentRange = button.getAttribute('data-range');
+          draw(currentRange);
         });
       });
 
@@ -491,7 +512,7 @@
         document.body.classList.remove('ad-sticky-on');
       });
       /* ---- Native market ticker (own snapshot data; replaces blocked ngnmarket iframe) ---- */
-      (function () {
+      function renderTape() {
         var track = document.getElementById('tickerTrack');
         if (!track) return;
         var rows = (typeof tables !== 'undefined') ? tables.gainers.concat(tables.losers) : [];
@@ -502,11 +523,13 @@
             '<span class="tk-m ' + (r.d === 'up' ? 'up' : 'down') + '">' + r.m + '</span></span>';
         }).join('');
         track.innerHTML = html + html; /* duplicate for a seamless -50% loop */
-      }());
+      }
+      renderTape();
       /* ---- Market heatmap ---- */
-      (function buildHeatmap() {
+      function renderHeatmap() {
         var host = document.getElementById('heatTiles');
         if (!host) return;
+        host.innerHTML = '';
         tables.gainers.concat(tables.losers).forEach(function (r) {
           var t = document.createElement('button');
           t.type = 'button'; t.className = 'heat-tile'; t.setAttribute('role', 'listitem');
@@ -523,7 +546,8 @@
           t.addEventListener('click', function () { openModal(r.s, t); });
           host.appendChild(t);
         });
-      }());
+      }
+      renderHeatmap();
       /* ---- Stock screener ---- */
       if (document.getElementById('screenList')) {
       var scrState = { mover: 'all', sector: 'All', minP: '', maxP: '', minC: '', maxC: '', sort: 'chg-desc' };
@@ -659,4 +683,13 @@
       if (document.getElementById('asiChart')) draw('YTD');
       render();
       renderDirectory();
+      /* Live-data hooks: assets/live.js swaps in fresh market data after load
+         and calls these to repaint without a page reload. */
+      window.NV = window.NV || {};
+      window.NV.redrawAsi = function (r) { if (document.getElementById('asiChart')) draw(r || currentRange); };
+      window.NV.renderTape = function () { renderTape(); };
+      window.NV.renderHeatmap = function () { renderHeatmap(); };
+      window.NV.renderTables = function () { render(); };
+      window.NV.renderDirectory = function () { renderDirectory(); };
+      window.NV.renderScreener = function () { if (typeof renderScreener === 'function' && document.getElementById('screenList')) renderScreener(); };
     }());

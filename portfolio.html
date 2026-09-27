@@ -22,7 +22,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>My Portfolio | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927n" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927o" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -63,7 +63,7 @@
             <div class="fact"><span>Total cost</span><strong id="totCost">&mdash;</strong></div>
             <div class="fact"><span>Gain / loss (covered)</span><strong id="totGain">&mdash;</strong></div>
           </div>
-          <p class="asof">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only, and gain/loss is calculated on covered holdings only.</p>
+          <p class="asof" id="priceNote">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only, and gain/loss is calculated on covered holdings only.</p>
           <p class="form-note"><a href="account">Account settings &amp; log out</a></p>
 
           <div class="movers-col">
@@ -87,14 +87,29 @@
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
   </div>
-  <script src="assets/data.js?v=20260927n"></script>
-  <script src="assets/site.js?v=20260927n"></script>
+  <script src="assets/data.js?v=20260927o"></script>
+  <script src="assets/site.js?v=20260927o"></script>
+  <script src="assets/live.js?v=20260927o"></script>
   <script>
   (function () {
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
-    // Snapshot prices, 25 Sep 2026 close (verified research).
+    // Snapshot prices, 25 Sep 2026 close (verified research). Live prices from
+    // assets/live.js override these when the daily feed loads (more tickers too).
     var PRICES = { DANGCEM: 1066.70, SEPLAT: 16000.10, GTCO: 137, ZENITHBANK: 134.90, FIRSTHOLDCO: 156.60, UBA: 45.20, ACCESSCORP: 31.55, STANBIC: 164, TRANSCORP: 37, NESTLE: 2950, NB: 76 };
     var PAGES = { DANGCEM: 1, SEPLAT: 1, GTCO: 1, ZENITHBANK: 1, FIRSTHOLDCO: 1, UBA: 1, ACCESSCORP: 1, STANBIC: 1, TRANSCORP: 1, NESTLE: 1, NB: 1 };
+    var lastHoldings = [];
+
+    window.addEventListener('nv:live-prices', function (e) {
+      var map = (e.detail && e.detail.map) || {};
+      var n = 0;
+      Object.keys(map).forEach(function (t) { if (map[t] > 0) { PRICES[t] = map[t]; n++; } });
+      if (!n) return;
+      render(lastHoldings);
+      var intro = document.getElementById('portfolioIntro');
+      if (intro) intro.textContent = 'Your holdings, valued at the latest daily-close prices (' + n + ' stocks covered).';
+      var note = document.getElementById('priceNote');
+      if (note) note.textContent = 'Valued at the latest daily-close prices, refreshed after each market close. Gain/loss is calculated on covered holdings only.';
+    });
 
     function naira(n) {
       return '\u20A6' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -109,7 +124,8 @@
       }).then(function (out) {
         if (!out) return;
         document.getElementById('portfolioApp').hidden = false;
-        render(out.holdings || []);
+        lastHoldings = out.holdings || [];
+        render(lastHoldings);
       }).catch(function () {
         window.location.href = 'account';
       });
