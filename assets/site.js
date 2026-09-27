@@ -295,10 +295,10 @@
         currentModal = null;
         if (lastFocused && lastFocused.focus) lastFocused.focus();
       }
-      modalClose.addEventListener('click', closeModal);
-      backdrop.addEventListener('click', function (ev) { if (ev.target === backdrop) closeModal(); });
-      document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !backdrop.hidden) closeModal(); });
-      modalStar.addEventListener('click', function () { if (currentModal) toggleStar(currentModal); });
+      if (modalClose) modalClose.addEventListener('click', closeModal);
+      if (backdrop) backdrop.addEventListener('click', function (ev) { if (ev.target === backdrop) closeModal(); });
+      document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && backdrop && !backdrop.hidden) closeModal(); });
+      if (modalStar) modalStar.addEventListener('click', function () { if (currentModal) toggleStar(currentModal); });
       var newsState = { sector: 'All' };
       var newsChips = document.getElementById('newsChips');
       var newsCards = Array.prototype.slice.call(document.querySelectorAll('.news-card'));
@@ -539,7 +539,7 @@
       }
       link(prefix + 'portfolio', 'Portfolio', /portfolio$/.test(here));
       var acct = link(prefix + 'account', 'Sign in', /account$/.test(here));
-      fetch('/api/auth/me').then(function (res) {
+      fetch('https://nairaview-api.meetomidiora.workers.dev/api/auth/me', { credentials: 'include' }).then(function (res) {
         if (!res.ok) return;
         return res.json();
       }).then(function (me) {
