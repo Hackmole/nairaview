@@ -381,7 +381,7 @@
 .tldr p { margin: 0; font-size: 15px; line-height: 1.7; }
 .calc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; margin: 22px 0; max-width: 560px; }
 .calc label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; }
-.calc input { width: 150px; font: 600 16px "IBM Plex Mono", monospace; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); }
+.calc input { width: 150px; font: 600 16px "IBM Plex Mono", monospace; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); }
 .calc-out { margin-top: 12px; font-size: 15px; line-height: 1.7; }
 .calc-out strong { font-family: "IBM Plex Mono", monospace; }
 .calc-note { font-size: 12.5px; color: var(--muted); margin: 8px 0 0; }
@@ -426,3 +426,99 @@
 .form-note { font-size: 12.5px; color: var(--muted); margin: 0; }
 @media (max-width: 700px) { .movers-duo { grid-template-columns: 1fr; } }
 @media (max-width: 700px) { .fact-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ================= Design polish & responsiveness (2026-09-27) ================= */
+
+/* Base refinements */
+::selection { background: var(--green-soft); color: var(--ink); }
+img, svg { max-width: 100%; }
+a, button { -webkit-tap-highlight-color: transparent; }
+
+/* Sticky header with frosted blur */
+.site-header {
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .site-header { background: var(--paper); }
+}
+
+/* Hero glow wash */
+.hero { position: relative; isolation: isolate; }
+.hero::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: -34px; left: 50%; transform: translateX(-50%);
+  width: min(920px, 110%); height: 400px;
+  background: radial-gradient(closest-side, var(--green-soft), transparent);
+  opacity: .55;
+}
+
+/* Card hover lift */
+.news-card, .listing, .offer-card, .guide-steps li {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.news-card:hover, .listing:hover, .offer-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+/* Buttons & interactive controls */
+.btn-primary, .btn-ghost, .ghost-btn, .modal-live, .modal-star, .ticker-chip {
+  transition: transform .12s ease, filter .15s ease, background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.btn-primary:active, .btn-ghost:active, .ghost-btn:active { transform: scale(.98); }
+.range-button, .sector-chip, .switcher button, .sort-bar button {
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.heat-tile { transition: transform .15s ease, filter .15s ease; }
+.heat-tile:hover { transform: scale(1.025); }
+.heat-tile:active { transform: scale(.99); }
+.screen-fields input, .screen-fields select { font-family: "Public Sans", system-ui, sans-serif; }
+
+/* Wrapped mobile nav: pill style reads better than underline tabs */
+@media (max-width: 700px) {
+  .header-inner { gap: 0; }
+  .site-nav { gap: 6px; padding: 4px 0 10px; }
+  .site-nav a { border: 1px solid var(--line); border-radius: 999px; padding: 10px 14px 9px; }
+  .site-nav a.active { border-color: var(--green); background: var(--green-soft); color: var(--green-strong); }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .shell { width: calc(100% - 28px); }
+  .header-inner { width: calc(100% - 28px); }
+  h1 { font-size: clamp(40px, 15vw, 54px); }
+  .topline { font-size: 11px; gap: 12px; }
+  .section { padding: 36px 0; }
+  .section-heading h2 { font-size: clamp(24px, 7vw, 30px); }
+  .metric { padding: 14px 12px; }
+  .metric-value { font-size: 19px; }
+  .market-row { grid-template-columns: 24px minmax(0, 1fr) auto; gap: 10px; padding: 14px; }
+  .sort-bar { grid-template-columns: 24px minmax(0, 1fr) auto; padding: 10px 14px; }
+  .heat-tile { padding: 14px 12px; }
+  .heat-tile .ht-c { font-size: 19px; }
+  .screen-controls { padding: 14px; }
+  .modal-backdrop { padding: 12px; }
+  .modal { padding: 24px 20px 20px; max-height: calc(100dvh - 24px); overflow-y: auto; }
+  .chart-value { font-size: 24px; }
+  .news-feature h3 { font-size: 26px; }
+  .offer-card { padding: 18px; }
+  .guide-steps li { padding-left: 58px; }
+  .hours strong { font-size: clamp(32px, 12vw, 44px); }
+}
+
+/* Touch devices: generous tap targets without breaking layout */
+@media (pointer: coarse) {
+  .site-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+  .range-button, .sector-chip, .ghost-btn, .btn-ghost, .btn-primary { min-height: 44px; }
+  .switcher button { min-height: 52px; }
+  .star { position: relative; }
+  .star::after { content: ""; position: absolute; inset: -8px; }
+  .heat-tile { min-height: 88px; }
+}
+
+/* Landscape phones: tighten vertical rhythm */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero { padding: 26px 0 18px; }
+  h1 { font-size: clamp(38px, 9vh, 58px); }
+  .section { padding: 32px 0; }
+  .modal-backdrop { align-items: flex-start; }
+}
