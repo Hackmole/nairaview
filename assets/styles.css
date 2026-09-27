@@ -352,8 +352,9 @@
 /* Multi-page header/nav (v2) */
 .site-header { position: sticky; top: 0; z-index: 60; background: var(--paper); border-bottom: 1px solid var(--line); }
 .header-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; display: flex; align-items: center; gap: 24px; }
-.brand { font: 650 21px/1 "Newsreader", Georgia, serif; color: var(--ink); text-decoration: none; padding: 15px 0; white-space: nowrap; }
+.brand { font: 650 21px/1 "Newsreader", Georgia, serif; color: var(--ink); text-decoration: none; padding: 15px 0; white-space: nowrap; display: inline-flex; align-items: center; }
 .brand span { color: var(--green-strong); }
+.brand img { height: 34px; width: auto; display: block; }
 .site-nav { display: flex; gap: 2px; overflow-x: auto; margin-left: auto; scrollbar-width: none; }
 .site-nav::-webkit-scrollbar { display: none; }
 .site-nav a { font: 600 11.5px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); text-decoration: none; padding: 19px 11px 17px; white-space: nowrap; border-bottom: 2px solid transparent; }
