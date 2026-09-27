@@ -8,20 +8,20 @@
   <meta name="theme-color" content="#087a4b" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Nairaview" />
-<meta property="og:title" content="Dangote Refinery IPO Dates: Close, Allotment &amp; Listing | Nairaview" />
-<meta property="og:description" content="When does the Dangote Refinery IPO close? Key dates: 13 Oct 2026 offer close, November allotment, refunds within days, and NGX listing expected early December." />
-<meta property="og:url" content="https://nairaview.com/dangote-refinery-ipo-key-dates" />
+<meta property="og:title" content="Dangote Refinery IPO Calculator: How Many Shares Will Your Money Buy? | Nairaview" />
+<meta property="og:description" content="Dangote Refinery IPO share calculator: enter any amount in naira and see how many shares it buys at ₦525 each, with the ₦5,250 minimum. Instant result." />
+<meta property="og:url" content="https://nairaview.com/dangote-refinery-ipo-calculator" />
 <meta property="og:image" content="https://nairaview.com/assets/og-default.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Dangote Refinery IPO Dates: Close, Allotment &amp; Listing | Nairaview" />
-<meta name="twitter:description" content="When does the Dangote Refinery IPO close? Key dates: 13 Oct 2026 offer close, November allotment, refunds within days, and NGX listing expected early December." />
+<meta name="twitter:title" content="Dangote Refinery IPO Calculator: How Many Shares Will Your Money Buy? | Nairaview" />
+<meta name="twitter:description" content="Dangote Refinery IPO share calculator: enter any amount in naira and see how many shares it buys at ₦525 each, with the ₦5,250 minimum. Instant result." />
 <meta name="twitter:image" content="https://nairaview.com/assets/og-default.png" />
-<link rel="canonical" href="https://nairaview.com/dangote-refinery-ipo-key-dates" />
-  <meta name="description" content="When does the Dangote Refinery IPO close? Key dates: 13 Oct 2026 offer close, November allotment, refunds within days, and NGX listing expected early December." />
+<link rel="canonical" href="https://nairaview.com/dangote-refinery-ipo-calculator" />
+  <meta name="description" content="Dangote Refinery IPO share calculator: enter any amount in naira and see how many shares it buys at ₦525 each, with the ₦5,250 minimum. Instant result." />
   <link rel="icon" href="assets/logo-icon.svg" type="image/svg+xml">
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <title>Dangote Refinery IPO Dates: Close, Allotment &amp; Listing | Nairaview</title>
+  <title>Dangote Refinery IPO Calculator: How Many Shares Will Your Money Buy? | Nairaview</title>
   <link rel="stylesheet" href="assets/styles.css?v=20260927u" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,27 +53,69 @@
     <main>
       <section class="section">
         <div class="section-heading">
-          <p class="kicker">IPO GUIDE &middot; KEY DATES</p>
-          <h1>Dangote Refinery IPO: every key date from offer close to NGX listing</h1>
+          <p class="kicker">IPO GUIDE &middot; CALCULATOR</p>
+          <h1>Dangote Refinery IPO calculator: how many shares will your money buy?</h1>
           <div class="tldr">
             <span class="tldr-label">In short</span>
-            <p>The offer closes on <strong>13 October 2026</strong>. Allotment is expected in <strong>November</strong>, refunds for unallotted shares follow within about five business days of approval, and trading on the NGX is targeted for <strong>early December 2026</strong>. Treat post-close dates as indicative — they can shift.</p>
+            <p>At the fixed <strong>₦525 offer price</strong>, every ₦525 of your investment buys one share. Enter an amount below — the calculator rounds down to whole shares and shows your leftover.</p>
           </div>
         </div>
-        <p class="guide-p">Buying the shares is only the first date that matters. Between paying and being able to sell, your application passes through collation, SEC approval of the allotment, refunds, CSCS crediting and finally listing. Here is the indicative schedule reported for the offer:</p>
+        <p class="guide-p">Type any amount and see instantly how many Dangote Refinery IPO shares it buys at the fixed offer price of <strong>₦525 per share</strong>. The minimum subscription is 10 shares (₦5,250).</p>
+        <div class="calc" id="ipoCalc">
+          <label for="calcAmt">How much do you want to invest? (₦)</label>
+          <input id="calcAmt" type="number" min="0" step="1000" value="52500" inputmode="numeric" aria-describedby="calcOut" />
+          <div class="sector-chips" style="margin-top:10px" role="group" aria-label="Quick amounts">
+            <button type="button" class="sector-chip" data-amt="5250">₦5,250</button>
+            <button type="button" class="sector-chip" data-amt="26250">₦26,250</button>
+            <button type="button" class="sector-chip" data-amt="52500">₦52,500</button>
+            <button type="button" class="sector-chip" data-amt="105000">₦105,000</button>
+            <button type="button" class="sector-chip" data-amt="525000">₦525,000</button>
+          </div>
+          <div class="calc-out" id="calcOut" aria-live="polite"></div>
+          <p class="calc-note">Excludes bank/platform transaction fees. If the offer is oversubscribed, you may be allotted fewer shares and refunded the difference. Definitive terms are in the offer prospectus.</p>
+        </div>
+        <script>
+        (function () {
+          var PRICE = 525, MIN_SHARES = 10;
+          var amtEl = document.getElementById('calcAmt');
+          var outEl = document.getElementById('calcOut');
+          function fmtN(n) { return '₦' + n.toLocaleString('en-NG'); }
+          function fmtInt(n) { return n.toLocaleString('en-NG'); }
+          function run() {
+            var v = parseFloat(amtEl.value);
+            if (!v || v <= 0) { outEl.textContent = 'Enter an amount to see how many shares it buys.'; return; }
+            if (v < PRICE * MIN_SHARES) {
+              outEl.innerHTML = 'That is below the <strong>' + fmtN(PRICE * MIN_SHARES) + '</strong> minimum (10 shares). You need at least ' + fmtN(PRICE * MIN_SHARES - Math.floor(v)) + ' more.';
+              return;
+            }
+            var shares = Math.floor(v / PRICE);
+            var cost = shares * PRICE;
+            var leftover = Math.round(v - cost);
+            var html = 'You get <strong>' + fmtInt(shares) + ' shares</strong> for <strong>' + fmtN(cost) + '</strong>';
+            if (leftover > 0) html += ', with <strong>' + fmtN(leftover) + '</strong> left over';
+            html += '.';
+            outEl.innerHTML = html;
+          }
+          amtEl.addEventListener('input', run);
+          document.querySelectorAll('#ipoCalc .sector-chip').forEach(function (chip) {
+            chip.addEventListener('click', function () {
+              amtEl.value = chip.getAttribute('data-amt');
+              document.querySelectorAll('#ipoCalc .sector-chip').forEach(function (c) { c.setAttribute('aria-pressed', 'false'); });
+              chip.setAttribute('aria-pressed', 'true');
+              run();
+            });
+          });
+          run();
+        })();
+        </script>
+        <h2 class="guide-h2">How the maths works</h2>
         <ul class="guide-list">
-          <li><strong>14 Sep 2026:</strong> offer opened.</li>
-          <li><strong>13 Oct 2026:</strong> offer closes. Applications with full payment must be submitted before the window shuts.</li>
-          <li><strong>~27 Oct 2026:</strong> registrars collate every application received across all channels.</li>
-          <li><strong>~5 Nov 2026:</strong> the proposed Basis of Allotment — the rule deciding who gets how many shares — goes to the SEC for approval.</li>
-          <li><strong>~11 Nov 2026:</strong> SEC no-objection expected; allotment results announced about a business day later.</li>
-          <li><strong>~Mid-to-late Nov 2026:</strong> refunds for unallotted or rejected applications, roughly five business days after clearance, paid automatically through your application channel.</li>
-          <li><strong>~Early Dec 2026:</strong> shares credited to CSCS accounts and trading begins on the NGX, about fifteen business days after allotment clearance.</li>
+          <li><strong>Shares:</strong> your amount divided by ₦525, rounded <em>down</em> — you can’t buy fractions of a share.</li>
+          <li><strong>Cost:</strong> shares &times; ₦525. Anything left over stays in your pocket (or covers fees).</li>
+          <li><strong>Minimum:</strong> anything below ₦5,250 can’t buy the 10-share minimum.</li>
         </ul>
-        <h2 class="guide-h2">Why the gap matters</h2>
-        <p class="guide-p">From the October close to the December listing, your money is committed but your shares are not yet tradable. If you might need the cash before year-end, that lock-up period matters more than the offer price. Refunds for shares you were not allotted come back automatically — you do not need to chase anyone.</p>
-        <h2 class="guide-h2">Dates can move</h2>
-        <p class="guide-p">Every post-close date above is indicative. Regulatory steps sometimes take longer than planned, and the official Allotment Announcement after the window closes is the document that confirms the real timetable. Watch the issuer’s announcements rather than social media for changes.</p>
+        <h2 class="guide-h2">After you know your number</h2>
+        <p class="guide-p">Once you have a figure in mind, read <a href="dangote-refinery-ipo-channels">where to buy the shares</a>, check <a href="dangote-refinery-ipo-key-dates">the key dates</a> so you don’t miss the 13 October 2026 close, and run through <a href="dangote-refinery-ipo-should-i-buy">the 7 questions to ask first</a>.</p>
         <div class="ad-slot ad-leaderboard" aria-hidden="true">
           <div class="ad-label">Advertisement</div>
 <script>
@@ -89,24 +131,25 @@
         </div>
         <h2 class="guide-h2">Quick summary</h2>
         <ul class="guide-list">
-          <li>Offer closes 13 Oct 2026 — applications and payment must be in before then.</li>
-          <li>Allotment runs through November, with SEC approval of the sharing formula.</li>
-          <li>Refunds for unallotted shares are automatic, about five business days after clearance.</li>
-          <li>NGX listing and trading targeted for early December 2026; money is locked until then.</li>
+          <li>Fixed offer price: ₦525 per share; minimum 10 shares (₦5,250).</li>
+          <li>Shares = your amount ÷ 525, rounded down; leftover stays with you.</li>
+          <li>Try the quick amounts or type any figure — the result updates instantly.</li>
+          <li>Excludes transaction fees; oversubscription may reduce your final allotment.</li>
         </ul>
         <div class="nextbox">
           <h3>Keep reading the IPO series</h3>
           <ul>
             <li><a href="dangote-refinery-ipo-guide">Dangote Refinery IPO: the full how-to-buy guide</a></li>
             <li><a href="dangote-refinery-ipo-price">Share price and minimum investment: &#8358;525 per share</a></li>
+            <li><a href="dangote-refinery-ipo-key-dates">Every key date: offer close, allotment and NGX listing</a></li>
             <li><a href="dangote-refinery-ipo-channels">Where to buy: approved banks, fintechs and NGX Invest</a></li>
             <li><a href="dangote-refinery-ipo-should-i-buy">Should you buy? 7 questions to ask first</a></li>
             <li><a href="ipo-allotment-explained">Oversubscribed? How allotment and refunds work</a></li>
             <li><a href="ipo-prospectus-guide">How to read the IPO prospectus: the 7 sections that matter</a></li>
             <li><a href="ipo-mistakes">7 mistakes that could cost you your allocation</a></li>
-          
-            <li><a href="dangote-refinery-ipo-calculator">IPO share calculator: how many shares will your money buy?</a></li>
-        <p class="guide-p">This is general information about the offer, not investment advice. The definitive terms are in the official offer prospectus. <em>Sources: <a href="https://blog.remita.net/dangote-refinery-ipo-answers-to-frequently-asked-questions/" target="_blank" rel="noopener noreferrer">Remita</a>, <a href="https://thedailyleaks.com/dangote-refinery-unlocks-trillion-naira-public-ownership-in-africas-biggest-ipo/" target="_blank" rel="noopener noreferrer">The Daily Leaks</a></em></p>
+          </ul>
+        </div>
+        <p class="guide-p">This is general information about the offer, not investment advice. The definitive terms are in the official offer prospectus. <em>Sources: Offer terms as reported by <a href="https://www.pulse.ng/story/dangote-refinery-ipo-key-details-n2-15tn-share-sale-2026090714043519315" target="_blank" rel="noopener noreferrer">Pulse Nigeria</a></em></p>
       </section>
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
