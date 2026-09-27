@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nairaview.meetomidiora.workers.dev/sitemap.xml
+Sitemap: https://nairaview.com/sitemap.xml
