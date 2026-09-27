@@ -10,7 +10,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Account — Sign up or log in | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927i" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927j" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,12 +49,29 @@
           <form id="authForm" class="auth-form">
             <label>Email<input type="email" name="email" required autocomplete="email" placeholder="you@example.com" /></label>
             <label>Password<input type="password" name="password" required minlength="8" autocomplete="current-password" placeholder="At least 8 characters" /></label>
+            <p class="forgot-row"><a href="#" id="forgotLink">Forgot password?</a></p>
             <p class="form-error" id="authError" role="alert" hidden></p>
             <div class="auth-actions">
               <button type="submit" class="btn-primary" id="btnLogin">Log in</button>
               <button type="submit" class="btn-ghost" id="btnSignup">Create account</button>
             </div>
             <p class="form-note">New to Nairaview? Tap <strong>Create account</strong> &mdash; it takes a minute. We store only your email and a scrambled password &mdash; never your broker details.</p>
+          </form>
+          <form id="forgotForm" class="auth-form" hidden>
+            <p class="guide-p">Enter your account email and we&rsquo;ll send you a link to choose a new password.</p>
+            <label>Email<input type="email" id="forgotEmail" required autocomplete="email" placeholder="you@example.com" /></label>
+            <p class="form-error" id="forgotError" role="alert" hidden></p>
+            <p class="form-note" id="forgotSent" hidden>If an account exists for that email, a reset link is on its way. Check your inbox (and spam folder).</p>
+            <div class="auth-actions">
+              <button type="submit" class="btn-primary">Send reset link</button>
+              <button type="button" class="btn-ghost" id="backToLogin">Back to log in</button>
+            </div>
+          </form>
+          <form id="resetForm" class="auth-form" hidden>
+            <label>New password<input type="password" id="resetPassword" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" /></label>
+            <label>Confirm new password<input type="password" id="resetConfirm" required minlength="8" autocomplete="new-password" placeholder="Repeat your new password" /></label>
+            <p class="form-error" id="resetError" role="alert" hidden></p>
+            <button type="submit" class="btn-primary">Set new password</button>
           </form>
         </div>
 
@@ -86,8 +103,8 @@
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
   </div>
-  <script src="assets/data.js?v=20260927i"></script>
-  <script src="assets/site.js?v=20260927i"></script>
+  <script src="assets/data.js?v=20260927j"></script>
+  <script src="assets/site.js?v=20260927j"></script>
   <script>
   (function () {
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
@@ -154,6 +171,62 @@
     });
 
     // Initial state
+    var resetToken = null;
+    try { resetToken = new URLSearchParams(window.location.search).get('reset'); } catch (e) {}
+
+    if (resetToken) {
+      // Password-reset landing: /account?reset=TOKEN
+      document.querySelector('.auth-title').textContent = 'Choose a new password';
+      var guideP = document.querySelector('.section-heading .guide-p');
+      if (guideP) guideP.hidden = true;
+      var resetForm = document.getElementById('resetForm');
+      resetForm.hidden = false;
+      resetForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        document.getElementById('resetError').hidden = true;
+        var pw = document.getElementById('resetPassword').value;
+        if (pw !== document.getElementById('resetConfirm').value) { fail('resetError', 'The two passwords do not match.'); return; }
+        fetch(API + '/api/auth/reset', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: resetToken, password: pw }),
+        }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+          .then(function (r) {
+            if (!r.res.ok) { fail('resetError', r.out.error || 'Could not reset your password.'); return; }
+            window.location.href = 'portfolio';
+          }).catch(function () {
+            fail('resetError', 'Could not reach the server. Check your connection and try again.');
+          });
+      });
+    } else {
+    // Forgot-password toggle
+    document.getElementById('forgotLink').addEventListener('click', function (ev) {
+      ev.preventDefault();
+      authForm.hidden = true;
+      document.getElementById('forgotForm').hidden = false;
+    });
+    document.getElementById('backToLogin').addEventListener('click', function () {
+      document.getElementById('forgotForm').hidden = true;
+      authForm.hidden = false;
+    });
+    document.getElementById('forgotForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      document.getElementById('forgotError').hidden = true;
+      document.getElementById('forgotSent').hidden = true;
+      fetch(API + '/api/auth/forgot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('forgotEmail').value.trim() }),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { fail('forgotError', r.out.error || 'Could not send the reset link.'); return; }
+          document.getElementById('forgotSent').hidden = false;
+        }).catch(function () {
+          fail('forgotError', 'Could not reach the server. Check your connection and try again.');
+        });
+    });
+
     fetch(API + '/api/auth/me', { credentials: 'include' }).then(function (res) {
       if (res.status === 503) {
         document.getElementById('authDown').hidden = false;
@@ -168,6 +241,7 @@
     }).catch(function () {
       document.getElementById('authDown').hidden = false;
     });
+    }
   })();
   </script>
   <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
