@@ -4,21 +4,12 @@
       if (!nav || nav.querySelector('[data-authnav]')) return;
       var prefix = window.location.pathname.indexOf('/stocks/') === 0 ? '../' : '';
       var here = window.location.pathname.replace(/\/$/, '');
-      function link(href, text, active) {
-        var a = document.createElement('a');
-        a.href = href; a.textContent = text; a.setAttribute('data-authnav', '1');
-        if (active) a.className = 'active';
-        nav.appendChild(a);
-        return a;
-      }
-      link(prefix + 'portfolio', 'Portfolio', /portfolio$/.test(here));
-      var acct = link(prefix + 'account', 'Sign in', /account$/.test(here));
-      fetch('https://nairaview-api.meetomidiora.workers.dev/api/auth/me', { credentials: 'include' }).then(function (res) {
-        if (!res.ok) return;
-        return res.json();
-      }).then(function (me) {
-        if (me && me.email) acct.textContent = 'Account';
-      }).catch(function () {});
+      /* Single Portfolio entry: logged-out visitors are routed through sign-in
+         by portfolio.html itself; logged-in users land on their holdings. */
+      var a = document.createElement('a');
+      a.href = prefix + 'portfolio'; a.textContent = 'Portfolio'; a.setAttribute('data-authnav', '1');
+      if (/portfolio$/.test(here)) a.className = 'active';
+      nav.appendChild(a);
     }());
     (function () {
       

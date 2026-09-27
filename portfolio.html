@@ -10,7 +10,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>My Portfolio | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260927f" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260927g" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -45,10 +45,6 @@
           <p class="guide-p" id="portfolioIntro">Your holdings, valued at our latest snapshot prices.</p>
         </div>
 
-        <div id="needLogin" hidden>
-          <p class="guide-p">You need an account to track a portfolio. <a href="account">Sign up or log in</a> &mdash; it takes a minute.</p>
-        </div>
-
         <div id="portfolioApp" hidden>
           <div class="facts" id="portfolioTotals">
             <div class="fact"><span>Total value</span><strong id="totValue">&mdash;</strong></div>
@@ -56,6 +52,7 @@
             <div class="fact"><span>Gain / loss (covered)</span><strong id="totGain">&mdash;</strong></div>
           </div>
           <p class="asof">Valued at Nairaview&rsquo;s 25 Sep 2026 snapshot prices &mdash; not live. Prices exist for 11 covered stocks; other holdings show cost only, and gain/loss is calculated on covered holdings only.</p>
+          <p class="form-note"><a href="account">Account settings &amp; log out</a></p>
 
           <div class="movers-col">
             <table class="movers-table" id="holdingsTable">
@@ -78,8 +75,8 @@
     </main>
     <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
   </div>
-  <script src="assets/data.js?v=20260927f"></script>
-  <script src="assets/site.js?v=20260927f"></script>
+  <script src="assets/data.js?v=20260927g"></script>
+  <script src="assets/site.js?v=20260927g"></script>
   <script>
   (function () {
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
@@ -93,7 +90,8 @@
 
     function load() {
       fetch(API + '/api/holdings', { credentials: 'include' }).then(function (res) {
-        if (res.status === 401) { document.getElementById('needLogin').hidden = false; return; }
+        // Logged out (or API unreachable): Portfolio now funnels through sign-in.
+        if (res.status === 401) { window.location.href = 'account'; return; }
         if (!res.ok) throw new Error('down');
         return res.json();
       }).then(function (out) {
@@ -101,7 +99,7 @@
         document.getElementById('portfolioApp').hidden = false;
         render(out.holdings || []);
       }).catch(function () {
-        document.getElementById('needLogin').hidden = false;
+        window.location.href = 'account';
       });
     }
 
