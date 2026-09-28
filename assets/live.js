@@ -1,6 +1,9 @@
 /* Nairaview live market layer.
-   Fetches the daily-refreshed NGX feed (nairaview-api worker -> Cloudflare KV,
-   pulled each weekday after close) and repaints the hero, metrics, ASI chart,
+   Fetches the NGX feed (nairaview-api worker -> Cloudflare KV): a full pull
+   each weekday after close plus a lighter session poll every 30 minutes
+   while the market is open (Mon-Fri 10:00-14:30 WAT). Session snapshots are
+   ~30 minutes delayed and labeled as such; outside session hours the page
+   shows the latest daily close. Repaints the hero, metrics, ASI chart,
    ticker tape, heatmap, movers tables, directory, screener, stock pages and
    portfolio. Every block is guarded: if the feed is unreachable, the page
    keeps its static snapshot and nothing throws. */
@@ -38,6 +41,13 @@
     if (!m) return '';
     return m[3].replace(/^0/, '') + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1];
   }
+  /* HH:MM in WAT (UTC+1, no DST) from an ISO UTC timestamp. */
+  function fmtTimeWAT(iso) {
+    var m = String(iso || '').match(/T(\d{2}):(\d{2})/);
+    if (!m) return '';
+    var h = (Number(m[1]) + 1) % 24;
+    return (h < 10 ? '0' : '') + h + ':' + m[2];
+  }
   function signedPct(x) {
     x = Number(x) || 0;
     return (x < 0 ? '−' : '+') + Math.abs(x).toFixed(2) + '%';
@@ -68,8 +78,17 @@
     setMetric('metricMcap', 'metricMcapDetail', compact(ov.market_cap), 'as of ' + tradeDate);
     setMetric('metricVol', 'metricVolDetail', compact(ov.volume).replace('₦', ''), 'shares traded');
     setMetric('metricDeals', 'metricDealsDetail', fmtInt(ov.deals), 'completed trades');
+    /* Session state: the 30-min session poll marks its payload, and the
+       status feed carries the real open/closed state. */
+    var st = market.status && market.status.data;
+    var sessionLive = !!(ov.session && st && st.is_open);
+    var sessionTime = sessionLive ? fmtTimeWAT(ov.as_of) : '';
     var td = $('toplineDate');
-    if (td) td.textContent = 'DAILY CLOSE · ' + tradeDate.toUpperCase() + ' · WAT';
+    if (td) {
+      td.textContent = sessionLive
+        ? 'SESSION · AS OF ' + sessionTime + ' WAT · ~30-MIN DELAYED'
+        : 'DAILY CLOSE · ' + tradeDate.toUpperCase() + ' · WAT';
+    }
     /* Market-today auto recap: advancers / decliners / unchanged + ASI move. */
     var note = $('heroNote');
     if (note) {
@@ -79,12 +98,13 @@
         '<p>' + fmtInt(ov.advancers) + ' advancers · ' + fmtInt(ov.decliners) + ' decliners · ' +
         fmtInt(ov.unchanged) + ' unchanged. ASI ' + (pct2 < 0 ? 'eased' : 'rose') + ' ' +
         signedPct(pct2) + ' to ' + fmt2(ov.asi) + '.</p>' +
-        '<p>Updated daily after market close — as of ' + esc(tradeDate) + '. ' +
+        '<p>' + (sessionLive
+          ? 'Updating through the session — prices delayed ~30 minutes. As of ' + esc(sessionTime) + ' WAT.'
+          : 'Updated daily after market close — as of ' + esc(tradeDate) + '. ') +
         'Prices carry the exchange\u2019s usual delay; confirm before acting.</p>' +
         '<a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>';
     }
     /* Real open/closed state beats the clock estimate when available. */
-    var st = market.status && market.status.data;
     if (st && typeof st.is_open === 'boolean') {
       var statusEl = document.querySelector('.topline .status');
       if (statusEl) {
