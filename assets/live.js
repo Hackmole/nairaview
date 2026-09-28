@@ -48,6 +48,10 @@
     var h = (Number(m[1]) + 1) % 24;
     return (h < 10 ? '0' : '') + h + ':' + m[2];
   }
+  /* Current weekday in WAT (0=Sunday..6=Saturday), visitor-timezone-proof. */
+  function watWeekdayNow() {
+    return new Date(Date.now() + 3600000).getUTCDay();
+  }
   function signedPct(x) {
     x = Number(x) || 0;
     return (x < 0 ? '−' : '+') + Math.abs(x).toFixed(2) + '%';
@@ -83,11 +87,16 @@
     var st = market.status && market.status.data;
     var sessionLive = !!(ov.session && st && st.is_open);
     var sessionTime = sessionLive ? fmtTimeWAT(ov.as_of) : '';
-    var td = $('toplineDate');
+    /* Every page carries a .topline-date hook now (index.html keeps its
+       toplineDate id too). Three states: live session > weekday daily
+       close > weekend snapshot, when the last close is two sessions old. */
+    var td = document.querySelector('.topline .topline-date') || $('toplineDate');
     if (td) {
+      var wd = watWeekdayNow();
+      var weekend = wd === 0 || wd === 6;
       td.textContent = sessionLive
         ? 'SESSION · AS OF ' + sessionTime + ' WAT · ~30-MIN DELAYED'
-        : 'DAILY CLOSE · ' + tradeDate.toUpperCase() + ' · WAT';
+        : (weekend ? 'SNAPSHOT · ' : 'DAILY CLOSE · ') + tradeDate.toUpperCase() + ' · WAT';
     }
     /* Market-today auto recap: advancers / decliners / unchanged + ASI move. */
     var note = $('heroNote');
