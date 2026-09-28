@@ -84,6 +84,15 @@
             <p class="form-error" id="resetError" role="alert" hidden></p>
             <button type="submit" class="btn-primary">Set new password</button>
           </form>
+          <form id="tfaForm" class="auth-form" hidden>
+            <p class="guide-p"><strong>Check your authenticator app.</strong> Enter the 6-digit code below. Lost your phone? Type one of your backup codes instead.</p>
+            <label>Code<input type="text" id="tfaLoginCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456 or backup code" /></label>
+            <p class="form-error" id="tfaError" role="alert" hidden></p>
+            <div class="auth-actions">
+              <button type="submit" class="btn-primary">Verify</button>
+              <button type="button" class="btn-ghost" id="tfaBack">Back</button>
+            </div>
+          </form>
         </div>
 
         <div id="authState" class="auth-wrap" hidden>
@@ -98,6 +107,32 @@
             <a class="btn-primary" href="portfolio">Open my portfolio</a>
             <button type="button" class="btn-ghost" id="logoutBtn">Log out</button>
           </p>
+          <div class="auth-form" id="tfaSection" style="margin-top:1.5rem">
+            <p class="guide-p"><strong>Two-factor authentication</strong> <span id="tfaStatus">Checking&hellip;</span></p>
+            <div id="tfaOff" hidden>
+              <p class="guide-p">Adds an extra lock: after your password, you enter a 6-digit code from an authenticator app (Google Authenticator, Authy, 1Password&hellip;).</p>
+              <button type="button" class="btn-primary" id="tfaEnableBtn">Turn on two-factor</button>
+            </div>
+            <div id="tfaSetup" hidden>
+              <p class="guide-p"><strong>Step 1.</strong> In your authenticator app, add an account manually with this key:</p>
+              <p><code id="tfaSecret" style="word-break:break-all"></code></p>
+              <p class="guide-p"><strong>Step 2.</strong> Save these one-time backup codes somewhere safe &mdash; each works once if you lose your phone:</p>
+              <p><code id="tfaBackups" style="word-break:break-all"></code></p>
+              <p class="guide-p"><strong>Step 3.</strong> Enter the 6-digit code from your app to finish:</p>
+              <label>Code<input type="text" id="tfaVerifyCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" /></label>
+              <p class="form-error" id="tfaSetupError" role="alert" hidden></p>
+              <div class="auth-actions">
+                <button type="button" class="btn-primary" id="tfaVerifyBtn">Verify and turn on</button>
+                <button type="button" class="btn-ghost" id="tfaCancelBtn">Cancel</button>
+              </div>
+            </div>
+            <div id="tfaOn" hidden>
+              <p class="guide-p">Two-factor authentication is <strong>on</strong> for your account.</p>
+              <label>Authenticator code (needed to turn it off)<input type="text" id="tfaDisableCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" /></label>
+              <p class="form-error" id="tfaDisableError" role="alert" hidden></p>
+              <button type="button" class="btn-ghost" id="tfaDisableBtn">Turn off two-factor</button>
+            </div>
+          </div>
         </div>
 
         <div id="authDown" class="auth-wrap" hidden>
@@ -107,6 +142,7 @@
         <h2 class="guide-h2">Privacy, briefly</h2>
         <ul class="guide-list">
           <li>We store your email, an optional display name, a salted-and-hashed password (we cannot see your actual password), and the holdings you enter.</li>
+          <li>Turn on two-factor authentication above for an extra lock on your account &mdash; we&rsquo;ll also email you whenever someone signs in.</li>
           <li>Your portfolio is visible only to you, only while logged in.</li>
           <li>We never ask for your broker login, bank details, or CSCS credentials &mdash; anyone who does is not us. See <a href="verify-investment-platform">how to spot scams</a>.</li>
         </ul>
@@ -124,6 +160,7 @@
     var authForm = document.getElementById('authForm');
     // Which submit button was pressed: click fires before submit, so this is reliable.
     var authMode = 'login';
+    var tfaChallenge = null;
     document.getElementById('btnLogin').addEventListener('click', function () { authMode = 'login'; });
     document.getElementById('btnSignup').addEventListener('click', function () { authMode = 'signup'; });
 
@@ -148,6 +185,12 @@
         });
         var out = await res.json();
         if (!res.ok) { fail(errId, out.error || 'Something went wrong.'); return; }
+        if (out.need_2fa) {
+          tfaChallenge = out.challenge;
+          authForm.hidden = true;
+          document.getElementById('tfaForm').hidden = false;
+          return;
+        }
         window.location.href = 'portfolio';
       } catch (e) {
         fail(errId, 'Could not reach the server. Check your connection and try again.');
@@ -225,6 +268,27 @@
       document.getElementById('forgotForm').hidden = true;
       authForm.hidden = false;
     });
+    // Two-factor login step
+    document.getElementById('tfaBack').addEventListener('click', function () {
+      document.getElementById('tfaForm').hidden = true;
+      authForm.hidden = false;
+    });
+    document.getElementById('tfaForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      document.getElementById('tfaError').hidden = true;
+      fetch(API + '/api/auth/2fa/login', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ challenge: tfaChallenge, code: document.getElementById('tfaLoginCode').value.trim() }),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { fail('tfaError', r.out.error || 'Could not verify the code.'); return; }
+          window.location.href = 'portfolio';
+        }).catch(function () {
+          fail('tfaError', 'Could not reach the server. Check your connection and try again.');
+        });
+    });
     document.getElementById('forgotForm').addEventListener('submit', function (ev) {
       ev.preventDefault();
       document.getElementById('forgotError').hidden = true;
@@ -251,10 +315,69 @@
         document.getElementById('authEmail').textContent = me.display_name ? me.display_name + ' (' + me.email + ')' : me.email;
         document.getElementById('profileName').value = me.display_name || '';
         document.getElementById('authState').hidden = false;
+        setTfaUI(!!me.tfa_enabled);
       });
       document.getElementById('authForms').hidden = false;
     }).catch(function () {
       document.getElementById('authDown').hidden = false;
+    });
+
+    function setTfaUI(on) {
+      document.getElementById('tfaStatus').textContent = on ? 'is on.' : 'is off.';
+      document.getElementById('tfaOn').hidden = !on;
+      document.getElementById('tfaOff').hidden = on;
+      document.getElementById('tfaSetup').hidden = true;
+    }
+    document.getElementById('tfaEnableBtn').addEventListener('click', function () {
+      fetch(API + '/api/auth/2fa/setup', { method: 'POST', credentials: 'include' })
+        .then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) {
+            document.getElementById('tfaStatus').textContent = 'could not start setup: ' + (r.out.error || 'try again.');
+            return;
+          }
+          document.getElementById('tfaSecret').textContent = r.out.secret;
+          document.getElementById('tfaBackups').textContent = r.out.backup_codes.join('  ');
+          document.getElementById('tfaSetup').hidden = false;
+          document.getElementById('tfaOff').hidden = true;
+        }).catch(function () {
+          document.getElementById('tfaStatus').textContent = 'could not reach the server.';
+        });
+    });
+    document.getElementById('tfaCancelBtn').addEventListener('click', function () {
+      document.getElementById('tfaSetup').hidden = true;
+      document.getElementById('tfaOff').hidden = false;
+    });
+    document.getElementById('tfaVerifyBtn').addEventListener('click', function () {
+      document.getElementById('tfaSetupError').hidden = true;
+      fetch(API + '/api/auth/2fa/verify', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: document.getElementById('tfaVerifyCode').value.trim() }),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { fail('tfaSetupError', r.out.error || 'Could not verify.'); return; }
+          setTfaUI(true);
+        }).catch(function () {
+          fail('tfaSetupError', 'Could not reach the server.');
+        });
+    });
+    document.getElementById('tfaDisableBtn').addEventListener('click', function () {
+      document.getElementById('tfaDisableError').hidden = true;
+      fetch(API + '/api/auth/2fa/disable', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: document.getElementById('tfaDisableCode').value.trim() }),
+      }).then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })
+        .then(function (r) {
+          if (!r.res.ok) { fail('tfaDisableError', r.out.error || 'Could not turn off.'); return; }
+          document.getElementById('tfaDisableCode').value = '';
+          setTfaUI(false);
+        }).catch(function () {
+          fail('tfaDisableError', 'Could not reach the server.');
+        });
     });
     }
   })();
