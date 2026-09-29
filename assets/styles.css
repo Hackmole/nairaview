@@ -165,7 +165,8 @@
     .table-note { margin: 10px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
     .eyebrow { color: var(--green-strong); font: 600 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
     h1, h2, h3, p { margin-top: 0; }
-    h1 { margin: 12px 0 8px; font: 650 clamp(45px, 8vw, 86px)/.9 "Newsreader", serif; letter-spacing: -.055em; }
+    h1 { margin: 12px 0 8px; font: 650 clamp(32px, 4.5vw, 52px)/1 "Newsreader", serif; letter-spacing: -.04em; }
+    .hero h1 { font: 650 clamp(44px, 7vw, 76px)/.92 "Newsreader", serif; letter-spacing: -.055em; }
     .ticker-name { color: var(--muted); font-size: 16px; }
     .hero-move { display: flex; align-items: baseline; gap: 10px; margin-top: 19px; }
     .hero-move .down { color: var(--red); font: 600 17px/1 "IBM Plex Mono", monospace; }
@@ -188,7 +189,7 @@
     .metric { min-width: 0; padding: 20px 22px 21px; border-right: 1px solid var(--line); }
     .metric:last-child { border-right: 0; }
     .metric-label { display: block; margin-bottom: 8px; color: var(--muted); font: 500 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
-    .metric-value { font: 650 clamp(21px, 3vw, 29px)/1 "Newsreader", serif; white-space: nowrap; }
+    .metric-value { font: 650 clamp(20px, 2.6vw, 26px)/1 "Newsreader", serif; white-space: nowrap; }
     .metric-detail { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
     /* 11. Section sub-nav lives in the sticky market-state bar. */
     .section-subnav { display: flex; gap: 2px; }
@@ -200,7 +201,7 @@
     .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 23px; }
     /* 9. Type scale: kickers organize, h2s step down, key stats get stat treatment. */
     .kicker { color: var(--green-strong); font: 700 11px/1.4 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 8px; }
-    .section-heading h2 { margin: 0; font: 650 clamp(24px, 3vw, 30px)/1.1 "Newsreader", serif; letter-spacing: -.025em; }
+    .section-heading h2 { margin: 0; font: 650 clamp(22px, 2.6vw, 28px)/1.12 "Newsreader", serif; letter-spacing: -.025em; }
     .chart-change { font: 700 15px/1.4 "IBM Plex Mono", monospace; }
     .section-heading p { max-width: 540px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
     .chart-card { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
@@ -297,7 +298,7 @@
     .modal-close { position: absolute; top: 10px; right: 12px; border: 0; background: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--muted); padding: 6px; }
     .modal-close:hover { color: var(--ink); }
     .modal-eyebrow { color: var(--green-strong); font: 600 11px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
-    .modal-symbol { margin: 8px 0 4px; font: 650 34px/1 "Newsreader", serif; letter-spacing: -.02em; }
+    .modal-symbol { margin: 8px 0 4px; font: 650 30px/1 "Newsreader", serif; letter-spacing: -.02em; }
     .modal-company { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 16px; }
     .modal-cell { background: var(--surface); padding: 14px 16px; }
@@ -310,13 +311,13 @@
     .watch-count { color: var(--muted); font-weight: 500; }
     .news-feature { background: var(--surface); border-top: 3px solid var(--green); padding: 26px 28px 28px; }
     .news-feature .date { color: var(--muted); font: 500 11px/1.4 "IBM Plex Mono", monospace; }
-    .news-feature h3 { margin: 14px 0 11px; font: 650 30px/1.05 "Newsreader", serif; letter-spacing: -.02em; }
+    .news-feature h3 { margin: 14px 0 11px; font: 650 27px/1.08 "Newsreader", serif; letter-spacing: -.02em; }
     .news-feature p { color: var(--muted); line-height: 1.6; font-size: 14px; }
     .read-link { color: var(--green-strong); font-weight: 700; text-underline-offset: 4px; font-size: 13px; }
     .listings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
     .listing { background: var(--surface); padding: 22px; min-height: 230px; display: flex; flex-direction: column; }
     .listing-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font: 500 10px/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; }
-    .listing h3 { margin: 28px 0 6px; font: 650 23px/1.08 "Newsreader", serif; }
+    .listing h3 { margin: 28px 0 6px; font: 650 21px/1.12 "Newsreader", serif; }
     .listing .ticker { color: var(--green-strong); font: 600 12px/1.3 "IBM Plex Mono", monospace; }
     .listing-data { margin-top: auto; padding-top: 24px; }
     .listing-data strong { display: block; font: 600 18px/1 "IBM Plex Mono", monospace; }
@@ -352,7 +353,7 @@
     .learn-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: stretch; }
     .hours { background: var(--green-strong); color: #f8fff9; padding: 30px; }
     .hours .small { color: rgba(255,255,255,.72); font: 500 11px/1.4 "IBM Plex Mono", monospace; text-transform: uppercase; }
-    .hours strong { display: block; margin: 22px 0 2px; font: 650 clamp(36px, 6vw, 66px)/.95 "Newsreader", serif; letter-spacing: -.04em; }
+    .hours strong { display: block; margin: 22px 0 2px; font: 650 clamp(30px, 4.5vw, 48px)/.95 "Newsreader", serif; letter-spacing: -.04em; }
     .hours p { color: rgba(255,255,255,.78); line-height: 1.6; font-size: 14px; max-width: 580px; }
     .hours .session { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
     .hours .session div { padding-top: 12px; border-top: 1px solid rgba(255,255,255,.3); }
@@ -388,11 +389,12 @@
       .topline { align-items: flex-start; padding-top: 18px; }
       .topline > span:last-child { text-align: right; }
       .hero { padding-top: 34px; gap: 25px; }
-      h1 { font-size: clamp(51px, 18vw, 74px); }
+      h1 { font-size: clamp(34px, 10vw, 46px); }
+      .hero h1 { font-size: clamp(44px, 16vw, 64px); }
       .snapshot-note { padding: 20px; }
       .metrics { grid-template-columns: 1fr 1fr; }
       .metric { padding: 17px 15px; }
-      .metric-value { font-size: 21px; }
+      .metric-value { font-size: 20px; }
       .section { padding: 43px 0; }
       .section-heading { display: block; }
       .section-heading p { margin-top: 12px; }
@@ -429,7 +431,7 @@
     .heat-tile { border: 0; padding: 18px 16px; text-align: left; cursor: pointer; background: var(--surface); color: var(--ink); }
     .heat-tile:hover { filter: brightness(1.07); }
     .heat-tile .ht-s { display: block; font: 700 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .04em; }
-    .heat-tile .ht-c { display: block; font: 650 22px/1.15 "Newsreader", Georgia, serif; margin-top: 6px; }
+    .heat-tile .ht-c { display: block; font: 650 20px/1.15 "Newsreader", Georgia, serif; margin-top: 6px; }
     .heat-tile .ht-c.up { color: var(--green-strong); }
     .heat-tile .ht-c.down { color: var(--red); }
     .heat-tile .ht-p { display: block; font-size: 11px; margin-top: 4px; color: var(--muted); }
@@ -535,7 +537,7 @@
 .num.down { color: #c0392b; }
 .ticker-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .ticker-chip { font: 600 11px "IBM Plex Mono", monospace; background: var(--green-soft); color: var(--green-strong); border-radius: 20px; padding: 4px 10px; cursor: pointer; }
-.stock-price { font: 600 34px "IBM Plex Mono", monospace; color: var(--ink); margin: 10px 0 2px; }
+.stock-price { font: 600 30px "IBM Plex Mono", monospace; color: var(--ink); margin: 10px 0 2px; }
 .asof { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0 6px; }
 .fact { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--surface); }
@@ -553,7 +555,7 @@
 .auth-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
 .auth-form { display: grid; gap: 12px; max-width: 460px; margin: 6px 0 18px; }
 .auth-form[hidden] { display: none; }
-.auth-title { font: 650 clamp(20px, 4.5vw, 28px)/1.15 "Newsreader", Georgia, serif; letter-spacing: -.02em; text-wrap: balance; margin: 10px 0 6px; }
+.auth-title { font: 650 clamp(20px, 3.5vw, 26px)/1.15 "Newsreader", Georgia, serif; letter-spacing: -.02em; text-wrap: balance; margin: 10px 0 6px; }
 .forgot-row { text-align: right; margin: -2px 0 0; font-size: 13px; }
 .auth-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .auth-actions .btn-ghost { margin-left: 0; }
@@ -661,7 +663,8 @@ a, button { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 480px) {
   .shell { width: calc(100% - 28px); }
   .header-inner { width: calc(100% - 28px); }
-  h1 { font-size: clamp(40px, 15vw, 54px); }
+  h1 { font-size: clamp(30px, 9vw, 40px); }
+  .hero h1 { font-size: clamp(38px, 14vw, 50px); }
   .topline { font-size: 11px; gap: 12px; }
   .section { padding: 36px 0; }
   .section-heading h2 { font-size: clamp(22px, 6vw, 26px); }
@@ -742,7 +745,8 @@ a, button { -webkit-tap-highlight-color: transparent; }
 /* Landscape phones: tighten vertical rhythm */
 @media (max-height: 520px) and (orientation: landscape) {
   .hero { padding: 26px 0 18px; }
-  h1 { font-size: clamp(38px, 9vh, 58px); }
+  h1 { font-size: clamp(28px, 8vh, 40px); }
+  .hero h1 { font-size: clamp(34px, 9vh, 52px); }
   .section { padding: 32px 0; }
   .modal-backdrop { align-items: flex-start; }
 }
