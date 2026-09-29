@@ -842,20 +842,3 @@ a, button { -webkit-tap-highlight-color: transparent; }
 
     /* Selection takes the gold tint. */
     ::selection { background: var(--gold-soft); }
-
-/* ---- Editorial photography ---- */
-.news-thumb { margin: -22px -22px 14px; overflow: hidden; border-radius: 2px 2px 0 0; }
-.news-thumb img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
-.news-feature-banner { margin: 0 0 18px; border-radius: 2px; overflow: hidden; }
-.news-feature-banner img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; }
-.page-banner { margin: 0 0 20px; border-radius: 2px; overflow: hidden; }
-.page-banner img { display: block; width: 100%; aspect-ratio: 21 / 9; object-fit: cover; }
-.guide-hero { margin: 0 0 22px; border-radius: 2px; overflow: hidden; }
-.guide-hero img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-.offer-thumb { margin: -22px -22px 14px; overflow: hidden; border-radius: 2px 2px 0 0; }
-.offer-thumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-.photo-credit { display: block; margin: 8px 4px 0; font-size: 11px; color: var(--muted); }
-.media-credit { margin: 12px 2px 0; font-size: 11px; color: var(--muted); }
-@media (max-width: 640px) {
-  .page-banner img, .news-feature-banner img { aspect-ratio: 16 / 9; }
-}

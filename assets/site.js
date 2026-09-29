@@ -551,18 +551,13 @@
             var html = '';
             items.slice(0, 24).forEach(function (it) {
               var key = sectorKey[it.sector] || 'market';
-              var thumbImg = { 'banking': 'news-thumb-trading.jpg', 'market': 'news-thumb-trading.jpg', 'oilgas': 'news-thumb-refinery.jpg' }[key] || 'news-thumb-skyline.jpg';
-              var thumbAlt = { 'oilgas': 'Dangote Petroleum Refinery, Lekki' }[key] || ((key === 'banking' || key === 'market') ? 'Stock exchange trading floor' : 'Lagos skyline and marina');
               html += '<a class="news-card" data-sector="' + key + '" href="' + esc(it.link) + '" target="_blank" rel="noopener noreferrer">'
-                + '<div class="news-thumb"><img src="assets/img/' + thumbImg + '" alt="' + thumbAlt + '" loading="lazy"></div>'
                 + '<div class="news-meta"><span>' + esc((it.source || '').toUpperCase()) + '</span><span>' + esc(fmtDate(it.published_at)) + '</span><span class="news-sector">' + esc(sectorLabel[it.sector] || 'Market-wide') + '</span></div>'
                 + '<h3>' + esc(it.title) + '</h3>'
                 + (it.description ? '<p>' + esc(it.description) + '</p>' : '')
                 + '<span class="arrow" aria-hidden="true">\u2197</span></a>';
             });
             grid.innerHTML = html;
-            var liveCredit = document.getElementById('liveNewsCredit');
-            if (liveCredit) liveCredit.hidden = false;
             if (updatedEl && data.updated_at) updatedEl.textContent = 'Updated ' + ago(data.updated_at) + ' \u00B7 headlines refresh automatically';
             renderNews();
           })
