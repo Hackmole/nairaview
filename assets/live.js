@@ -126,6 +126,8 @@
        trade date, so the static fallbacks can't contradict the live data. */
     try {
       var longD = fmtDateLong(ov.trade_date);
+      window.NVTradeDate = tradeDate;
+      window.NVTradeDateLong = longD;
       var ml = $('modalList');
       if (ml) ml.textContent = 'Snapshot · ' + tradeDate;
       var mn = $('modalNoteDate');
@@ -198,8 +200,6 @@
     try {
       if (asiHistory.length) {
         var firstD = asiHistory[0].d, lastD = asiHistory[asiHistory.length - 1].d;
-        var pl = $('periodLabel');
-        if (pl) pl.textContent = fmtDate(firstD) + ' — ' + fmtDate(lastD);
         var cd = $('chartDesc');
         if (cd) cd.textContent = 'Interactive chart showing selected verified market closes from ' +
           fmtDateLong(firstD) + ' to ' + fmtDateLong(lastD) + '.';
