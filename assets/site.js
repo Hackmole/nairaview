@@ -636,6 +636,9 @@
           t.type = 'button'; t.className = 'heat-tile'; t.setAttribute('role', 'listitem');
           var grow = 1 + Math.round(11 * roots[idx] / maxRoot);
           t.style.flex = grow + ' 1 150px';
+          /* Cap the width so a lone tile on the last row can't stretch
+             full-width and read as the biggest company. */
+          t.style.maxWidth = (grow * 170) + 'px';
           t.style.background = r.cv >= 0 ? 'var(--green-soft)' : 'var(--red-soft)';
           var s1 = document.createElement('span'); s1.className = 'ht-s'; s1.textContent = r.s;
           var s2 = document.createElement('span'); s2.className = 'ht-c ' + (r.cv >= 0 ? 'up' : 'down'); s2.textContent = dirArrow(r) + r.m;
