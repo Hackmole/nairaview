@@ -111,35 +111,28 @@
             </section>
       <section class="section" id="leaders">
               <div class="section-heading">
-                <h2>Today’s tape</h2>
+                <div><div class="kicker">Market breadth</div><h2>Gainers and losers</h2></div>
               </div>
-              <div class="leaders">
-                <div>
-                  <div class="table-tools">
-                    <input class="stock-search" id="stockSearch" type="search" placeholder="Search stocks — try “bank” or “FIDELITYBK”" aria-label="Search stocks" autocomplete="off" />
-                  </div>
-                  <div class="switcher" role="tablist" aria-label="Market rankings">
-                    <button role="tab" id="tab-gainers" aria-controls="market-list" aria-selected="true" data-table="gainers">Gainers</button>
-                    <button role="tab" id="tab-losers" aria-controls="market-list" aria-selected="false" data-table="losers">Losers</button>
-                    <button role="tab" id="tab-volume" aria-controls="market-list" aria-selected="false" data-table="volume">Volume</button>
-                    <button role="tab" id="tab-watchlist" aria-controls="market-list" aria-selected="false" data-table="watchlist">Watchlist <span class="watch-count" id="watchCount"></span></button>
-                  </div>
-                  <div class="sort-bar">
-                    <span aria-hidden="true"></span>
-                    <button type="button" data-sort="symbol">Symbol<span class="arrow" aria-hidden="true"></span></button>
-                    <button type="button" class="sort-price" data-sort="price">Price<span class="arrow" aria-hidden="true"></span></button>
-                    <button type="button" data-sort="move"><span class="sort-move-label">Change</span><span class="arrow" aria-hidden="true"></span></button>
-                  </div>
-                  <div class="market-table" id="market-list" role="tabpanel" aria-labelledby="tab-gainers"></div>
-                  <p class="table-note">Fixed at the <span class="noteDate">25 Sep 2026</span> close · ~30-min delayed during sessions.</p>
+              <div class="table-tools">
+                <input class="stock-search" id="stockSearch" type="search" placeholder="Search stocks — try “bank” or “FIDELITYBK”" aria-label="Search stocks" autocomplete="off" />
+              </div>
+              <div class="breadth-toggle" role="tablist" aria-label="Market breadth views">
+                <button role="tab" id="view-breadth" aria-controls="market-list" aria-selected="true" data-view="breadth">Leaders &amp; laggards</button>
+                <button role="tab" id="view-volume" aria-controls="market-list" aria-selected="false" data-view="volume">Volume</button>
+                <button role="tab" id="view-watchlist" aria-controls="market-list" aria-selected="false" data-view="watchlist">Watchlist <span class="watch-count" id="watchCount"></span></button>
+              </div>
+              <div class="breadth-cols" id="breadthCols">
+                <div class="breadth-col">
+                  <h3 class="breadth-title"><span class="b-arrow up" aria-hidden="true">▲</span> Leaders</h3>
+                  <div class="market-table" id="leadersList"></div>
                 </div>
-                <article class="news-feature">
-                  <div class="date" id="wrapDate">MARKET WRAP · 25 SEP</div>
-                  <h3>Equities close flat at ₦163.66tn as Zichis Agro and R.T. Briscoe rally</h3>
-                  <p>The benchmark eased 0.015% even as advancing stocks outnumbered decliners. Fidelity Bank accounted for the largest reported share volume.</p>
-                  <a class="read-link" href="https://nairametrics.com/2026/09/25/nigerian-equity-market-closes-flat-at-n163-66-trillion-as-zichis-agro-r-t-briscoe-rally/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer">Read the market wrap ↗</a>
-                </article>
+                <div class="breadth-col">
+                  <h3 class="breadth-title"><span class="b-arrow down" aria-hidden="true">▼</span> Laggards</h3>
+                  <div class="market-table" id="laggardsList"></div>
+                </div>
               </div>
+              <div class="market-table" id="market-list" role="tabpanel" aria-labelledby="view-breadth" hidden></div>
+              <p class="table-note">Fixed at the <span class="noteDate">25 Sep 2026</span> close · ~30-min delayed during sessions.</p>
             </section>
       <section class="section" id="heatmap">
               <div class="section-heading">
@@ -163,6 +156,17 @@
 </script>
 <script src="https://www.highrevenueformat.com/1d9aea0c3b3b6b07c1fe639a84f5b19c/invoke.js"></script>
             </div>
+      <section class="section" id="market-news">
+              <div class="section-heading">
+                <div><div class="kicker">News</div><h2>Market wrap</h2></div>
+              </div>
+              <article class="news-feature">
+                <div class="date" id="wrapDate">MARKET WRAP · 25 SEP</div>
+                <h3>Equities close flat at ₦163.66tn as Zichis Agro and R.T. Briscoe rally</h3>
+                <p>The benchmark eased 0.015% even as advancing stocks outnumbered decliners. Fidelity Bank accounted for the largest reported share volume.</p>
+                <a class="read-link" href="https://nairametrics.com/2026/09/25/nigerian-equity-market-closes-flat-at-n163-66-trillion-as-zichis-agro-r-t-briscoe-rally/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer">Read the market wrap ↗</a>
+              </article>
+            </section>
     </main>
     <footer class="footer"><strong>Nairaview market data</strong><span>Prices may have changed. Confirm before acting.</span></footer>
   </div>

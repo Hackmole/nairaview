@@ -333,8 +333,11 @@
       var marketList = document.getElementById('market-list');
       var searchInput = document.getElementById('stockSearch');
       var watchCount = document.getElementById('watchCount');
-      var sortLabel = document.querySelector('.sort-move-label');
-      var state = { table: 'gainers', query: '', sortKey: null, sortDir: 1 };
+      /* ---- Market breadth: leaders & laggards side by side ---- */
+      var leadersList = document.getElementById('leadersList');
+      var laggardsList = document.getElementById('laggardsList');
+      var breadthCols = document.getElementById('breadthCols');
+      var state = { view: 'breadth', query: '' };
       var watchlist = [];
       try { watchlist = JSON.parse(localStorage.getItem('ngxWatchlist') || '[]'); } catch (e) { watchlist = []; }
       function saveWatchlist() { try { localStorage.setItem('ngxWatchlist', JSON.stringify(watchlist)); } catch (e) {} }
@@ -357,102 +360,82 @@
         saveWatchlist(); updateWatchCount(); render(); renderDirectory();
         if (currentModal === s) paintModalStar(s);
       }
-      function currentRows() {
-        var rows;
-        if (state.query) {
-          var q = state.query.toLowerCase();
-          rows = [];
+      function buildRow(r, i, tag) {
+        var item = document.createElement('div'); item.className = 'market-row';
+        var star = document.createElement('button'); star.type = 'button'; star.className = 'star';
+        var starred = isStarred(r.s);
+        star.setAttribute('aria-pressed', starred ? 'true' : 'false');
+        star.setAttribute('aria-label', (starred ? 'Remove ' : 'Add ') + r.s + (starred ? ' from' : ' to') + ' watchlist');
+        star.textContent = starred ? '\u2605' : '\u2606';
+        star.addEventListener('click', function (ev) { ev.stopPropagation(); toggleStar(r.s); });
+        var main = document.createElement('button'); main.type = 'button'; main.className = 'row-main';
+        main.setAttribute('aria-label', r.s + ', ' + r.c + ' \u2014 view details');
+        var symbol = document.createElement('span'); symbol.className = 'symbol'; symbol.textContent = (i + 1) + '. ' + r.s;
+        if (tag) {
+          var tg = document.createElement('span'); tg.className = 'list-tag'; tg.textContent = tag;
+          symbol.appendChild(tg);
+        }
+        var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
+        var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company);
+        main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
+        main.addEventListener('click', function () { openModal(r.s, main); });
+        var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
+        var move = document.createElement('div');
+        move.className = 'move' + (r.vol ? '' : ' ' + (r.d || ''));
+        move.textContent = r.vol ? r.m + ' shares' : dirArrow(r) + r.m;
+        item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
+        return item;
+      }
+      function renderBreadth() {
+        if (!breadthCols || !leadersList || !laggardsList) return;
+        leadersList.innerHTML = ''; laggardsList.innerHTML = '';
+        tables.gainers.slice(0, 5).forEach(function (r, i) { leadersList.appendChild(buildRow(r, i)); });
+        tables.losers.slice(0, 5).forEach(function (r, i) { laggardsList.appendChild(buildRow(r, i)); });
+      }
+      function flatRows() {
+        var q = state.query.trim().toLowerCase();
+        if (q) {
+          var out = [];
           ['gainers', 'losers', 'volume'].forEach(function (k) {
             tables[k].forEach(function (r) {
-              if (r.s.toLowerCase().indexOf(q) !== -1 || r.c.toLowerCase().indexOf(q) !== -1) {
-                rows.push({ row: r, list: k });
-              }
+              if (r.s.toLowerCase().indexOf(q) !== -1 || r.c.toLowerCase().indexOf(q) !== -1) out.push({ row: r, list: k });
             });
           });
-        } else if (state.table === 'watchlist') {
-          rows = watchlist.map(findStock).filter(Boolean);
-        } else {
-          rows = tables[state.table].map(function (r) { return { row: r, list: state.table }; });
+          return out;
         }
-        if (state.sortKey) {
-          var key = state.sortKey, dir = state.sortDir;
-          rows.sort(function (a, b) {
-            var av, bv;
-            if (key === 'symbol') { av = a.row.s; bv = b.row.s; return dir * (av < bv ? -1 : av > bv ? 1 : 0); }
-            if (key === 'price') {
-              av = a.row.pv; bv = b.row.pv;
-              if (av === null && bv === null) return 0;
-              if (av === null) return 1; if (bv === null) return -1;
-              return dir * (av - bv);
-            }
-            return dir * (a.row.cv - b.row.cv);
-          });
-        }
-        return rows;
+        if (state.view === 'watchlist') return watchlist.map(findStock).filter(Boolean);
+        return tables.volume.map(function (r) { return { row: r, list: 'volume' }; });
       }
       function paintTabs() {
-        document.querySelectorAll('.switcher button').forEach(function (b) {
-          b.setAttribute('aria-selected', state.query ? 'false' : (b.getAttribute('data-table') === state.table ? 'true' : 'false'));
-        });
-      }
-      function paintSortArrows() {
-        document.querySelectorAll('.sort-bar button').forEach(function (b) {
-          var arrow = b.querySelector('.arrow');
-          arrow.textContent = b.getAttribute('data-sort') === state.sortKey ? (state.sortDir === 1 ? ' ▲' : ' ▼') : '';
+        document.querySelectorAll('.breadth-toggle button').forEach(function (b) {
+          b.setAttribute('aria-selected', state.query ? 'false' : (b.getAttribute('data-view') === state.view ? 'true' : 'false'));
         });
       }
       function render() {
         paintTabs();
         if (!marketList) return;
+        var inBreadth = state.view === 'breadth' && !state.query.trim();
+        if (breadthCols) breadthCols.hidden = !inBreadth;
+        marketList.hidden = inBreadth;
+        if (inBreadth) { renderBreadth(); return; }
         marketList.innerHTML = '';
-        var rows = currentRows();
-        sortLabel.textContent = state.table === 'volume' && !state.query ? 'Volume' : 'Change';
+        var rows = flatRows();
         if (!rows.length) {
           var empty = document.createElement('div'); empty.className = 'empty-note';
-          empty.textContent = (state.table === 'watchlist' && !state.query)
-            ? 'Your watchlist is empty. Tap the ☆ on any stock to pin it here — it stays saved in this browser.'
+          empty.textContent = (state.view === 'watchlist' && !state.query.trim())
+            ? 'Your watchlist is empty. Tap the \u2606 on any stock \u2014 or star it inside its details \u2014 to pin it here. It stays saved in this browser.'
             : 'No stocks match your search.';
           marketList.appendChild(empty);
           return;
         }
         rows.forEach(function (entry, i) {
-          var r = entry.row;
-          var item = document.createElement('div'); item.className = 'market-row';
-          var star = document.createElement('button'); star.type = 'button'; star.className = 'star';
-          var starred = isStarred(r.s);
-          star.setAttribute('aria-pressed', starred ? 'true' : 'false');
-          star.setAttribute('aria-label', (starred ? 'Remove ' : 'Add ') + r.s + (starred ? ' from' : ' to') + ' watchlist');
-          star.textContent = starred ? '★' : '☆';
-          star.addEventListener('click', function (ev) { ev.stopPropagation(); toggleStar(r.s); });
-          var main = document.createElement('button'); main.type = 'button'; main.className = 'row-main';
-          main.setAttribute('aria-label', r.s + ', ' + r.c + ' — view details');
-          var symbol = document.createElement('span'); symbol.className = 'symbol'; symbol.textContent = (i + 1) + '. ' + r.s;
-          if (state.query || state.table === 'watchlist') {
-            var tag = document.createElement('span'); tag.className = 'list-tag'; tag.textContent = listNames[entry.list];
-            symbol.appendChild(tag);
-          }
-          var company = document.createElement('span'); company.className = 'company'; company.textContent = r.c;
-          var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
-          main.addEventListener('click', function () { openModal(r.s, main); });
-          var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
-          var move = document.createElement('div'); move.className = 'move ' + r.d; move.textContent = dirArrow(r) + r.m;
-          item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
-          marketList.appendChild(item);
+          marketList.appendChild(buildRow(entry.row, i, entry.list && typeof listNames !== 'undefined' ? listNames[entry.list] : ''));
         });
       }
-      document.querySelectorAll('.sort-bar button').forEach(function (b) {
-        b.addEventListener('click', function () {
-          var key = b.getAttribute('data-sort');
-          if (state.sortKey === key) { state.sortDir *= -1; }
-          else { state.sortKey = key; state.sortDir = key === 'symbol' ? 1 : -1; }
-          paintSortArrows(); render();
-        });
-      });
-      document.querySelectorAll('.switcher button').forEach(function (button) {
+      document.querySelectorAll('.breadth-toggle button').forEach(function (button) {
         button.addEventListener('click', function () {
-          state.table = button.getAttribute('data-table');
-          state.query = ''; searchInput.value = '';
-          state.sortKey = null; paintSortArrows();
+          state.view = button.getAttribute('data-view');
+          state.query = ''; if (searchInput) searchInput.value = '';
           marketList.setAttribute('aria-labelledby', button.id);
           render();
         });
