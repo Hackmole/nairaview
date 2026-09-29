@@ -635,7 +635,9 @@
           var t = document.createElement('button');
           t.type = 'button'; t.className = 'heat-tile'; t.setAttribute('role', 'listitem');
           var grow = 1 + Math.round(11 * roots[idx] / maxRoot);
-          t.style.flex = grow + ' 1 150px';
+          /* Basis carries the weight (no shrink, so small tiles can't be
+             equalized); leftover row space still distributes by grow. */
+          t.style.flex = grow + ' 0 ' + (80 + grow * 50) + 'px';
           /* Cap the width so a lone tile on the last row can't stretch
              full-width and read as the biggest company. */
           t.style.maxWidth = (grow * 170) + 'px';
