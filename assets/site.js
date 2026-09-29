@@ -638,11 +638,10 @@
           t.type = 'button'; t.className = 'heat-tile'; t.setAttribute('role', 'listitem');
           var mag = Math.abs(r.cv);
           t.style.flex = Math.max(1, Math.round(mag)) + ' 1 120px';
-          var a = Math.min(0.72, 0.16 + mag / 10 * 0.5);
-          t.style.background = r.cv >= 0 ? 'rgba(22,163,74,' + a.toFixed(2) + ')' : 'rgba(220,38,38,' + a.toFixed(2) + ')';
-          if (a > 0.42) t.style.color = '#fff';
+          /* Pastel tile, dark text; only the change figure carries color. */
+          t.style.background = r.cv >= 0 ? 'var(--green-soft)' : 'var(--red-soft)';
           var s1 = document.createElement('span'); s1.className = 'ht-s'; s1.textContent = r.s;
-          var s2 = document.createElement('span'); s2.className = 'ht-c'; s2.textContent = r.m;
+          var s2 = document.createElement('span'); s2.className = 'ht-c ' + (r.cv >= 0 ? 'up' : 'down'); s2.textContent = r.m;
           var s3 = document.createElement('span'); s3.className = 'ht-p'; s3.textContent = r.p;
           t.insertBefore(window.nvBadge(r.s, 'sm'), t.firstChild);
           t.appendChild(s1); t.appendChild(s2); t.appendChild(s3);

@@ -181,7 +181,7 @@
       var ytdEl = $('metricYtd'), ytdD = $('metricYtdDetail');
       if (ytdEl) {
         ytdEl.textContent = signedPct(ytd);
-        ytdEl.style.color = ytd < 0 ? 'var(--red)' : 'var(--green-strong)';
+        ytdEl.style.color = '';
       }
       if (ytdD) ytdD.textContent = 'from ' + fmtDate(doc.ytd_base.date);
     }
