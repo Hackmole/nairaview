@@ -163,7 +163,15 @@
       else setTimeout(paint, 0);
     }());
     (function () {
-      
+      /* Direction arrow for a row: ▲/▼ double-encodes the color signal.
+         Volume and no-snapshot rows carry no direction. */
+      function dirArrow(r) {
+        if (!r || r.vol || r.noSnap) return '';
+        var v = Number(r.cv);
+        if (v > 0) return '▲ ';
+        if (v < 0) return '▼ ';
+        return '';
+      }
       var rangeSessions = { '1W': 5, '1M': 22, '3M': 66, '6M': 132, 'YTD': 'ytd' };
       var currentRange = 'YTD';
       /* Points for a range: last N sessions, or every session since 1 Jan for YTD.
@@ -298,7 +306,7 @@
           var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
-          var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = r.m;
+          var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = dirArrow(r) + r.m;
           item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
           dirList.appendChild(item);
         });
@@ -427,7 +435,7 @@
           var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
-          var move = document.createElement('div'); move.className = 'move ' + r.d; move.textContent = r.m;
+          var move = document.createElement('div'); move.className = 'move ' + r.d; move.textContent = dirArrow(r) + r.m;
           item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
           marketList.appendChild(item);
         });
@@ -477,7 +485,7 @@
         document.getElementById('modalPrice').textContent = r.p;
         document.getElementById('modalMoveLabel').textContent = r.vol ? 'Volume' : (r.noSnap ? 'Sector' : 'Day change');
         var mm = document.getElementById('modalMove');
-        mm.textContent = r.noSnap ? r.g : (r.m + (r.vol ? ' shares' : ''));
+        mm.textContent = r.noSnap ? r.g : (r.vol ? r.m + ' shares' : dirArrow(r) + r.m);
         mm.style.color = r.noSnap ? 'inherit' : (r.d === 'up' ? 'var(--green-strong)' : 'var(--red)');
         document.getElementById('modalNote').innerHTML = r.noSnap
           ? 'No snapshot price held for this stock. <a href="https://ngnmarket.com/stocks/' + s + '" target="_blank" rel="noopener noreferrer">See its live quote on NGN Market ↗</a>'
@@ -623,7 +631,7 @@
         var html = rows.map(function (r) {
           return '<span class="ticker-item">' + window.nvBadgeHTML(r.s, 'sm') + '<span class="tk-s">' + r.s + '</span>' +
             '<span class="tk-p">' + r.p + '</span>' +
-            '<span class="tk-m ' + (r.d === 'up' ? 'up' : 'down') + '">' + r.m + '</span></span>';
+            '<span class="tk-m ' + (r.d === 'up' ? 'up' : 'down') + '">' + dirArrow(r) + r.m + '</span></span>';
         }).join('');
         track.innerHTML = html + html; /* duplicate for a seamless -50% loop */
       }
@@ -641,7 +649,7 @@
           /* Pastel tile, dark text; only the change figure carries color. */
           t.style.background = r.cv >= 0 ? 'var(--green-soft)' : 'var(--red-soft)';
           var s1 = document.createElement('span'); s1.className = 'ht-s'; s1.textContent = r.s;
-          var s2 = document.createElement('span'); s2.className = 'ht-c ' + (r.cv >= 0 ? 'up' : 'down'); s2.textContent = r.m;
+          var s2 = document.createElement('span'); s2.className = 'ht-c ' + (r.cv >= 0 ? 'up' : 'down'); s2.textContent = dirArrow(r) + r.m;
           var s3 = document.createElement('span'); s3.className = 'ht-p'; s3.textContent = r.p;
           t.insertBefore(window.nvBadge(r.s, 'sm'), t.firstChild);
           t.appendChild(s1); t.appendChild(s2); t.appendChild(s3);
@@ -723,7 +731,7 @@
           var rowText = document.createElement('span'); rowText.className = 'row-text'; rowText.appendChild(symbol); rowText.appendChild(company); main.appendChild(window.nvBadge(r.s)); main.appendChild(rowText);
           main.addEventListener('click', function () { openModal(r.s, main); });
           var price = document.createElement('div'); price.className = 'price'; price.textContent = r.p;
-          var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = r.vol ? r.m + ' shares' : r.m;
+          var move = document.createElement('div'); move.className = 'move ' + (r.d || ''); move.textContent = r.vol ? r.m + ' shares' : dirArrow(r) + r.m;
           item.appendChild(star); item.appendChild(main); item.appendChild(price); item.appendChild(move);
           screenList.appendChild(item);
         });

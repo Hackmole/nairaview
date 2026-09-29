@@ -88,7 +88,7 @@
       var pct = Number(ov.pct_change) || 0;
       var pts = ov.asi * pct / 100;
       var cls = pct < 0 ? 'down' : 'up';
-      move.innerHTML = '<span class="' + cls + '">' + signedPct(pct) + '</span>' +
+      move.innerHTML = '<span class="' + cls + '">' + (pct < 0 ? '▼ ' : '▲ ') + signedPct(pct) + '</span>' +
         '<span class="points">' + (pts < 0 ? '−' : '+') + fmt2(Math.abs(pts)) + ' points</span>';
     }
     var chartValue = $('chartValue');
