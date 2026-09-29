@@ -21,18 +21,18 @@ var asiHistory = [
       ];
 var tables = {
         gainers: [
-          { s: 'ZICHIS', c: 'Zichis Agro Allied Industries', p: '₦17.60', m: '+10.00%', d: 'up', pv: 17.60, cv: 10.00 },
-          { s: 'CMFC', c: 'Critical Minerals Financing Corp', p: '₦3.26', m: '+9.76%', d: 'up', pv: 3.26, cv: 9.76 },
-          { s: 'RTBRISCOE', c: 'R.T. Briscoe Nigeria', p: '₦10.70', m: '+9.74%', d: 'up', pv: 10.70, cv: 9.74 },
-          { s: 'ABCTRANS', c: 'ABC Transport', p: '₦5.10', m: '+9.68%', d: 'up', pv: 5.10, cv: 9.68 },
-          { s: 'ROYALEX', c: 'Royal Exchange', p: '₦1.08', m: '+9.09%', d: 'up', pv: 1.08, cv: 9.09 }
+          { s: 'ZICHIS', c: 'Zichis Agro Allied Industries', p: '₦17.60', m: '+10.00%', d: 'up', pv: 17.60, cv: 10.00 , mc: 11508000000},
+          { s: 'CMFC', c: 'Critical Minerals Financing Corp', p: '₦3.26', m: '+9.76%', d: 'up', pv: 3.26, cv: 9.76 , mc: 5370000000},
+          { s: 'RTBRISCOE', c: 'R.T. Briscoe Nigeria', p: '₦10.70', m: '+9.74%', d: 'up', pv: 10.70, cv: 9.74 , mc: 11822386644},
+          { s: 'ABCTRANS', c: 'ABC Transport', p: '₦5.10', m: '+9.68%', d: 'up', pv: 5.10, cv: 9.68 , mc: 13398681940},
+          { s: 'ROYALEX', c: 'Royal Exchange', p: '₦1.08', m: '+9.09%', d: 'up', pv: 1.08, cv: 9.09 , mc: 9341369802}
         ],
         losers: [
-          { s: 'TOTAL', c: 'TotalEnergies Marketing Nigeria', p: '₦518.40', m: '−10.00%', d: 'down', pv: 518.40, cv: -10.00 },
-          { s: 'LEGENDINT', c: 'Legend Internet', p: '₦3.50', m: '−9.09%', d: 'down', pv: 3.50, cv: -9.09 },
-          { s: 'HMCALL', c: 'Haldane McCall', p: '₦3.00', m: '−8.54%', d: 'down', pv: 3.00, cv: -8.54 },
-          { s: 'CAVERTON', c: 'Caverton Offshore Support Group', p: '₦4.00', m: '−8.05%', d: 'down', pv: 4.00, cv: -8.05 },
-          { s: 'FIRSTHOLDCO', c: 'First HoldCo', p: '₦156.60', m: '−5.09%', d: 'down', pv: 156.60, cv: -5.09 }
+          { s: 'TOTAL', c: 'TotalEnergies Marketing Nigeria', p: '₦518.40', m: '−10.00%', d: 'down', pv: 518.40, cv: -10.00 , mc: 176008120301},
+          { s: 'LEGENDINT', c: 'Legend Internet', p: '₦3.50', m: '−9.09%', d: 'down', pv: 3.50, cv: -9.09 , mc: 7100000000},
+          { s: 'HMCALL', c: 'Haldane McCall', p: '₦3.00', m: '−8.54%', d: 'down', pv: 3.00, cv: -8.54 , mc: 9366000000},
+          { s: 'CAVERTON', c: 'Caverton Offshore Support Group', p: '₦4.00', m: '−8.05%', d: 'down', pv: 4.00, cv: -8.05 , mc: 13402039000},
+          { s: 'FIRSTHOLDCO', c: 'First HoldCo', p: '₦156.60', m: '−5.09%', d: 'down', pv: 156.60, cv: -5.09 , mc: 7108145532127}
         ],
         volume: [
           { s: 'FIDELITYBK', c: 'Fidelity Bank', p: '—', m: '212.77m', d: 'up', pv: null, cv: 212.77, vol: true },

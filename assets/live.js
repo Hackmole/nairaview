@@ -211,7 +211,8 @@
     return {
       s: s.symbol, c: s.name, p: '₦' + fmt2(px),
       m: signedPct(chg), d: chg < 0 ? 'down' : 'up',
-      pv: px, cv: Math.round(chg * 100) / 100, vol: Number(s.volume) || 0, noSnap: false
+      pv: px, cv: Math.round(chg * 100) / 100, vol: Number(s.volume) || 0,
+      mc: Number(s.market_cap) || 0, noSnap: false
     };
   }
   function paintStocks(doc) {

@@ -619,24 +619,30 @@
         track.innerHTML = html + html; /* duplicate for a seamless -50% loop */
       }
       renderTape();
-      /* ---- Market heatmap ---- */
+      /* ---- Market heatmap: cap-weighted treemap ----
+         Tile area follows sqrt(market cap) so giants read as giants;
+         direction is triple-encoded (pastel tint + colored figure + arrow),
+         and every figure keeps dark text. */
       function renderHeatmap() {
         var host = document.getElementById('heatTiles');
         if (!host) return;
         host.innerHTML = '';
-        tables.gainers.concat(tables.losers).forEach(function (r) {
+        var rows = tables.gainers.concat(tables.losers);
+        if (!rows.length) return;
+        var roots = rows.map(function (r) { return Math.sqrt(Number(r.mc) || 0); });
+        var maxRoot = Math.max.apply(null, roots.concat([1]));
+        rows.forEach(function (r, idx) {
           var t = document.createElement('button');
           t.type = 'button'; t.className = 'heat-tile'; t.setAttribute('role', 'listitem');
-          var mag = Math.abs(r.cv);
-          t.style.flex = Math.max(1, Math.round(mag)) + ' 1 120px';
-          /* Pastel tile, dark text; only the change figure carries color. */
+          var grow = 1 + Math.round(11 * roots[idx] / maxRoot);
+          t.style.flex = grow + ' 1 150px';
           t.style.background = r.cv >= 0 ? 'var(--green-soft)' : 'var(--red-soft)';
           var s1 = document.createElement('span'); s1.className = 'ht-s'; s1.textContent = r.s;
           var s2 = document.createElement('span'); s2.className = 'ht-c ' + (r.cv >= 0 ? 'up' : 'down'); s2.textContent = dirArrow(r) + r.m;
           var s3 = document.createElement('span'); s3.className = 'ht-p'; s3.textContent = r.p;
           t.insertBefore(window.nvBadge(r.s, 'sm'), t.firstChild);
           t.appendChild(s1); t.appendChild(s2); t.appendChild(s3);
-          t.setAttribute('aria-label', r.s + ', ' + r.c + ', day change ' + r.m + ' — view details');
+          t.setAttribute('aria-label', r.s + ', ' + r.c + ', day change ' + r.m + ' \u2014 view details');
           t.addEventListener('click', function () { openModal(r.s, t); });
           host.appendChild(t);
         });
