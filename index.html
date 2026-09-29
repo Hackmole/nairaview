@@ -61,7 +61,7 @@
               </div>
               <aside class="snapshot-note" id="heroNote">
                 <strong>A close-of-market snapshot</strong>
-                <p>The ticker tape above shows the day's biggest movers as of 25 September 2026. Figures in the sections below are fixed at the same date — for newer official quotes, use NGX’s market page, where prices are shown with a 30-minute delay.</p>
+                <p>The ticker tape above shows the day's biggest movers as of <span id="tapeDate">25 September 2026</span>. Figures in the sections below are fixed at the same date — for newer official quotes, use NGX’s market page, where prices are shown with a 30-minute delay.</p>
                 <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>
               </aside>
             </section>
@@ -136,7 +136,7 @@
                   <div class="market-table" id="market-list" role="tabpanel" aria-labelledby="tab-gainers"></div>
                 </div>
                 <article class="news-feature">
-                  <div class="date">MARKET WRAP · 25 SEP</div>
+                  <div class="date" id="wrapDate">MARKET WRAP · 25 SEP</div>
                   <h3>Equities close flat at ₦163.66tn as Zichis Agro and R.T. Briscoe rally</h3>
                   <p>The benchmark eased 0.015% even as advancing stocks outnumbered decliners. Fidelity Bank accounted for the largest reported share volume.</p>
                   <a class="read-link" href="https://nairametrics.com/2026/09/25/nigerian-equity-market-closes-flat-at-n163-66-trillion-as-zichis-agro-r-t-briscoe-rally/?utm_source=auto-read-also&amp;utm_medium=web" target="_blank" rel="noopener noreferrer">Read the market wrap ↗</a>
@@ -146,7 +146,7 @@
       <section class="section" id="heatmap">
               <div class="section-heading">
                 <h2>Market heatmap</h2>
-                <p>Tile size and shade show the day&rsquo;s percentage move &mdash; 25 September 2026 snapshot. Select a tile for details.</p>
+                <p>Tile size and shade show the day&rsquo;s percentage move &mdash; <span id="heatDate">25 September 2026</span> snapshot. Select a tile for details.</p>
               </div>
               <div class="heatmap" id="heatTiles" role="list" aria-label="Market heatmap, 25 September 2026"></div>
               <div class="heatmap-legend" aria-hidden="true"><span><i class="sw up"></i>Gainers</span><span><i class="sw down"></i>Losers</span></div>
@@ -166,7 +166,7 @@
 <script src="https://www.highrevenueformat.com/1d9aea0c3b3b6b07c1fe639a84f5b19c/invoke.js"></script>
             </div>
     </main>
-    <footer class="footer"><strong>Data fixed at market close · 25 Sep 2026</strong><span>Prices may have changed. Confirm before acting.</span></footer>
+    <footer class="footer"><strong>Data fixed at market close · <span id="footDate">25 Sep 2026</span></strong><span>Prices may have changed. Confirm before acting.</span></footer>
   </div>
 <div class="modal-backdrop" id="modalBackdrop" hidden>
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalSymbol">
@@ -178,7 +178,7 @@
         <div class="modal-cell"><span>Price</span><strong id="modalPrice"></strong></div>
         <div class="modal-cell"><span id="modalMoveLabel">Day change</span><strong id="modalMove"></strong></div>
       </div>
-      <p class="modal-note" id="modalNote">Figures are fixed at the 25 September 2026 close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
+      <p class="modal-note" id="modalNote">Figures are fixed at the <span id="modalNoteDate">25 September 2026</span> close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a></p>
       <a class="modal-live" id="modalLive" href="#" target="_blank" rel="noopener noreferrer">Live chart &amp; full quote ↗</a>
       <a class="modal-live" id="modalPage" href="#" hidden>Full stock page on Nairaview &rarr;</a>
       <button class="modal-star" id="modalStar" type="button"></button>
@@ -205,7 +205,7 @@
   <script src="assets/logos.js"></script>
   <script src="assets/stock-pages.js"></script>
   <script src="assets/site.js?v=20260928f"></script>
-  <script src="assets/live.js?v=20260928d"></script>
+  <script src="assets/live.js?v=20260928e"></script>
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a9f4136dd40547a7b1acca41e62cc7a5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>

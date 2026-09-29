@@ -41,6 +41,13 @@
     if (!m) return '';
     return m[3].replace(/^0/, '') + ' ' + MONTHS[Number(m[2]) - 1] + ' ' + m[1];
   }
+  var MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  function fmtDateLong(iso) {
+    var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    return Number(m[3]) + ' ' + MONTHS_LONG[Number(m[2]) - 1] + ' ' + m[1];
+  }
   /* HH:MM in WAT (UTC+1, no DST) from an ISO UTC timestamp. */
   function fmtTimeWAT(iso) {
     var m = String(iso || '').match(/T(\d{2}):(\d{2})/);
@@ -115,6 +122,27 @@
         ? 'SESSION · AS OF ' + sessionTime + ' WAT · ~30-MIN DELAYED'
         : (weekend ? 'SNAPSHOT · ' : 'DAILY CLOSE · ') + tradeDate.toUpperCase() + ' · WAT';
     }
+    /* Keep every other feed-driven date caption in sync with the actual
+       trade date, so the static fallbacks can't contradict the live data. */
+    try {
+      var longD = fmtDateLong(ov.trade_date);
+      var ml = $('modalList');
+      if (ml) ml.textContent = 'Snapshot · ' + tradeDate;
+      var mn = $('modalNoteDate');
+      if (mn) mn.textContent = longD;
+      var fd = $('footDate');
+      if (fd) fd.textContent = tradeDate;
+      var tp = $('tapeDate');
+      if (tp) tp.textContent = longD;
+      var hd = $('heatDate');
+      if (hd) hd.textContent = longD;
+      var ht = $('heatTiles');
+      if (ht) ht.setAttribute('aria-label', 'Market heatmap, ' + longD);
+      var wrd = $('wrapDate');
+      if (wrd) wrd.textContent = 'MARKET WRAP · ' + tradeDate.toUpperCase().replace(/ \d{4}$/, '');
+      var scd = $('screenDate');
+      if (scd) scd.textContent = longD;
+    } catch (e) {}
     /* Market-today auto recap: advancers / decliners / unchanged + ASI move. */
     var note = $('heroNote');
     if (note) {
@@ -166,6 +194,17 @@
     if (window.NV && window.NV.redrawAsi) {
       try { window.NV.redrawAsi(); } catch (e) {}
     }
+    /* Keep the chart's date caption honest: it shows the actual data window. */
+    try {
+      if (asiHistory.length) {
+        var firstD = asiHistory[0].d, lastD = asiHistory[asiHistory.length - 1].d;
+        var pl = $('periodLabel');
+        if (pl) pl.textContent = fmtDate(firstD) + ' — ' + fmtDate(lastD);
+        var cd = $('chartDesc');
+        if (cd) cd.textContent = 'Interactive chart showing selected verified market closes from ' +
+          fmtDateLong(firstD) + ' to ' + fmtDateLong(lastD) + '.';
+      }
+    } catch (e) {}
   }
 
   /* ---------- movers tables, tape, heatmap, directory, screener ---------- */
@@ -212,8 +251,10 @@
     /* Hand the price map to the portfolio page (same tab can't be both, but a
        CustomEvent keeps the contract explicit) and stash it globally. */
     var map = {};
-    rows.forEach(function (r) { map[r.s] = r.pv; });
+    var liveRows = {};
+    rows.forEach(function (r) { map[r.s] = r.pv; liveRows[r.s] = { name: r.c, price: r.pv, chg: r.cv }; });
     window.NVLivePrices = map;
+    window.NVLiveRows = liveRows;
     if (doc.stocks.as_of) window.NVLiveAsOf = doc.stocks.as_of;
     try {
       window.dispatchEvent(new CustomEvent('nv:live-prices', { detail: { map: map, asOf: doc.stocks.as_of } }));
@@ -262,6 +303,26 @@
       if (asof && window.NVLiveAsOf) tradeDate = fmtDate(window.NVLiveAsOf);
       if (asof) asof.textContent = 'As of the ' + (tradeDate || 'latest') + ' close — refreshed daily. Confirm before acting.';
     }
+    /* Keep the "last closed at" guide paragraph and trade-date stamp in sync
+       with the live feed, so they can't contradict the hero price above. */
+    try {
+      var info = window.NVLiveRows && window.NVLiveRows[sym];
+      var tdate = (window.NVLiveAsOf && fmtDate(window.NVLiveAsOf)) || tradeDate || '';
+      var ltd = document.querySelectorAll('.liveTradeDate');
+      for (var li = 0; li < ltd.length; li++) { if (tdate) ltd[li].textContent = tdate; }
+      if (info) {
+        var arrow = info.chg > 0 ? '▲' : (info.chg < 0 ? '▼' : '■');
+        var gps = document.querySelectorAll('p.guide-p');
+        for (var gi = 0; gi < gps.length; gi++) {
+          var gp = gps[gi];
+          if ((gp.textContent || '').indexOf('last closed at') !== -1) {
+            gp.innerHTML = esc(info.name) + ' (' + esc(sym) + ') last closed at <strong>₦' + fmt2(info.price) +
+              '</strong> (' + signedPct(info.chg) + ' ' + arrow + ' on the day) on ' + esc(tdate || 'latest') +
+              '. Prices update here after each NGX trading session.';
+          }
+        }
+      }
+    } catch (e) {}
     getJSON('/api/history?symbol=' + encodeURIComponent(sym)).then(function (doc) {
       var prices = doc && doc.prices;
       if (!prices || prices.length < 2 || !priceEl || priceEl.querySelector('.spark')) return;
