@@ -671,6 +671,23 @@ a, button { -webkit-tap-highlight-color: transparent; }
     .breadth-col .market-table { border-top: 1px solid var(--line); }
     @media (max-width: 720px) { .breadth-cols { grid-template-columns: 1fr; } }
 
+    /* 8. Data modules as cards; editorial sits in its own band below. */
+    .section.card-section {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow-1), var(--inner-hi);
+      padding: 30px;
+      margin-top: 44px;
+    }
+    .section.card-section .chart-card { border: 0; box-shadow: none; background: transparent; }
+    .section.card-section .chart-top { padding: 0; }
+    .section.card-section .chart-wrap { padding: 8px 0 0; }
+    .section.card-section .chart-caption { padding: 13px 0 2px; }
+    @media (max-width: 620px) {
+      .section.card-section { padding: 20px; margin-top: 32px; border-radius: 16px; }
+    }
+
 /* Touch devices: generous tap targets without breaking layout */
 @media (pointer: coarse) {
   .site-nav a { min-height: 44px; display: inline-flex; align-items: center; }
