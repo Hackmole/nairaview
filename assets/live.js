@@ -280,6 +280,17 @@
         try { paintMarket(market); } catch (e) {}
         var ov = market.overview && market.overview.data;
         if (ov && ov.trade_date) window.NVLiveAsOf = ov.trade_date;
+      } else {
+        /* Feed unreachable: the WAT clock alone still gives an honest
+           open/closed pill so the page can't show a stale state. */
+        try {
+          var open = watInSessionNow();
+          var el = document.querySelector('.topline .status');
+          if (el) {
+            el.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (open ? 'MARKET OPEN' : 'MARKET CLOSED');
+            el.classList.toggle('closed', !open);
+          }
+        } catch (e) {}
       }
     });
     getJSON('/api/prices').then(function (prices) {
