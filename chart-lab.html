@@ -143,15 +143,15 @@
         return { time: p.date, open: p.open, high: p.high, low: p.low, close: p.close, volume: p.volume || 0 };
       });
       if (ctype === "candles") {
-        mainSeries = chart.addCandlestickSeries({ upColor: UP, downColor: DOWN, wickUpColor: UP, wickDownColor: DOWN, borderVisible: false });
+        mainSeries = chart.addSeries(LW.CandlestickSeries, { upColor: UP, downColor: DOWN, wickUpColor: UP, wickDownColor: DOWN, borderVisible: false });
         mainSeries.setData(data.map(function(d){ return { time: d.time, open: d.open, high: d.high, low: d.low, close: d.close }; }));
       } else {
-        mainSeries = chart.addAreaSeries({ lineColor: "#0e9f6e", topColor: "rgba(14,159,110,0.35)", bottomColor: "rgba(14,159,110,0.02)", lineWidth: 2, priceLineVisible: true });
+        mainSeries = chart.addSeries(LW.AreaSeries, { lineColor: "#0e9f6e", topColor: "rgba(14,159,110,0.35)", bottomColor: "rgba(14,159,110,0.02)", lineWidth: 2, priceLineVisible: true });
         mainSeries.setData(data.map(function(d){ return { time: d.time, value: d.close }; }));
       }
       var hasVol = data.some(function(d){ return d.volume > 0; });
       if (hasVol) {
-        volSeries = chart.addHistogramSeries({ priceScaleId: "", priceFormat: { type: "volume" } });
+        volSeries = chart.addSeries(LW.HistogramSeries, { priceScaleId: "", priceFormat: { type: "volume" } });
         chart.priceScale("").applyOptions({ scaleMargins: { top: 0.86, bottom: 0 } });
         volSeries.setData(data.map(function(d){
           return { time: d.time, value: d.volume, color: d.close >= d.open ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)" };
@@ -171,8 +171,8 @@
         .then(function(r){ if(!r.ok) throw new Error("http " + r.status); return r.json(); })
         .then(function(j){
           if (!j.prices || !j.prices.length) throw new Error("no data");
-          errEl.style.display = "none";
           drawStock(j.prices);
+          errEl.style.display = "none";
         })
         .catch(function(e){ errEl.textContent = "Could not load " + sym + " data (" + e.message + ")."; });
     }
@@ -201,7 +201,7 @@
         var hist = j.history || [];
         if (!hist.length) throw new Error("no data");
         asiErr.style.display = "none";
-        var s = asiChart.addAreaSeries({ lineColor: "#c9a227", topColor: "rgba(201,162,39,0.35)", bottomColor: "rgba(201,162,39,0.02)", lineWidth: 2 });
+        var s = asiChart.addSeries(LW.AreaSeries, { lineColor: "#c9a227", topColor: "rgba(201,162,39,0.35)", bottomColor: "rgba(201,162,39,0.02)", lineWidth: 2 });
         s.setData(hist.map(function(p){ return { time: p.date, value: p.value }; }));
         asiChart.timeScale().fitContent();
         var first = hist[0], last = hist[hist.length - 1];
