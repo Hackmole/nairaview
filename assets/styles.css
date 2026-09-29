@@ -135,6 +135,7 @@
     .hero-meta { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
     .hero-cta { margin: 18px 0 0; }
     .metrics-note { margin: 10px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+    .table-note { margin: 10px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
     .eyebrow { color: var(--green-strong); font: 600 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
     h1, h2, h3, p { margin-top: 0; }
     h1 { margin: 12px 0 8px; font: 650 clamp(45px, 8vw, 86px)/.9 "Newsreader", serif; letter-spacing: -.055em; }
@@ -381,7 +382,7 @@
     .heat-tile .ht-c { display: block; font: 650 22px/1.15 "Newsreader", Georgia, serif; margin-top: 6px; }
     .heat-tile .ht-c.up { color: var(--green-strong); }
     .heat-tile .ht-c.down { color: var(--red); }
-    .heat-tile .ht-p { display: block; font-size: 11px; margin-top: 4px; opacity: .8; }
+    .heat-tile .ht-p { display: block; font-size: 11px; margin-top: 4px; color: var(--muted); }
     .heatmap-legend { display: flex; gap: 20px; margin-top: 12px; color: var(--muted); font-size: 12px; }
     .heatmap-legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
     .sw.up { background: #16a34a; }

@@ -134,6 +134,10 @@
       if (mn) mn.textContent = longD;
       var fd = $('footDate');
       if (fd) fd.textContent = tradeDate;
+      try {
+        var nds = document.querySelectorAll('.noteDate');
+        for (var ni = 0; ni < nds.length; ni++) nds[ni].textContent = tradeDate;
+      } catch (e2) {}
       var tp = $('tapeDate');
       if (tp) tp.textContent = longD;
       var ht = $('heatTiles');
