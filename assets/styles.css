@@ -128,12 +128,13 @@
     .source-link { color: var(--green-strong); text-decoration-thickness: 1px; text-underline-offset: 4px; }
     .source-link:hover { text-decoration-thickness: 2px; }
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.45fr) minmax(300px, .72fr);
-      gap: 28px;
+      display: block;
       padding: 44px 0 28px;
-      align-items: end;
     }
+    .hero-main { max-width: 880px; }
+    .hero-meta { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .hero-cta { margin: 18px 0 0; }
+    .metrics-note { margin: 10px 2px 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
     .eyebrow { color: var(--green-strong); font: 600 12px/1.2 "IBM Plex Mono", monospace; letter-spacing: .07em; text-transform: uppercase; }
     h1, h2, h3, p { margin-top: 0; }
     h1 { margin: 12px 0 8px; font: 650 clamp(45px, 8vw, 86px)/.9 "Newsreader", serif; letter-spacing: -.055em; }

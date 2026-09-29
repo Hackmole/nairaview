@@ -141,21 +141,17 @@
       var wrd = $('wrapDate');
       if (wrd) wrd.textContent = 'MARKET WRAP · ' + tradeDate.toUpperCase().replace(/ \d{4}$/, '');
     } catch (e) {}
-    /* Market-today auto recap: advancers / decliners / unchanged + ASI move. */
+    /* Hero metadata line: one quiet breadth/as-of line under the big figure. */
     var note = $('heroNote');
     if (note) {
       var pct2 = Number(ov.pct_change) || 0;
-      note.innerHTML =
-        '<strong>Market today</strong>' +
-        '<p>' + fmtInt(ov.advancers) + ' advancers · ' + fmtInt(ov.decliners) + ' decliners · ' +
-        fmtInt(ov.unchanged) + ' unchanged. ASI ' + (pct2 < 0 ? 'eased' : 'rose') + ' ' +
-        signedPct(pct2) + ' to ' + fmt2(ov.asi) + '.</p>' +
-        '<p>' + (sessionLive
-          ? 'Updating through the session — prices delayed ~30 minutes. As of ' + esc(sessionTime) + ' WAT.'
-          : 'Updated daily after market close — as of ' + esc(tradeDate) + '. ') +
-        'Prices carry the exchange\u2019s usual delay; confirm before acting.</p>' +
-        '<a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>';
+      note.textContent = fmtInt(ov.advancers) + ' advancers · ' + fmtInt(ov.decliners) + ' decliners · ' +
+        fmtInt(ov.unchanged) + ' unchanged · ' + (sessionLive
+          ? 'as of ' + sessionTime + ' WAT · ~30-min delayed'
+          : 'as of the ' + tradeDate + ' close');
     }
+    var md = $('metricsDate');
+    if (md) md.textContent = tradeDate;
     /* One consistent open/closed signal on every page: the WAT clock decides,
        the provider feed can only confirm a closure (holiday). */
     var statusEl = document.querySelector('.topline .status');
