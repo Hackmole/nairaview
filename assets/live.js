@@ -52,6 +52,18 @@
   function watWeekdayNow() {
     return new Date(Date.now() + 3600000).getUTCDay();
   }
+  /* True only during the NGX continuous session (Mon-Fri 10:00-14:30 WAT),
+     visitor-timezone-proof. The provider's own open/closed flag has been
+     observed stale (still "open" hours after the close), so the clock is
+     the primary signal; the provider can only veto with a closure
+     (holiday), never declare the market open outside session hours. */
+  function watInSessionNow() {
+    var d = new Date(Date.now() + 3600000);
+    var wd = d.getUTCDay();
+    if (wd === 0 || wd === 6) return false;
+    var mins = d.getUTCHours() * 60 + d.getUTCMinutes();
+    return mins >= 600 && mins <= 870;
+  }
   function signedPct(x) {
     x = Number(x) || 0;
     return (x < 0 ? '−' : '+') + Math.abs(x).toFixed(2) + '%';
@@ -85,7 +97,12 @@
     /* Session state: the 30-min session poll marks its payload, and the
        status feed carries the real open/closed state. */
     var st = market.status && market.status.data;
-    var sessionLive = !!(ov.session && st && st.is_open);
+    /* Single source of truth for open/closed, shared by the status pill
+       and the topline label so they can never disagree with each other. */
+    var providerClosed = (st && st.is_open === false) ||
+      String(ov.market_status || '').toLowerCase() === 'closed';
+    var marketOpen = watInSessionNow() && !providerClosed;
+    var sessionLive = !!(marketOpen && ov.session);
     var sessionTime = sessionLive ? fmtTimeWAT(ov.as_of) : '';
     /* Every page carries a .topline-date hook now (index.html keeps its
        toplineDate id too). Three states: live session > weekday daily
@@ -113,14 +130,13 @@
         'Prices carry the exchange\u2019s usual delay; confirm before acting.</p>' +
         '<a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Open official NGX market data <span aria-hidden="true">↗</span></a>';
     }
-    /* Real open/closed state beats the clock estimate when available. */
-    if (st && typeof st.is_open === 'boolean') {
-      var statusEl = document.querySelector('.topline .status');
-      if (statusEl) {
-        statusEl.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (st.is_open ? 'MARKET OPEN' : 'MARKET CLOSED');
-        statusEl.classList.toggle('closed', !st.is_open);
-        statusEl.title = 'Live market state from the daily NGX feed. Trading hours: Mon–Fri 9:30–14:30 WAT.';
-      }
+    /* One consistent open/closed signal on every page: the WAT clock decides,
+       the provider feed can only confirm a closure (holiday). */
+    var statusEl = document.querySelector('.topline .status');
+    if (statusEl) {
+      statusEl.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (marketOpen ? 'MARKET OPEN' : 'MARKET CLOSED');
+      statusEl.classList.toggle('closed', !marketOpen);
+      statusEl.title = 'Market state: NGX trades Mon\u2013Fri 10:00\u201314:30 WAT. Prices carry the exchange\u2019s usual delay.';
     }
     var chartSub = $('chartSub');
     if (chartSub) chartSub.textContent = 'Daily ASI closing values — the last 120 sessions, refreshed after each market close.';
