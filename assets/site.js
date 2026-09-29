@@ -551,7 +551,9 @@
             var html = '';
             items.slice(0, 24).forEach(function (it) {
               var key = sectorKey[it.sector] || 'market';
+              var thumbHtml = it.image ? '<div class="news-thumb"><img src="' + esc(it.image) + '" alt="" loading="lazy" onerror="this.closest(\'.news-thumb\').remove()"></div>' : '';
               html += '<a class="news-card" data-sector="' + key + '" href="' + esc(it.link) + '" target="_blank" rel="noopener noreferrer">'
+                + thumbHtml
                 + '<div class="news-meta"><span>' + esc((it.source || '').toUpperCase()) + '</span><span>' + esc(fmtDate(it.published_at)) + '</span><span class="news-sector">' + esc(sectorLabel[it.sector] || 'Market-wide') + '</span></div>'
                 + '<h3>' + esc(it.title) + '</h3>'
                 + (it.description ? '<p>' + esc(it.description) + '</p>' : '')

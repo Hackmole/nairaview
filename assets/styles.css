@@ -842,3 +842,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 
     /* Selection takes the gold tint. */
     ::selection { background: var(--gold-soft); }
+
+/* ---- News thumbnails (original publisher images) ---- */
+.news-thumb { margin: -22px -22px 14px; overflow: hidden; border-radius: 2px 2px 0 0; background: var(--surface-2); }
+.news-thumb img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
