@@ -42,10 +42,25 @@ plt.rcParams["font.family"] = "DejaVu Sans"
 
 # ---------------------------------------------------------------- data
 
-def fetch_json(path):
-    req = urllib.request.Request(API + path, headers={"User-Agent": "nairaview-infographics/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.load(r)
+def fetch_json(path, tries=3):
+    """Fetch via curl (urllib intermittently hits truncated reads on this API)."""
+    import subprocess
+    import time
+    last = None
+    for i in range(tries):
+        try:
+            out = subprocess.run(
+                ["curl", "-s", "--max-time", "40", "-H",
+                 "User-Agent: nairaview-infographics/1.0", API + path],
+                capture_output=True, timeout=60)
+            if out.returncode != 0 or not out.stdout:
+                raise RuntimeError(f"curl rc={out.returncode}")
+            return json.loads(out.stdout.decode("utf-8"))
+        except Exception as e:
+            last = e
+            if i < tries - 1:
+                time.sleep(5 * (i + 1))
+    raise last
 
 
 def unwrap_stocks(payload):
