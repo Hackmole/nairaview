@@ -22,7 +22,7 @@
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Account — Sign up or log in | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20260929e" />
+  <link rel="stylesheet" href="assets/styles.css?v=20260929f" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -133,6 +133,12 @@
               <button type="button" class="btn-ghost" id="tfaDisableBtn">Turn off two-factor</button>
             </div>
           </div>
+          <div class="auth-form" id="alertsSection" style="margin-top:1.5rem">
+            <p class="guide-p"><strong>Price alerts</strong> &mdash; we check each daily close and email you once when a target hits.</p>
+            <div id="alertsList"><p class="guide-p">Loading&hellip;</p></div>
+            <p class="guide-p">Set new alerts from any <a href="stocks">stock page</a>.</p>
+            <p class="form-error" id="alertsError" role="alert" hidden></p>
+          </div>
         </div>
 
         <div id="authDown" class="auth-wrap" hidden>
@@ -152,7 +158,7 @@
   <script src="assets/data.js?v=20260929a"></script>
   <script src="assets/logos.js"></script>
   <script src="assets/stock-pages.js"></script>
-  <script src="assets/site.js?v=20260929e"></script>
+  <script src="assets/site.js?v=20260929f"></script>
   <script src="assets/live.js?v=20260929b"></script>
   <script>
   (function () {
@@ -316,6 +322,7 @@
         document.getElementById('profileName').value = me.display_name || '';
         document.getElementById('authState').hidden = false;
         setTfaUI(!!me.tfa_enabled);
+        loadAlerts();
       });
       document.getElementById('authForms').hidden = false;
     }).catch(function () {
@@ -328,6 +335,52 @@
       document.getElementById('tfaOff').hidden = on;
       document.getElementById('tfaSetup').hidden = true;
     }
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function naira(n) {
+      return '\u20A6' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function loadAlerts() {
+      var list = document.getElementById('alertsList');
+      var err = document.getElementById('alertsError');
+      fetch(API + '/api/alerts', { credentials: 'include' }).then(function (res) {
+        return res.json().then(function (out) { return { ok: res.ok, out: out }; });
+      }).then(function (r) {
+        if (!r.ok) { err.textContent = r.out.error || 'Could not load alerts.'; err.hidden = false; return; }
+        var alerts = (r.out.alerts || []).slice().sort(function (a, b) { return a.ticker.localeCompare(b.ticker); });
+        if (!alerts.length) { list.innerHTML = '<p class="guide-p">No alerts yet.</p>'; return; }
+        list.innerHTML = alerts.map(function (a) {
+          var label = a.active === false
+            ? esc(a.ticker) + ' \u2014 triggered at ' + naira(a.triggered_price) + ' (off)'
+            : esc(a.ticker) + ' ' + (a.direction === 'below' ? 'at or below ' : 'at or above ') + naira(a.target);
+          return '<div class="alert-row"><span>' + label + '</span>' +
+            '<button type="button" class="btn-ghost" data-alert-del="' + esc(a.id) + '">Remove</button></div>';
+        }).join('');
+      }).catch(function () {
+        err.textContent = 'Could not load alerts. Check your connection.';
+        err.hidden = false;
+      });
+    }
+    document.getElementById('alertsList').addEventListener('click', function (e) {
+      var b = e.target && e.target.closest ? e.target.closest('[data-alert-del]') : null;
+      if (!b) return;
+      var err = document.getElementById('alertsError');
+      err.hidden = true;
+      fetch(API + '/api/alerts?id=' + encodeURIComponent(b.getAttribute('data-alert-del')),
+        { method: 'DELETE', credentials: 'include' }).then(function (res) {
+        return res.json().then(function (out) { return { ok: res.ok, out: out }; });
+      }).then(function (r) {
+        if (!r.ok) { err.textContent = r.out.error || 'Could not remove.'; err.hidden = false; return; }
+        loadAlerts();
+      }).catch(function () {
+        err.textContent = 'Could not remove. Check your connection.';
+        err.hidden = false;
+      });
+    });
     document.getElementById('tfaEnableBtn').addEventListener('click', function () {
       fetch(API + '/api/auth/2fa/setup', { method: 'POST', credentials: 'include' })
         .then(function (res) { return res.json().then(function (out) { return { res: res, out: out }; }); })

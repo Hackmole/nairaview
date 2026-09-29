@@ -820,3 +820,89 @@
       }, { rootMargin: '-40% 0px -55% 0px' });
       Object.keys(map).forEach(function (id) { obs.observe(document.getElementById(id)); });
     }());
+    /* ---- 12. Close-based price alerts (stock pages; signed-in users) ---- */
+    (function priceAlerts() {
+      var API = 'https://nairaview-api.meetomidiora.workers.dev';
+      var m = window.location.pathname.match(/\/stocks\/([A-Za-z0-9]+)/);
+      if (!m) return;
+      var ticker = m[1].toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+      if (!ticker) return;
+      var heading = document.querySelector('.section-heading');
+      var anchor = heading ? heading.querySelector('p.asof') : null;
+      if (!anchor) return;
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function money(n) {
+        return '\u20A6' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+      var box = document.createElement('div');
+      box.className = 'alert-widget';
+      box.innerHTML =
+        '<h3 class="alert-title">Price alerts</h3>' +
+        '<p class="guide-p alert-note">We check each daily close and email you once when ' + esc(ticker) + ' hits your target.</p>' +
+        '<div class="alert-list"></div>' +
+        '<p class="guide-p alert-signin" hidden>Please <a href="../account">sign in</a> to set a price alert.</p>' +
+        '<form class="alert-form" hidden>' +
+        '<label>Target (\u20A6)<input type="number" name="alerttarget" min="0.01" step="0.01" inputmode="decimal" required placeholder="0.00"></label>' +
+        '<label>Direction<select name="alertdirection"><option value="above">at or above</option><option value="below">at or below</option></select></label>' +
+        '<button type="submit" class="btn-primary">Set alert</button></form>' +
+        '<p class="form-error" role="alert" hidden></p>';
+      anchor.parentNode.insertBefore(box, anchor.nextSibling);
+      var listEl = box.querySelector('.alert-list');
+      var form = box.querySelector('.alert-form');
+      var signin = box.querySelector('.alert-signin');
+      var errEl = box.querySelector('.form-error');
+      function showErr(msg) { errEl.textContent = msg || ''; errEl.hidden = !msg; }
+      function renderAlerts(alerts) {
+        var mine = (alerts || []).filter(function (a) { return a && a.ticker === ticker; });
+        if (!mine.length) { listEl.innerHTML = ''; return; }
+        listEl.innerHTML = mine.map(function (a) {
+          var label = a.active === false
+            ? 'Triggered at ' + money(a.triggered_price) + ' \u2014 now off'
+            : (a.direction === 'below' ? 'At or below ' : 'At or above ') + money(a.target);
+          return '<div class="alert-row"><span>' + esc(label) + '</span>' +
+            '<button type="button" class="btn-ghost alert-del" data-id="' + esc(a.id) + '">Remove</button></div>';
+        }).join('');
+      }
+      function readJson(res) { return res.json().then(function (j) { return { ok: res.ok, j: j }; }); }
+      listEl.addEventListener('click', function (e) {
+        var b = e.target && e.target.closest ? e.target.closest('.alert-del') : null;
+        if (!b) return;
+        showErr('');
+        fetch(API + '/api/alerts?id=' + encodeURIComponent(b.getAttribute('data-id')),
+          { method: 'DELETE', credentials: 'include' })
+          .then(readJson)
+          .then(function (r) { if (!r.ok) throw new Error((r.j && r.j.error) || 'Could not remove.'); load(); })
+          .catch(function (e2) { showErr(e2.message); });
+      });
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        showErr('');
+        var target = Number(form.querySelector('[name=alerttarget]').value);
+        var direction = form.querySelector('[name=alertdirection]').value;
+        fetch(API + '/api/alerts', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker: ticker, target: target, direction: direction })
+        })
+          .then(readJson)
+          .then(function (r) { if (!r.ok) throw new Error((r.j && r.j.error) || 'Could not save.'); form.reset(); load(); })
+          .catch(function (e2) { showErr(e2.message); });
+      });
+      function load() {
+        fetch(API + '/api/alerts', { credentials: 'include' })
+          .then(function (r) { if (!r.ok) throw new Error('load'); return r.json(); })
+          .then(function (j) { renderAlerts(j.alerts); })
+          .catch(function () { renderAlerts([]); });
+      }
+      fetch(API + '/api/auth/me', { credentials: 'include' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (me) {
+          if (me && me.email) { form.hidden = false; load(); }
+          else { signin.hidden = false; }
+        })
+        .catch(function () { signin.hidden = false; });
+    }());
