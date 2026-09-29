@@ -1,6 +1,7 @@
 
     :root {
       color-scheme: light dark;
+      --header-h: 65px;
       --paper: #f5f8f4;
       --surface: #ffffff;
       --surface-2: #eaf1ec;
@@ -117,10 +118,18 @@
       align-items: center;
       justify-content: space-between;
       gap: 20px;
-      padding: 24px 0 15px;
+      padding: 14px 0 12px;
       border-bottom: 1px solid var(--line);
       font: 500 12px/1.4 "IBM Plex Mono", monospace;
       letter-spacing: .02em;
+      /* Sticky market-state bar: stays pinned under the sticky header. */
+      position: sticky;
+      top: var(--header-h);
+      z-index: 50;
+      background: var(--paper);
+    }
+    @media (max-width: 700px) {
+      :root { --header-h: 124px; }
     }
     .status { display: flex; gap: 9px; align-items: center; }
     .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
