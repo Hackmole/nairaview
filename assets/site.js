@@ -787,3 +787,23 @@
       window.NV.renderDirectory = function () { renderDirectory(); };
       window.NV.renderScreener = function () { if (typeof renderScreener === 'function' && document.getElementById('screenList')) renderScreener(); };
     }());
+    /* ---- 11. Sticky section sub-nav scroll-spy (homepage only) ---- */
+    (function () {
+      var nav = document.querySelector('.section-subnav');
+      if (!nav || !('IntersectionObserver' in window)) return;
+      var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+      var map = {};
+      links.forEach(function (a) {
+        var id = a.getAttribute('href').slice(1);
+        if (document.getElementById(id)) map[id] = a;
+      });
+      if (!links.length) return;
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            links.forEach(function (a) { a.classList.toggle('active', a === map[e.target.id]); });
+          }
+        });
+      }, { rootMargin: '-40% 0px -55% 0px' });
+      Object.keys(map).forEach(function (id) { obs.observe(document.getElementById(id)); });
+    }());
