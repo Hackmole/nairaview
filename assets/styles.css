@@ -89,7 +89,7 @@
     a { color: inherit; }
     button { font: inherit; }
     :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .shell { width: min(1560px, calc(100% - 48px)); margin: 0 auto; }
     .live-ticker { border-bottom: 1px solid var(--line); overflow: hidden; }
     /* Native market ticker (replaces blocked third-party iframe, 2026-09-27) */
     .ticker-track { display: flex; width: max-content; animation: ticker-scroll 45s linear infinite; }
@@ -318,7 +318,7 @@
       .learn-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 620px) {
-      .shell { width: min(100% - 24px, 1180px); }
+      .shell { width: min(100% - 24px, 1560px); }
       .topline { align-items: flex-start; padding-top: 18px; }
       .topline > span:last-child { text-align: right; }
       .hero { padding-top: 34px; gap: 25px; }
@@ -408,7 +408,7 @@
   
 /* Multi-page header/nav (v2) */
 .site-header { position: sticky; top: 0; z-index: 60; background: var(--paper); border-bottom: 1px solid var(--line); }
-.header-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; display: flex; align-items: center; gap: 24px; }
+.header-inner { width: min(1560px, calc(100% - 48px)); margin: 0 auto; display: flex; align-items: center; gap: 24px; }
 .brand { font: 650 21px/1 "Newsreader", Georgia, serif; color: var(--ink); text-decoration: none; padding: 15px 0; white-space: nowrap; display: inline-flex; align-items: center; }
 .brand span { color: var(--green-strong); }
 .brand img { height: 34px; width: auto; display: block; }
