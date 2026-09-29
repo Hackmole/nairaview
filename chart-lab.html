@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<script>try{var t=localStorage.getItem("nv-theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#087a4b" />
+  <meta name="robots" content="noindex,nofollow" />
+  <meta name="description" content="Prototype: TradingView-style charts rendered with Nairaview's own market data. Not linked in site navigation." />
+  <link rel="icon" href="assets/logo-icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <title>Chart Lab — TradingView-style prototype | Nairaview</title>
+  <link rel="stylesheet" href="assets/styles.css?v=20260927u" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .tv-wrap{position:relative;height:440px;border:1px solid var(--line,#e5e7eb);border-radius:14px;overflow:hidden;background:var(--card,#fff)}
+    .tv-wrap .tv-err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--muted,#6b7280)}
+    .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+    .pill-row button{border:1px solid var(--line,#e5e7eb);background:var(--card,#fff);color:var(--ink,#111827);border-radius:999px;padding:8px 14px;font:600 13px/1.2 "Public Sans",system-ui,sans-serif;cursor:pointer}
+    .pill-row button[aria-pressed="true"]{background:#087a4b;border-color:#087a4b;color:#fff}
+    .lab-note{font-size:13px;color:var(--muted,#6b7280);margin-top:10px}
+    @media (max-width:640px){.tv-wrap{height:340px}}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="Nairaview home"><picture><source srcset="assets/logo-dark.svg" media="(prefers-color-scheme: dark)"><img src="assets/logo.svg" alt="Nairaview" height="34"></picture></a>
+      <nav class="site-nav" aria-label="Primary">
+          <a href="./">Home</a>
+          <a href="./stocks">Stocks</a>
+          <a href="./screener">Screener</a>
+          <a href="./offers">Offers</a>
+          <a href="./calendar">Calendar</a>
+          <a href="./news">News</a>
+          <a href="./learn">Learn</a>
+          <a href="./market-recap">Recap</a>
+      </nav>
+    </div>
+  </header>
+  <div class="shell">
+    <div class="topline">
+      <span class="status"><i class="status-dot" aria-hidden="true"></i> PROTOTYPE</span>
+      <span class="topline-date">CHART LAB &middot; NOT IN SITE NAV</span>
+    </div>
+    <main>
+      <section class="section">
+        <div class="section-heading">
+          <p class="kicker">PROTOTYPE &middot; TRADINGVIEW LIGHTWEIGHT CHARTS</p>
+          <h1>Chart lab</h1>
+          <p class="lede">TradingView&rsquo;s open-source charting library, rendering <strong>Nairaview&rsquo;s own market data</strong> &mdash; no TradingView branding, no third-party data. Pick a stock and a chart style:</p>
+        </div>
+        <div class="pill-row" id="sym-row" role="group" aria-label="Stock symbol">
+          <button data-sym="DANGCEM" aria-pressed="true">DANGCEM</button>
+          <button data-sym="GTCO" aria-pressed="false">GTCO</button>
+          <button data-sym="MTNN" aria-pressed="false">MTNN</button>
+          <button data-sym="ZENITHBANK" aria-pressed="false">ZENITHBANK</button>
+          <button data-sym="ACCESSCORP" aria-pressed="false">ACCESSCORP</button>
+          <button data-sym="SEPLAT" aria-pressed="false">SEPLAT</button>
+        </div>
+        <div class="pill-row" id="type-row" role="group" aria-label="Chart type">
+          <button data-type="candles" aria-pressed="true">Candlesticks</button>
+          <button data-type="area" aria-pressed="false">Area</button>
+        </div>
+        <div class="tv-wrap" id="tv-chart"><div class="tv-err" id="tv-err">Loading chart&hellip;</div></div>
+        <p class="asof" id="stock-asof"></p>
+
+        <div class="section-heading" style="margin-top:34px">
+          <p class="kicker">NGX ALL-SHARE INDEX</p>
+          <h2 class="guide-h2">ASI &mdash; 120 sessions</h2>
+        </div>
+        <div class="tv-wrap" id="tv-asi"><div class="tv-err" id="asi-err">Loading chart&hellip;</div></div>
+        <p class="asof" id="asi-asof"></p>
+        <p class="lab-note">Prototype page for review &mdash; not linked anywhere in the site navigation or sitemap, and excluded from search indexing. Data: Nairaview market feed (NGX Pulse), daily closes.</p>
+      </section>
+    </main>
+    <footer class="footer"><strong>Nairaview</strong><span>Information, not investment advice.</span></footer>
+  </div>
+  <script src="assets/vendor/lightweight-charts.standalone.production.js"></script>
+  <script src="assets/site.js?v=20260927u"></script>
+  <script>
+  (function(){
+    "use strict";
+    var API = "https://nairaview-api.meetomidiora.workers.dev";
+    if (!window.LightweightCharts) return;
+    var LW = window.LightweightCharts;
+
+    function isDark(){
+      var t = null;
+      try { t = document.documentElement.getAttribute("data-theme"); } catch(e){}
+      if (t === "dark") return true;
+      if (t === "light") return false;
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    function themeOpts(){
+      var dark = isDark();
+      return {
+        layout: {
+          background: { type: "solid", color: "transparent" },
+          textColor: dark ? "#c9d4e3" : "#3c4756",
+          fontFamily: "'Public Sans', system-ui, sans-serif",
+          fontSize: 12
+        },
+        grid: {
+          vertLines: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)" },
+          horzLines: { color: dark ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)" }
+        },
+        crosshair: {
+          vertLine: { color: dark ? "#5b6b85" : "#94a3b8", labelBackgroundColor: "#087a4b" },
+          horzLine: { color: dark ? "#5b6b85" : "#94a3b8", labelBackgroundColor: "#087a4b" }
+        },
+        rightPriceScale: { borderColor: dark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)" },
+        timeScale: { borderColor: dark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.12)", timeVisible: false }
+      };
+    }
+    var UP = "#16a34a", DOWN = "#dc2626";
+
+    function fmtDate(iso){
+      var d = new Date(iso + "T12:00:00Z");
+      var M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      return d.getUTCDate() + " " + M[d.getUTCMonth()] + " " + d.getUTCFullYear();
+    }
+    function money(n){
+      return "\u20A6" + Number(n).toLocaleString("en-NG", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    /* ---------- stock chart ---------- */
+    var sym = "DANGCEM", ctype = "candles";
+    var chartEl = document.getElementById("tv-chart");
+    var errEl = document.getElementById("tv-err");
+    var asofEl = document.getElementById("stock-asof");
+    var chart = LW.createChart(chartEl, Object.assign({ width: chartEl.clientWidth, height: chartEl.clientHeight }, themeOpts()));
+    var mainSeries = null, volSeries = null;
+
+    function drawStock(prices){
+      if (mainSeries) { chart.removeSeries(mainSeries); mainSeries = null; }
+      if (volSeries) { chart.removeSeries(volSeries); volSeries = null; }
+      var data = prices.map(function(p){
+        return { time: p.date, open: p.open, high: p.high, low: p.low, close: p.close, volume: p.volume || 0 };
+      });
+      if (ctype === "candles") {
+        mainSeries = chart.addCandlestickSeries({ upColor: UP, downColor: DOWN, wickUpColor: UP, wickDownColor: DOWN, borderVisible: false });
+        mainSeries.setData(data.map(function(d){ return { time: d.time, open: d.open, high: d.high, low: d.low, close: d.close }; }));
+      } else {
+        mainSeries = chart.addAreaSeries({ lineColor: "#0e9f6e", topColor: "rgba(14,159,110,0.35)", bottomColor: "rgba(14,159,110,0.02)", lineWidth: 2, priceLineVisible: true });
+        mainSeries.setData(data.map(function(d){ return { time: d.time, value: d.close }; }));
+      }
+      var hasVol = data.some(function(d){ return d.volume > 0; });
+      if (hasVol) {
+        volSeries = chart.addHistogramSeries({ priceScaleId: "", priceFormat: { type: "volume" } });
+        chart.priceScale("").applyOptions({ scaleMargins: { top: 0.86, bottom: 0 } });
+        volSeries.setData(data.map(function(d){
+          return { time: d.time, value: d.volume, color: d.close >= d.open ? "rgba(22,163,74,0.45)" : "rgba(220,38,38,0.45)" };
+        }));
+      }
+      chart.timeScale().fitContent();
+      var first = data[0], last = data[data.length - 1];
+      var chg = ((last.close - first.close) / first.close * 100);
+      var arrow = chg >= 0 ? "\u25B2" : "\u25BC";
+      asofEl.textContent = sym + " \u00B7 " + data.length + " sessions (" + fmtDate(first.time) + " \u2013 " + fmtDate(last.time) + ") \u00B7 " +
+        money(last.close) + " (" + arrow + " " + Math.abs(chg).toFixed(2) + "%) \u00B7 Nairaview market feed, daily closes \u2014 not live.";
+    }
+
+    function loadStock(){
+      errEl.style.display = "flex"; errEl.textContent = "Loading chart\u2026";
+      fetch(API + "/api/history?symbol=" + encodeURIComponent(sym))
+        .then(function(r){ if(!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then(function(j){
+          if (!j.prices || !j.prices.length) throw new Error("no data");
+          errEl.style.display = "none";
+          drawStock(j.prices);
+        })
+        .catch(function(e){ errEl.textContent = "Could not load " + sym + " data (" + e.message + ")."; });
+    }
+
+    document.getElementById("sym-row").addEventListener("click", function(e){
+      var b = e.target.closest("button[data-sym]"); if (!b) return;
+      sym = b.getAttribute("data-sym");
+      Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      loadStock();
+    });
+    document.getElementById("type-row").addEventListener("click", function(e){
+      var b = e.target.closest("button[data-type]"); if (!b) return;
+      ctype = b.getAttribute("data-type");
+      Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      loadStock();
+    });
+
+    /* ---------- ASI chart ---------- */
+    var asiEl = document.getElementById("tv-asi");
+    var asiErr = document.getElementById("asi-err");
+    var asiAsof = document.getElementById("asi-asof");
+    var asiChart = LW.createChart(asiEl, Object.assign({ width: asiEl.clientWidth, height: asiEl.clientHeight }, themeOpts()));
+    fetch(API + "/api/asi-history")
+      .then(function(r){ if(!r.ok) throw new Error("http " + r.status); return r.json(); })
+      .then(function(j){
+        var hist = j.history || [];
+        if (!hist.length) throw new Error("no data");
+        asiErr.style.display = "none";
+        var s = asiChart.addAreaSeries({ lineColor: "#c9a227", topColor: "rgba(201,162,39,0.35)", bottomColor: "rgba(201,162,39,0.02)", lineWidth: 2 });
+        s.setData(hist.map(function(p){ return { time: p.date, value: p.value }; }));
+        asiChart.timeScale().fitContent();
+        var first = hist[0], last = hist[hist.length - 1];
+        var chg = ((last.value - first.value) / first.value * 100);
+        asiAsof.textContent = "NGX All-Share Index \u00B7 " + hist.length + " sessions (" + fmtDate(first.date) + " \u2013 " + fmtDate(last.date) + ") \u00B7 " +
+          Number(last.value).toLocaleString("en-NG", {minimumFractionDigits: 2}) + " (" + (chg >= 0 ? "+" : "") + chg.toFixed(2) + "%) \u00B7 Nairaview market feed.";
+      })
+      .catch(function(e){ asiErr.textContent = "Could not load ASI data (" + e.message + ")."; });
+
+    /* ---------- resize + theme ---------- */
+    function fit(){ chart.applyOptions({ width: chartEl.clientWidth, height: chartEl.clientHeight }); asiChart.applyOptions({ width: asiEl.clientWidth, height: asiEl.clientHeight }); }
+    if (window.ResizeObserver) { new ResizeObserver(fit).observe(chartEl); new ResizeObserver(fit).observe(asiEl); }
+    else { window.addEventListener("resize", fit); }
+
+    loadStock();
+  })();
+  </script>
+</body>
+</html>
