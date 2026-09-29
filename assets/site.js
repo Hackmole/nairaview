@@ -202,8 +202,8 @@
         var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending ' + plabel(points[points.length - 1]) + '.'; svg.appendChild(desc);
         var defs = node('defs', {});
         var grad = node('linearGradient', { id: 'asiAreaGrad', x1: '0', y1: '0', x2: '0', y2: '1' });
-        grad.appendChild(node('stop', { offset: '0%', style: 'stop-color:var(--green);stop-opacity:.35' }));
-        grad.appendChild(node('stop', { offset: '100%', style: 'stop-color:var(--green);stop-opacity:0' }));
+        grad.appendChild(node('stop', { offset: '0%' }));
+        grad.appendChild(node('stop', { offset: '100%' }));
         defs.appendChild(grad);
         svg.appendChild(defs);
         var W = 1000, H = 360, L = 72, R = 28, T = 34, B = 46;

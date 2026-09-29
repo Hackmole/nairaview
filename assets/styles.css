@@ -179,6 +179,8 @@
     .grid-line { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 5; }
     .axis-label { fill: var(--muted); font: 10px "IBM Plex Mono", monospace; }
     .area { fill: url(#asiAreaGrad); }
+    #asiAreaGrad stop:first-child { stop-color: var(--green); stop-opacity: .45; }
+    #asiAreaGrad stop:last-child { stop-color: var(--green); stop-opacity: 0; }
     .series { fill: none; stroke: var(--green); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
     .chart-dot { fill: var(--surface); stroke: var(--green); stroke-width: 2.5; cursor: pointer; vector-effect: non-scaling-stroke; }
     .chart-dot:hover, .chart-dot:focus { fill: var(--green); }
@@ -555,7 +557,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 
 /* Glass: Market-today card */
 .snapshot-note {
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
