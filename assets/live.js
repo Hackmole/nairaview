@@ -140,8 +140,6 @@
       if (ht) ht.setAttribute('aria-label', 'Market heatmap, ' + longD);
       var wrd = $('wrapDate');
       if (wrd) wrd.textContent = 'MARKET WRAP · ' + tradeDate.toUpperCase().replace(/ \d{4}$/, '');
-      var scd = $('screenDate');
-      if (scd) scd.textContent = longD;
     } catch (e) {}
     /* Market-today auto recap: advancers / decliners / unchanged + ASI move. */
     var note = $('heroNote');
