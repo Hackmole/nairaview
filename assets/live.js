@@ -136,8 +136,6 @@
       if (fd) fd.textContent = tradeDate;
       var tp = $('tapeDate');
       if (tp) tp.textContent = longD;
-      var hd = $('heatDate');
-      if (hd) hd.textContent = longD;
       var ht = $('heatTiles');
       if (ht) ht.setAttribute('aria-label', 'Market heatmap, ' + longD);
       var wrd = $('wrapDate');
