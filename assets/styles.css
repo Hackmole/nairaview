@@ -640,6 +640,25 @@ a, button { -webkit-tap-highlight-color: transparent; }
   .hours strong { font-size: clamp(32px, 12vw, 44px); }
 }
 
+/* 6. Tape rows: the watchlist star stays out of the way until needed —
+   revealed on row hover for mouse users; touch users get it in the
+   stock-detail dialog instead. */
+@media (pointer: fine) {
+  #leaders .market-row .star { visibility: hidden; }
+  #leaders .market-row:hover .star,
+  #leaders .market-row:focus-within .star { visibility: visible; }
+}
+@media (pointer: coarse) {
+  #leaders .market-row .star { display: none; }
+  #leaders .market-row { grid-template-columns: minmax(0, 1fr) auto auto; }
+  #leaders .sort-bar { grid-template-columns: minmax(0, 1fr) auto auto; }
+  #leaders .sort-bar > span:first-child { display: none; }
+}
+@media (pointer: coarse) and (max-width: 620px) {
+  #leaders .market-row { grid-template-columns: minmax(0, 1fr) auto; }
+  #leaders .sort-bar { grid-template-columns: minmax(0, 1fr) auto; }
+}
+
 /* Touch devices: generous tap targets without breaking layout */
 @media (pointer: coarse) {
   .site-nav a { min-height: 44px; display: inline-flex; align-items: center; }
