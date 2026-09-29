@@ -142,8 +142,6 @@
       if (tp) tp.textContent = longD;
       var ht = $('heatTiles');
       if (ht) ht.setAttribute('aria-label', 'Market heatmap, ' + longD);
-      var wrd = $('wrapDate');
-      if (wrd) wrd.textContent = 'MARKET WRAP · ' + tradeDate.toUpperCase().replace(/ \d{4}$/, '');
     } catch (e) {}
     /* Hero metadata line: one quiet breadth/as-of line under the big figure. */
     var note = $('heroNote');
