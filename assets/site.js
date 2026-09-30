@@ -560,7 +560,7 @@
                 + '<span class="arrow" aria-hidden="true">\u2197</span></a>';
             });
             grid.innerHTML = html;
-            if (updatedEl && data.updated_at) updatedEl.textContent = 'Updated ' + ago(data.updated_at) + ' \u00B7 headlines refresh automatically';
+            if (updatedEl && data.updated_at) updatedEl.textContent = 'Updated ' + ago(data.updated_at);
             renderNews();
           })
           .catch(function () { if (section) section.style.display = 'none'; });
