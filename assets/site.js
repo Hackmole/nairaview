@@ -173,7 +173,7 @@
         return '';
       }
       var rangeSessions = { '1W': 5, '1M': 22, '3M': 66, '6M': 132, 'YTD': 'ytd' };
-      var currentRange = 'YTD';
+      var currentRange = '1W';
       /* Points for a range: last N sessions, or every session since 1 Jan for YTD.
          Works on the snapshot asiHistory and on live data swapped in later. */
       function rangePoints(range) {
@@ -831,7 +831,7 @@
         });
       }());
       updateWatchCount();
-      if (document.getElementById('asiChart')) draw('YTD');
+      if (document.getElementById('asiChart')) draw(currentRange);
       render();
       renderDirectory();
       /* Live-data hooks: assets/live.js swaps in fresh market data after load
