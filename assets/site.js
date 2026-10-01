@@ -206,38 +206,82 @@
         var points = rangePoints(range);
         if (!points.length) return;
         function plabel(p) { return p.label || fmtAsiLabel(p.d); }
-        var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index closing values'; svg.appendChild(title);
-        var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Interactive chart for ' + range + ' ending ' + plabel(points[points.length - 1]) + '.'; svg.appendChild(desc);
+        function fmtPct(v) {
+          if (Math.abs(v) < 0.0005) return '0%';
+          return (v < 0 ? '−' : '+') + Math.abs(v).toFixed(2) + '%';
+        }
+        var title = node('title', { id: 'chartTitle' }); title.textContent = 'NGX All-Share Index performance vs range start'; svg.appendChild(title);
+        var desc = node('desc', { id: 'chartDesc' }); desc.textContent = 'Percent change of the ASI from the first selected close (' + plabel(points[0]) + ') to ' + plabel(points[points.length - 1]) + '.'; svg.appendChild(desc);
         var defs = node('defs', {});
-        var grad = node('linearGradient', { id: 'asiAreaGrad', x1: '0', y1: '0', x2: '0', y2: '1' });
-        grad.appendChild(node('stop', { offset: '0%' }));
-        grad.appendChild(node('stop', { offset: '100%' }));
-        defs.appendChild(grad);
+        /* Each fill's own bounding box frames its gradient: the up fill fades
+           from green at the line to transparent at zero; the down fill from
+           transparent at zero to red at the line. */
+        var gradUp = node('linearGradient', { id: 'asiUpGrad', x1: '0', y1: '0', x2: '0', y2: '1' });
+        gradUp.appendChild(node('stop', { offset: '0%' }));
+        gradUp.appendChild(node('stop', { offset: '100%' }));
+        var gradDown = node('linearGradient', { id: 'asiDownGrad', x1: '0', y1: '0', x2: '0', y2: '1' });
+        gradDown.appendChild(node('stop', { offset: '0%' }));
+        gradDown.appendChild(node('stop', { offset: '100%' }));
+        defs.appendChild(gradUp); defs.appendChild(gradDown);
         svg.appendChild(defs);
         var W = 1000, H = 360, L = 72, R = 28, T = 34, B = 46;
-        var vals = points.map(function (p) { return p.v; });
-        var min = Math.min.apply(null, vals), max = Math.max.apply(null, vals);
-        var pad = Math.max((max - min) * .16, 300);
-        min -= pad; max += pad;
+        var base = points[0].v;
+        var pcts = points.map(function (p) { return base ? (p.v - base) / base * 100 : 0; });
+        var minP = Math.min.apply(null, pcts), maxP = Math.max.apply(null, pcts);
+        var span = Math.max(Math.abs(minP), Math.abs(maxP), 0.05) * 1.18;
         function x(i) { return points.length === 1 ? (L + W - R) / 2 : L + i * (W - L - R) / (points.length - 1); }
-        function y(v) { return T + (max - v) * (H - T - B) / (max - min); }
-        for (var i = 0; i < 4; i++) {
-          var gy = T + i * (H - T - B) / 3;
+        function y(pct) { return T + (span - pct) * (H - T - B) / (2 * span); }
+        var zeroY = y(0);
+        [-1, -0.5, 0, 0.5, 1].forEach(function (f) {
+          var gy = y(span * f);
           svg.appendChild(node('line', { x1: L, x2: W - R, y1: gy, y2: gy, 'class': 'grid-line' }));
           var label = node('text', { x: L - 12, y: gy + 4, 'text-anchor': 'end', 'class': 'axis-label' });
-          label.textContent = Math.round(max - i * (max - min) / 3).toLocaleString('en-NG'); svg.appendChild(label);
+          label.textContent = fmtPct(span * f); svg.appendChild(label);
+        });
+        var coords = pcts.map(function (pc, idx) { return [x(idx), y(pc)]; });
+        /* Split the line and the zero-anchored fills at the zero line so no
+           fill ever leaks across it. side 1 = above zero, side -1 = below. */
+        function splitPaths(side) {
+          function inR(pct) { return side === 1 ? pct >= -1e-9 : pct <= 1e-9; }
+          function crossX(x1, y1, x2, y2) { var t = (zeroY - y1) / (y2 - y1); return (t > 0 && t < 1) ? x1 + t * (x2 - x1) : null; }
+          function fx(n) { return n.toFixed(1); }
+          var line = '', area = '', open = false, i, x1, y1, x2, y2, c1, c2, cx;
+          function lemit(px, py) { line += (open ? 'L' : 'M') + fx(px) + ',' + fx(py) + ' '; open = true; }
+          function aemit(px, py) { area += (area ? 'L' : 'M') + fx(px) + ',' + fx(py) + ' '; }
+          for (i = 0; i < coords.length - 1; i++) {
+            x1 = coords[i][0]; y1 = coords[i][1]; x2 = coords[i + 1][0]; y2 = coords[i + 1][1];
+            c1 = inR(pcts[i]); c2 = inR(pcts[i + 1]);
+            if (c1 && c2) { aemit(x1, y1); if (i === coords.length - 2) aemit(x2, y2); }
+            else if (c1) { aemit(x1, y1); cx = crossX(x1, y1, x2, y2); if (cx !== null) aemit(cx, zeroY); }
+            else if (c2) { cx = crossX(x1, y1, x2, y2); if (cx !== null) aemit(cx, zeroY); if (i === coords.length - 2) aemit(x2, y2); }
+            else { aemit(x1, zeroY); aemit(x2, zeroY); }
+          }
+          open = false;
+          for (i = 0; i < coords.length - 1; i++) {
+            x1 = coords[i][0]; y1 = coords[i][1]; x2 = coords[i + 1][0]; y2 = coords[i + 1][1];
+            c1 = inR(pcts[i]); c2 = inR(pcts[i + 1]);
+            if (c1 && c2) { lemit(x1, y1); if (i === coords.length - 2) lemit(x2, y2); }
+            else if (c1) { lemit(x1, y1); cx = crossX(x1, y1, x2, y2); if (cx !== null) lemit(cx, zeroY); open = false; }
+            else if (c2) { cx = crossX(x1, y1, x2, y2); open = false; if (cx !== null) { lemit(cx, zeroY); lemit(x2, y2); } }
+            else { open = false; }
+          }
+          var areaD = '';
+          if (area) areaD = area + 'L' + fx(coords[coords.length - 1][0]) + ',' + fx(zeroY) + ' L' + fx(coords[0][0]) + ',' + fx(zeroY) + ' Z';
+          return { line: line, area: areaD };
         }
-        var coords = points.map(function (p, idx) { return [x(idx), y(p.v)]; });
-        var lineD = coords.map(function (c, idx) { return (idx ? 'L' : 'M') + c[0].toFixed(1) + ',' + c[1].toFixed(1); }).join(' ');
-        var areaD = lineD + ' L' + coords[coords.length - 1][0].toFixed(1) + ',' + (H-B) + ' L' + coords[0][0].toFixed(1) + ',' + (H-B) + ' Z';
-        svg.appendChild(node('path', { d: areaD, 'class': 'area' }));
-        svg.appendChild(node('path', { d: lineD, 'class': 'series' }));
+        var up = splitPaths(1), down = splitPaths(-1);
+        if (down.area) svg.appendChild(node('path', { d: down.area, 'class': 'area-down' }));
+        if (up.area) svg.appendChild(node('path', { d: up.area, 'class': 'area-up' }));
+        /* Zero line sits above the fills so it stays crisp where they meet it. */
+        svg.appendChild(node('line', { x1: L, x2: W - R, y1: zeroY, y2: zeroY, 'class': 'zero-line' }));
+        if (down.line) svg.appendChild(node('path', { d: down.line, 'class': 'series-down' }));
+        if (up.line) svg.appendChild(node('path', { d: up.line, 'class': 'series-up' }));
         points.forEach(function (p, idx) {
-          var dot = node('circle', { cx: coords[idx][0], cy: coords[idx][1], r: 5, 'class': 'chart-dot', tabindex: '0', role: 'button', 'aria-label': plabel(p) + ': ' + formatNumber(p.v) });
+          var dot = node('circle', { cx: coords[idx][0], cy: coords[idx][1], r: 5, 'class': 'chart-dot ' + (pcts[idx] < 0 ? 'down' : 'up'), tabindex: '0', role: 'button', 'aria-label': plabel(p) + ': ' + formatNumber(p.v) + ' (' + fmtPct(pcts[idx]) + ')' });
           function show() {
             var wrap = svg.parentElement.getBoundingClientRect();
             var box = svg.getBoundingClientRect();
-            tooltip.textContent = plabel(p) + ' · ' + formatNumber(p.v);
+            tooltip.textContent = plabel(p) + ' · ' + formatNumber(p.v) + ' (' + fmtPct(pcts[idx]) + ')';
             tooltip.style.left = ((coords[idx][0] / W) * box.width + box.left - wrap.left) + 'px';
             tooltip.style.top = ((coords[idx][1] / H) * box.height + box.top - wrap.top) + 'px';
             tooltip.classList.add('visible'); tooltip.setAttribute('aria-hidden', 'false');
@@ -248,8 +292,8 @@
         });
         var first = node('text', { x: L, y: H - 17, 'text-anchor': 'start', 'class': 'axis-label' }); first.textContent = plabel(points[0]); svg.appendChild(first);
         var last = node('text', { x: W - R, y: H - 17, 'text-anchor': 'end', 'class': 'axis-label' }); last.textContent = plabel(points[points.length-1]); svg.appendChild(last);
-        var chgPct = (points[points.length - 1].v - points[0].v) / points[0].v * 100;
-        chartChange.textContent = (chgPct < 0 ? '−' : '+') + Math.abs(chgPct).toFixed(2) + '% since ' + plabel(points[0]);
+        var chgPct = pcts[pcts.length - 1];
+        chartChange.textContent = fmtPct(chgPct) + ' since ' + plabel(points[0]);
         chartChange.className = 'chart-change ' + (chgPct < 0 ? 'down' : 'up');
         periodLabel.textContent = plabel(points[0]) + ' — ' + plabel(points[points.length-1]);
       }
