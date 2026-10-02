@@ -132,31 +132,45 @@ def arrow(p):
     v = fnum(p)
     return '▲' if v > 0 else ('▼' if v < 0 else '■')
 
-def chart_svg(sym, closes):
-    """Build a simple SVG price chart from session closes (oldest -> newest)."""
+def chart_svg(sym, closes, dates=None):
+    """Build an SVG price chart from session closes (oldest -> newest)."""
     if len(closes) < 2:
         return ''
-    w, h = 720, 260
+    w, h = 720, 240
     lo, hi = min(closes), max(closes)
     rng = (hi - lo) or 1
     n = len(closes)
     pts = []
     for i, v in enumerate(closes):
-        x = 20 + (w - 40) * i / (n - 1)
-        y = h - 24 - (h - 56) * (v - lo) / rng
+        x = 44 + (w - 64) * i / (n - 1)
+        y = h - 30 - (h - 66) * (v - lo) / rng
         pts.append((x, y))
     dd = 'M' + ' L'.join(f'{x:.1f},{y:.1f}' for x, y in pts)
     up = closes[-1] >= closes[0]
     col = '#087A4B' if up else '#B43B3B'
-    area = f'{dd} L{pts[-1][0]:.1f},{h-24} L{pts[0][0]:.1f},{h-24} Z'
+    area = f'{dd} L{pts[-1][0]:.1f},{h-30} L{pts[0][0]:.1f},{h-30} Z'
     lx, ly = pts[-1]
     ret = (closes[-1] / closes[0] - 1) * 100
+    grid = ''
+    for frac in (0.25, 0.5, 0.75):
+        gy = h - 30 - (h - 66) * frac
+        grid += (f'<line x1="44" y1="{gy:.1f}" x2="{w-20}" y2="{gy:.1f}" '
+                 f'style="stroke:var(--line)" stroke-width="1" stroke-dasharray="3 5" opacity="0.8"/>')
+    lbl = ('font-family:"IBM Plex Mono",monospace;font-size:11px;fill:var(--muted)')
+    labels = (f'<text x="8" y="{pts[0][1]+4:.1f}" style="{lbl}" text-anchor="start">₦{hi:,.0f}</text>'
+              f'<text x="8" y="{h-26:.1f}" style="{lbl}" text-anchor="start">₦{lo:,.0f}</text>')
+    if dates and len(dates) == n:
+        d0 = esc(dates[0][5:].replace('-', ' '))
+        d1 = esc(dates[-1][5:].replace('-', ' '))
+        labels += (f'<text x="44" y="{h-8:.1f}" style="{lbl}" text-anchor="start">{d0}</text>'
+                   f'<text x="{w-20:.1f}" y="{h-8:.1f}" style="{lbl}" text-anchor="end">{d1}</text>')
     return (f'<div class="price-chart-card"><div class="pc-head">'
             f'<span class="pc-title">Price history &middot; last {n} sessions</span>'
             f'<span class="pc-ret {"up" if up else "down"}">{ret:+.2f}%</span></div>'
             f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{esc(sym)} price chart, last {n} sessions">'
-            f'<path d="{area}" fill="{col}" opacity="0.10"/>'
+            f'{grid}<path d="{area}" fill="{col}" opacity="0.10"/>'
             f'<path d="{dd}" fill="none" stroke="{col}" stroke-width="2.5" stroke-linecap="round"/>'
+            f'{labels}'
             f'<circle cx="{lx:.1f}" cy="{ly:.1f}" r="5" fill="{col}" stroke="#fff" stroke-width="2.5"/>'
             f'</svg><div class="pc-note">Daily closes to {esc(trade_date)} &middot; not intraday</div></div>')
 
@@ -251,7 +265,7 @@ TEMPLATE = '''<!doctype html>
         <div class="section-heading">
           <p class="kicker">Stock page &middot; @@SECTOR@@ &middot; @@BOARD@@</p>
           <div class="quote-top">
-            <div class="quote-id">@@BADGE@@<div><h1>@@H1@@</h1><p class="sector-line">@@SECTOR@@ &middot; @@BOARD@@</p></div></div>
+            <div class="quote-id">@@BADGE@@<div><h1>@@H1@@</h1></div></div>
             <div><span class="status-pill"><span class="dot"></span>Daily close</span></div>
           </div>
           <div class="quote-price">@@PRICE@@</div>
@@ -342,9 +356,11 @@ for s in stocks:
     chart, trend_answer = '', ''
     try:
         h = get_json('/api/history?symbol=' + sym, timeout=15)
-        closes = [p['close'] for p in (h.get('prices') or []) if p.get('close')]
+        prices = [p for p in (h.get('prices') or []) if p.get('close')]
+        closes = [p['close'] for p in prices]
+        cdates = [str(p.get('date') or '')[:10] for p in prices]
         if len(closes) >= 2:
-            chart = chart_svg(sym, closes[-9:])
+            chart = chart_svg(sym, closes[-9:], cdates[-9:])
             trend_answer = ('The chart above shows the last %d trading sessions. Use the '
                             '<a href="../screener">stock screener</a> to compare %s against '
                             'its sector peers.' % (min(len(closes), 9), sym))

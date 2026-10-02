@@ -162,6 +162,13 @@
       statusEl.classList.toggle('closed', !marketOpen);
       statusEl.title = 'Market state: NGX trades Mon\u2013Fri 10:00\u201314:30 WAT. Prices carry the exchange\u2019s usual delay.';
     }
+    /* Homepage hero pill mirrors the topline state (Figma quote-hero pattern). */
+    var hp = document.getElementById('heroPill');
+    if (hp) {
+      hp.innerHTML = '<span class="dot"></span>' + (marketOpen ? 'MARKET OPEN' : 'MARKET CLOSED') +
+        (sessionLive ? ' \u00B7 ' + sessionTime + ' WAT' : '');
+      hp.classList.toggle('is-closed', !marketOpen);
+    }
     var chartSub = $('chartSub');
     if (chartSub) chartSub.textContent = 'Daily ASI closing values — the last 120 sessions, refreshed after each market close.';
   }
@@ -345,6 +352,11 @@
           if (el) {
             el.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (open ? 'MARKET OPEN' : 'MARKET CLOSED');
             el.classList.toggle('closed', !open);
+          }
+          var hp2 = document.getElementById('heroPill');
+          if (hp2) {
+            hp2.innerHTML = '<span class="dot"></span>' + (open ? 'MARKET OPEN' : 'MARKET CLOSED');
+            hp2.classList.toggle('is-closed', !open);
           }
         } catch (e) {}
       }
