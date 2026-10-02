@@ -227,6 +227,8 @@ TEMPLATE = '''<!doctype html>
   <meta name="description" content="@@META_DESC@@" />
   <link rel="icon" href="../assets/logo-icon.svg" type="image/svg+xml">
   <link rel="icon" href="../assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="../assets/favicon-48.png" sizes="48x48" type="image/png">
+  <link rel="icon" href="../assets/favicon-96.png" sizes="96x96" type="image/png">
   <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <title>@@TITLE@@</title>
   <link rel="stylesheet" href="../assets/styles.css?v=@@V@@" />
