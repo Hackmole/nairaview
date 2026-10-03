@@ -185,7 +185,7 @@
     .snapshot-note p { color: var(--muted); font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
     .snapshot-note a { display: inline-flex; align-items: center; gap: 6px; color: var(--green-strong); font-weight: 700; font-size: 13px; text-decoration: none; }
     .snapshot-note a:hover { text-decoration: underline; text-underline-offset: 4px; }
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 26px; }
     .metric { min-width: 0; padding: 20px 22px 21px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
     .metric-label { display: block; margin-bottom: 8px; color: var(--muted); font: 500 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
     .metric-value { font: 650 clamp(20px, 2.6vw, 26px)/1 "Newsreader", serif; white-space: nowrap; }

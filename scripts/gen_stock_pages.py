@@ -272,14 +272,14 @@ TEMPLATE = '''<!doctype html>
           </div>
           <div class="quote-price">@@PRICE@@</div>
           <div class="quote-chg @@CHG_CLASS@@">@@DAY_CHG@@</div>
-          <p class="asof">As of the @@TRADE_DATE@@ close &mdash; refreshed daily when the market feed updates. Confirm before acting.</p>
+          <p class="asof">As of the @@TRADE_DATE@@ close &mdash; confirm before acting.</p>
         </div>
       </div>
       <div class="hstat-grid">
         <div class="hstat"><div class="k">7-day change</div><div class="v @@W_CLASS@@">@@W_CHG@@</div><div class="s">vs 7 days ago</div></div>
-        <div class="hstat"><div class="k">Volume</div><div class="v">@@VOLUME@@</div><div class="s">shares traded</div></div>
-        <div class="hstat"><div class="k">Market cap</div><div class="v">@@MCAP@@</div><div class="s">at latest close</div></div>
-        <div class="hstat"><div class="k">Shares outstanding</div><div class="v">@@SHARES@@</div><div class="s">as reported</div></div>
+        <div class="hstat"><div class="k">Volume</div><div class="v">@@VOLUME@@</div></div>
+        <div class="hstat"><div class="k">Market cap</div><div class="v">@@MCAP@@</div></div>
+        <div class="hstat"><div class="k">Shares outstanding</div><div class="v">@@SHARES@@</div></div>
       </div>
 @@CHART@@
       <div class="section" style="padding-top:34px">

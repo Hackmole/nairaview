@@ -98,9 +98,9 @@
       if (v) v.textContent = value;
       if (d) d.textContent = detail;
     }
-    setMetric('metricMcap', 'metricMcapDetail', compact(ov.market_cap), 'as of ' + tradeDate);
-    setMetric('metricVol', 'metricVolDetail', compact(ov.volume).replace('₦', ''), 'shares traded');
-    setMetric('metricDeals', 'metricDealsDetail', fmtInt(ov.deals), 'completed trades');
+    setMetric('metricMcap', null, compact(ov.market_cap));
+    setMetric('metricVol', null, compact(ov.volume).replace('₦', ''));
+    setMetric('metricDeals', null, fmtInt(ov.deals));
     /* Session state: the 30-min session poll marks its payload, and the
        status feed carries the real open/closed state. */
     var st = market.status && market.status.data;
@@ -148,9 +148,7 @@
     if (note) {
       var pct2 = Number(ov.pct_change) || 0;
       note.textContent = fmtInt(ov.advancers) + ' advancers · ' + fmtInt(ov.decliners) + ' decliners · ' +
-        fmtInt(ov.unchanged) + ' unchanged · ' + (sessionLive
-          ? 'as of ' + sessionTime + ' WAT · ~30-min delayed'
-          : 'as of the ' + tradeDate + ' close');
+        fmtInt(ov.unchanged) + ' unchanged' + (sessionLive ? ' · as of ' + sessionTime + ' WAT · ~30-min delayed' : '');
     }
     var md = $('metricsDate');
     if (md) md.textContent = tradeDate;
@@ -169,8 +167,6 @@
         (sessionLive ? ' \u00B7 ' + sessionTime + ' WAT' : '');
       hp.classList.toggle('is-closed', !marketOpen);
     }
-    var chartSub = $('chartSub');
-    if (chartSub) chartSub.textContent = 'Daily ASI closing values — the last 120 sessions, refreshed after each market close.';
   }
 
   /* ---------- ASI history: real 120-session chart + honest YTD ---------- */
@@ -216,7 +212,7 @@
     return {
       s: s.symbol, c: s.name, p: '₦' + fmt2(px),
       m: signedPct(chg), d: chg < 0 ? 'down' : 'up',
-      pv: px, cv: Math.round(chg * 100) / 100, vol: Number(s.volume) || 0,
+      pv: px, cv: Math.round(chg * 100) / 100, volNum: Number(s.volume) || 0,
       mc: Number(s.market_cap) || 0, noSnap: false
     };
   }
@@ -226,8 +222,8 @@
     var rows = list.map(toRow);
     var gainers = rows.filter(function (r) { return r.cv > 0; }).sort(function (a, b) { return b.cv - a.cv; }).slice(0, 5);
     var losers = rows.filter(function (r) { return r.cv < 0; }).sort(function (a, b) { return a.cv - b.cv; }).slice(0, 5);
-    var volume = rows.slice().sort(function (a, b) { return b.vol - a.vol; }).slice(0, 5).map(function (r) {
-      return { s: r.s, c: r.c, p: r.p, m: compact(r.vol).replace('₦', ''), d: 'up', pv: r.pv, cv: r.vol, vol: true, noSnap: false };
+    var volume = rows.slice().sort(function (a, b) { return b.volNum - a.volNum; }).slice(0, 5).map(function (r) {
+      return { s: r.s, c: r.c, p: r.p, m: compact(r.volNum).replace('₦', ''), d: 'up', pv: r.pv, cv: r.volNum, vol: true, noSnap: false };
     });
     if (!gainers.length || !losers.length) return; /* keep snapshot if the feed looks thin */
     tables.gainers = gainers;
