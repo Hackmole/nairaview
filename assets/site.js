@@ -315,12 +315,12 @@
       function dirRows() {
         var q = dirState.query.toLowerCase();
         /* Map current NGX tickers back to the old directory symbols. */
-        var REV_ALIAS = { GTCO: 'GUARANTY', ACCESSCORP: 'ACCESS', TOTAL: 'TOTALNG', BUACEMENT: 'CCNN' };
+        var REV_ALIAS = { GUARANTY: 'GTCO', ACCESS: 'ACCESSCORP', TOTALNG: 'TOTAL', CCNN: 'BUACEMENT', FBNH: 'FIRSTHOLDCO' };
         return directory.filter(function (e) {
           if (dirState.sector !== 'All' && e.g !== dirState.sector) return false;
           if (!q) return true;
           if (e.s.toLowerCase().indexOf(q) !== -1 || e.c.toLowerCase().indexOf(q) !== -1 || e.g.toLowerCase().indexOf(q) !== -1) return true;
-          return REV_ALIAS[q.toUpperCase()] === e.s;
+          var aq = REV_ALIAS[q.toUpperCase()]; if (aq && e.s === aq) return true;
         }).sort(function (a, b) { return a.s < b.s ? -1 : a.s > b.s ? 1 : 0; });
       }
       function renderDirectory() {
