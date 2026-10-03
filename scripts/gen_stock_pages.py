@@ -295,14 +295,10 @@ TEMPLATE = '''<!doctype html>
           <li>Track the position on Nairaview&rsquo;s <a href="../portfolio">portfolio tracker</a>.</li>
         </ol>
         <h2 class="guide-h2">Frequently asked questions</h2>
-        <h3 class="guide-h3">What is the current @@SYM@@ share price?</h3>
-        <p class="guide-p">@@NAME@@ (@@SYM@@) last closed at <strong>@@PRICE@@</strong> (@@DAY_CHG@@ on the day) on @@TRADE_DATE@@. Prices update here after each NGX trading session.</p>
-        <h3 class="guide-h3">What sector is @@SYM@@ in?</h3>
-        <p class="guide-p">@@SYM@@ is listed on the NGX @@BOARD@@ under the @@SECTOR@@ sector.</p>
-        <h3 class="guide-h3">Where can I see @@SYM@@&rsquo;s recent price trend?</h3>
-        <p class="guide-p">@@TREND_ANSWER@@</p>
-        <h3 class="guide-h3">Is @@SYM@@ a good investment?</h3>
-        <p class="guide-p">Nairaview provides market data, not investment advice. Consider the company&rsquo;s financials, your goals and risk tolerance &mdash; and speak to a licensed adviser before deciding.</p>
+        <details class="faq-item"><summary class="faq-q">What is the current @@SYM@@ share price?</summary><div class="faq-a"><p class="guide-p">@@NAME@@ (@@SYM@@) last closed at <strong>@@PRICE@@</strong> (@@DAY_CHG@@ on the day) on @@TRADE_DATE@@. Prices update here after each NGX trading session.</p></div></details>
+        <details class="faq-item"><summary class="faq-q">What sector is @@SYM@@ in?</summary><div class="faq-a"><p class="guide-p">@@SYM@@ is listed on the NGX @@BOARD@@ under the @@SECTOR@@ sector.</p></div></details>
+        <details class="faq-item"><summary class="faq-q">Where can I see @@SYM@@&rsquo;s recent price trend?</summary><div class="faq-a"><p class="guide-p">@@TREND_ANSWER@@</p></div></details>
+        <details class="faq-item"><summary class="faq-q">Is @@SYM@@ a good investment?</summary><div class="faq-a"><p class="guide-p">Nairaview provides market data, not investment advice. Consider the company&rsquo;s financials, your goals and risk tolerance &mdash; and speak to a licensed adviser before deciding.</p></div></details>
         <h2 class="guide-h2">Related stocks</h2>
         <ul class="guide-list">
 @@PEERS@@
