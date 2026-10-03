@@ -200,9 +200,9 @@ def footer():
         <div class="footer-legal">
           <span>&copy; 2026 Nairaview. Information, not investment advice.</span>
           <span><a href="../account">Account</a></span>
+          <span>Market data is delayed daily-close information from the Nigerian Exchange, provided for education only. Prices may have changed &mdash; confirm before acting.</span>
         </div>
       </div>
-      <div class="footer-disclaimer">Market data is delayed daily-close information from the Nigerian Exchange, provided for education only. Prices may have changed &mdash; confirm before acting.</div>
     </footer>'''
 
 TEMPLATE = '''<!doctype html>
