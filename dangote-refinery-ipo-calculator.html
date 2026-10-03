@@ -24,7 +24,7 @@
   <link rel="icon" href="assets/favicon-96.png" sizes="96x96" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Dangote Refinery IPO Calculator: How Many Shares Will Your Money Buy? | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20261003b" />
+  <link rel="stylesheet" href="assets/styles.css?v=20261003c" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -54,6 +54,25 @@
       <span class="topline-date">DAILY CLOSE &middot; FRI 25 SEP 2026 &middot; WAT</span>
     </div>
     <main>
+      <div class="ipo-countdown" role="status">
+        <div>
+          <p class="kicker">Dangote Refinery IPO</p>
+          <p>Offer closes <strong>13 October 2026</strong> &middot; <span class="cd-days">counting down&hellip;</span></p>
+        </div>
+      </div>
+      <script>
+      (function () {
+        var el = document.querySelector('.ipo-countdown .cd-days');
+        if (!el) return;
+        var close = new Date(2026, 9, 13);
+        var today = new Date(); today.setHours(0, 0, 0, 0);
+        var days = Math.round((close - today) / 864e5);
+        el.textContent = days > 1 ? days + ' days left'
+          : days === 1 ? '1 day left'
+          : days === 0 ? 'closes today'
+          : 'offer closed';
+      })();
+      </script>
       <section class="section">
         <div class="section-heading">
           <p class="kicker">IPO GUIDE &middot; CALCULATOR</p>

@@ -186,6 +186,16 @@
     .snapshot-note a { display: inline-flex; align-items: center; gap: 6px; color: var(--green-strong); font-weight: 700; font-size: 13px; text-decoration: none; }
     .snapshot-note a:hover { text-decoration: underline; text-underline-offset: 4px; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 26px; }
+    /* IPO closing countdown banner (Dangote Refinery offer, closes 13 Oct 2026). */
+    .ipo-countdown {
+      display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap;
+      background: linear-gradient(135deg, var(--amber-soft), var(--surface-2) 78%);
+      border: 1px solid var(--line); border-left: 4px solid var(--amber);
+      border-radius: 14px; padding: 16px 22px; margin-bottom: 26px;
+    }
+    .ipo-countdown .kicker { margin-bottom: 4px; }
+    .ipo-countdown p { margin: 0; font-size: 15px; line-height: 1.5; }
+    .ipo-countdown .cd-days { font-weight: 700; color: var(--green-strong); }
     .metric { min-width: 0; padding: 20px 22px 21px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
     .metric-label { display: block; margin-bottom: 8px; color: var(--muted); font: 500 11px/1.3 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .05em; }
     .metric-value { font: 650 clamp(20px, 2.6vw, 26px)/1 "Newsreader", serif; white-space: nowrap; }
