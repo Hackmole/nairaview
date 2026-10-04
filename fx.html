@@ -24,7 +24,7 @@
   <link rel="icon" href="assets/favicon-96.png" sizes="96x96" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Currency Exchange Rates to Naira — USD, EUR, GBP | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20261004g" />
+  <link rel="stylesheet" href="assets/styles.css?v=20261004h" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -50,50 +50,105 @@
       <div class="page-hero">
         <div>
           <div class="eyebrow">Currency</div>
-          <h1 id="fxH1">Dollar to naira.</h1>
+          <h1>Exchange rates to naira.</h1>
           <p class="lede">Official and parallel market rates for the major currencies, tracked daily.</p>
         </div>
         <div><span class="status-pill"><span class="dot"></span><span id="fxHeroDate">Updated daily</span></span></div>
       </div>
 
-      <div class="fx-tabs" role="group" aria-label="Currency">
-        <button class="fx-tab active" data-ccy="USD" aria-pressed="true">USD</button>
-        <button class="fx-tab" data-ccy="EUR" aria-pressed="false">EUR</button>
-        <button class="fx-tab" data-ccy="GBP" aria-pressed="false">GBP</button>
-      </div>
-
-      <section class="section" aria-label="Current rates">
+      <section class="section fx-ccy" aria-label="US dollar to naira">
+        <div class="section-heading">
+          <div><div class="kicker">USD / NGN</div><h2>Dollar to naira.</h2></div>
+        </div>
         <div class="fx-grid">
           <article class="fx-card">
             <div class="fx-label">Official rate</div>
-            <div class="fx-value" id="fxOfficial">₦—</div>
-            <div class="fx-sub" id="fxOfficialDate">NFEM · —</div>
+            <div class="fx-value" id="fxUsdOfficial">₦—</div>
+            <div class="fx-sub" id="fxUsdOfficialDate">NFEM · —</div>
             <p class="fx-note">The Nigerian Foreign Exchange Market rate — the CBN-recognised official rate for the day.</p>
           </article>
           <article class="fx-card fx-card-street">
             <div class="fx-label">Parallel market <span class="fx-tag">indicative</span></div>
-            <div class="fx-value" id="fxParallel">₦—</div>
-            <div class="fx-sub" id="fxParallelDate">Street rate · —</div>
+            <div class="fx-value" id="fxUsdParallel">₦—</div>
+            <div class="fx-sub" id="fxUsdParallelDate">Street rate · —</div>
             <p class="fx-note">The unofficial street rate. Indicative only — actual rates vary by dealer and city.</p>
           </article>
           <article class="fx-card">
             <div class="fx-label">Spread</div>
-            <div class="fx-value" id="fxSpread">₦—</div>
-            <div class="fx-sub" id="fxSpreadPct">—</div>
+            <div class="fx-value" id="fxUsdSpread">₦—</div>
+            <div class="fx-sub" id="fxUsdSpreadPct">—</div>
             <p class="fx-note">The gap between the street rate and the official rate.</p>
           </article>
         </div>
+        <div class="chart-card">
+          <div class="chart-wrap">
+            <svg id="fxUsdChart" role="img" aria-label="US dollar to naira rate history chart" viewBox="0 0 1000 360" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="chart-caption"><span class="fx-legend"><i class="fx-dot fx-dot-official"></i>Official</span><span class="fx-legend"><i class="fx-dot fx-dot-parallel"></i>Parallel (indicative)</span><span id="fxUsdChartRange"></span></div>
+        </div>
       </section>
 
-      <section class="section" aria-label="Rate history">
+      <section class="section fx-ccy" aria-label="Euro to naira">
         <div class="section-heading">
-          <div><div class="kicker">Trend</div><h2>How the rates have moved</h2></div>
+          <div><div class="kicker">EUR / NGN</div><h2>Euro to naira.</h2></div>
+        </div>
+        <div class="fx-grid">
+          <article class="fx-card">
+            <div class="fx-label">Official rate</div>
+            <div class="fx-value" id="fxEurOfficial">₦—</div>
+            <div class="fx-sub" id="fxEurOfficialDate">NFEM · —</div>
+            <p class="fx-note">The Nigerian Foreign Exchange Market rate — the CBN-recognised official rate for the day.</p>
+          </article>
+          <article class="fx-card fx-card-street">
+            <div class="fx-label">Parallel market <span class="fx-tag">indicative</span></div>
+            <div class="fx-value" id="fxEurParallel">₦—</div>
+            <div class="fx-sub" id="fxEurParallelDate">Street rate · —</div>
+            <p class="fx-note">The unofficial street rate. Indicative only — actual rates vary by dealer and city.</p>
+          </article>
+          <article class="fx-card">
+            <div class="fx-label">Spread</div>
+            <div class="fx-value" id="fxEurSpread">₦—</div>
+            <div class="fx-sub" id="fxEurSpreadPct">—</div>
+            <p class="fx-note">The gap between the street rate and the official rate.</p>
+          </article>
         </div>
         <div class="chart-card">
           <div class="chart-wrap">
-            <svg id="fxChart" role="img" aria-label="Currency to naira rate history chart" viewBox="0 0 1000 360" preserveAspectRatio="none"></svg>
+            <svg id="fxEurChart" role="img" aria-label="Euro to naira rate history chart" viewBox="0 0 1000 360" preserveAspectRatio="none"></svg>
           </div>
-          <div class="chart-caption"><span class="fx-legend"><i class="fx-dot fx-dot-official"></i>Official</span><span class="fx-legend"><i class="fx-dot fx-dot-parallel"></i>Parallel (indicative)</span><span id="fxChartRange"></span></div>
+          <div class="chart-caption"><span class="fx-legend"><i class="fx-dot fx-dot-official"></i>Official</span><span class="fx-legend"><i class="fx-dot fx-dot-parallel"></i>Parallel (indicative)</span><span id="fxEurChartRange"></span></div>
+        </div>
+      </section>
+
+      <section class="section fx-ccy" aria-label="British pound to naira">
+        <div class="section-heading">
+          <div><div class="kicker">GBP / NGN</div><h2>Pound to naira.</h2></div>
+        </div>
+        <div class="fx-grid">
+          <article class="fx-card">
+            <div class="fx-label">Official rate</div>
+            <div class="fx-value" id="fxGbpOfficial">₦—</div>
+            <div class="fx-sub" id="fxGbpOfficialDate">NFEM · —</div>
+            <p class="fx-note">The Nigerian Foreign Exchange Market rate — the CBN-recognised official rate for the day.</p>
+          </article>
+          <article class="fx-card fx-card-street">
+            <div class="fx-label">Parallel market <span class="fx-tag">indicative</span></div>
+            <div class="fx-value" id="fxGbpParallel">₦—</div>
+            <div class="fx-sub" id="fxGbpParallelDate">Street rate · —</div>
+            <p class="fx-note">The unofficial street rate. Indicative only — actual rates vary by dealer and city.</p>
+          </article>
+          <article class="fx-card">
+            <div class="fx-label">Spread</div>
+            <div class="fx-value" id="fxGbpSpread">₦—</div>
+            <div class="fx-sub" id="fxGbpSpreadPct">—</div>
+            <p class="fx-note">The gap between the street rate and the official rate.</p>
+          </article>
+        </div>
+        <div class="chart-card">
+          <div class="chart-wrap">
+            <svg id="fxGbpChart" role="img" aria-label="British pound to naira rate history chart" viewBox="0 0 1000 360" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="chart-caption"><span class="fx-legend"><i class="fx-dot fx-dot-official"></i>Official</span><span class="fx-legend"><i class="fx-dot fx-dot-parallel"></i>Parallel (indicative)</span><span id="fxGbpChartRange"></span></div>
         </div>
       </section>
 
@@ -116,7 +171,7 @@
           </details>
           <details>
             <summary>How fresh is this data?</summary>
-            <p>The official rate refreshes once daily; the street rate is pulled several times a day. Each card shows exactly when its number was last updated.</p>
+            <p>The official rate refreshes once daily; the street rate is pulled once a day. Each card shows exactly when its number was last updated.</p>
           </details>
         </div>
         <p class="fine-print">Rates are for information only, not investment advice. The parallel market rate is unofficial and indicative — confirm actual rates with your dealer before acting.</p>
@@ -153,20 +208,17 @@
       </div>
     </div>
   </footer>
-  <script src="assets/data.js?v=20261004g"></script>
-  <script src="assets/site.js?v=20261004g"></script>
+  <script src="assets/data.js?v=20261004h"></script>
+  <script src="assets/site.js?v=20261004h"></script>
   <script>
-  /* FX page: fetch /api/fx and paint cards + chart per currency.
-     Fully guarded — the page keeps its static "—" placeholders if the
-     feed is unreachable. */
+  /* FX page: fetch /api/fx and paint all three currency sections.
+     Fully guarded — static "₦—" placeholders stay if the feed fails. */
   (function () {
     'use strict';
     var API = 'https://nairaview-api.meetomidiora.workers.dev';
     var CCYS = ['USD', 'EUR', 'GBP'];
-    var NAMES = { USD: 'US dollar', EUR: 'Euro', GBP: 'British pound' };
-    var H1 = { USD: 'Dollar to naira.', EUR: 'Euro to naira.', GBP: 'Pound to naira.' };
-    var doc = null, current = 'USD';
     function $(id) { return document.getElementById(id); }
+    function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
     function fmt(n) {
       return '₦' + Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -177,15 +229,15 @@
       var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       return d.getUTCDate() + ' ' + M[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
     }
-    function drawChart(history) {
-      var svg = $('fxChart');
+    function drawChart(svgId, rangeId, history) {
+      var svg = $(svgId);
       if (!svg) return;
       var pts = (history || []).filter(function (p) {
         return (p.official > 0) || (p.parallel > 0);
       });
       if (pts.length < 2) {
         svg.innerHTML = '<text x="500" y="180" text-anchor="middle" class="fx-empty">History is accumulating — the trend line appears after a few daily pulls.</text>';
-        var rg0 = $('fxChartRange');
+        var rg0 = $(rangeId);
         if (rg0) rg0.textContent = '';
         return;
       }
@@ -213,62 +265,40 @@
       svg.innerHTML =
         '<line x1="' + P + '" y1="' + (H - P) + '" x2="' + (W - P) + '" y2="' + (H - P) + '" class="fx-axis"/>' +
         line('official', 'fx-line-official') + line('parallel', 'fx-line-parallel');
-      var rg = $('fxChartRange');
+      var rg = $(rangeId);
       if (rg) rg.textContent = ' · ' + fmtDate(pts[0].date) + ' → ' + fmtDate(pts[pts.length - 1].date);
     }
-    function render(ccy) {
-      current = ccy;
-      var latest = doc && doc.latest && doc.latest[ccy];
-      var history = doc && doc.history && doc.history[ccy];
-      var tabs = document.querySelectorAll('.fx-tab');
-      for (var i = 0; i < tabs.length; i++) {
-        var on = tabs[i].getAttribute('data-ccy') === ccy;
-        tabs[i].classList.toggle('active', on);
-        tabs[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+    function renderCcy(ccy, legs, history) {
+      var P = cap(ccy);
+      if (legs) {
+        if (legs.official > 0) {
+          $('fx' + P + 'Official').textContent = fmt(legs.official);
+          $('fx' + P + 'OfficialDate').textContent = 'NFEM · ' + fmtDate(legs.official_date);
+        }
+        if (legs.parallel > 0) {
+          $('fx' + P + 'Parallel').textContent = fmt(legs.parallel);
+          $('fx' + P + 'ParallelDate').textContent = 'Street rate · updated ' + fmtDate(legs.parallel_updated_at);
+        }
+        if (legs.official > 0 && legs.parallel > 0) {
+          var spread = legs.parallel - legs.official;
+          $('fx' + P + 'Spread').textContent = '₦' + Math.abs(spread).toLocaleString('en-NG', { maximumFractionDigits: 2 });
+          var pct = Math.abs(spread / legs.official * 100).toFixed(2);
+          $('fx' + P + 'SpreadPct').textContent = pct + (spread >= 0 ? '% above official' : '% below official');
+        }
       }
-      if (!latest) return;
-      if (latest.official > 0) {
-        $('fxOfficial').textContent = fmt(latest.official);
-        $('fxOfficialDate').textContent = 'NFEM · ' + fmtDate(latest.official_date);
-      } else {
-        $('fxOfficial').textContent = '₦—';
-      }
-      if (latest.parallel > 0) {
-        $('fxParallel').textContent = fmt(latest.parallel);
-        var pu = latest.parallel_updated_at ? new Date(latest.parallel_updated_at) : null;
-        var when = (pu && !isNaN(pu)) ? fmtDate(latest.parallel_updated_at) : '—';
-        $('fxParallelDate').textContent = 'Street rate · updated ' + when;
-      } else {
-        $('fxParallel').textContent = '₦—';
-      }
-      if (latest.official > 0 && latest.parallel > 0) {
-        var spread = latest.parallel - latest.official;
-        $('fxSpread').textContent = '₦' + Math.abs(spread).toLocaleString('en-NG', { maximumFractionDigits: 2 });
-        var pct = Math.abs(spread / latest.official * 100).toFixed(2);
-        $('fxSpreadPct').textContent = pct + (spread >= 0 ? '% above official' : '% below official');
-      } else {
-        $('fxSpread').textContent = '₦—';
-        $('fxSpreadPct').textContent = '—';
-      }
-      var hd = $('fxHeroDate');
-      if (hd) hd.textContent = 'Updated ' + fmtDate(doc.latest.pulled_at) + ' · ' + NAMES[ccy] + ' / NGN';
-      var h1 = $('fxH1');
-      if (h1) h1.textContent = H1[ccy];
-      drawChart(history);
-    }
-    var tabs = document.querySelectorAll('.fx-tab');
-    for (var i = 0; i < tabs.length; i++) {
-      tabs[i].addEventListener('click', function () { render(this.getAttribute('data-ccy')); });
+      drawChart('fx' + P + 'Chart', 'fx' + P + 'ChartRange', history);
     }
     fetch(API + '/api/fx').then(function (r) {
       if (!r.ok) throw new Error('bad status');
       return r.json();
-    }).then(function (d) {
-      doc = d;
-      render('USD');
+    }).then(function (doc) {
+      var latest = (doc && doc.latest) || {};
+      var history = (doc && doc.history) || {};
+      CCYS.forEach(function (ccy) { renderCcy(ccy, latest[ccy], history[ccy]); });
+      var hd = $('fxHeroDate');
+      if (hd && latest.pulled_at) hd.textContent = 'Updated ' + fmtDate(latest.pulled_at);
     }).catch(function () { /* keep static placeholders */ });
   }());
   </script>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "a9f4136dd40547a7b1acca41e62cc7a5"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
