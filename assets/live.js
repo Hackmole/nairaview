@@ -578,7 +578,19 @@
     getJSON('/api/asi-history').then(function (doc) {
       if (doc) { try { paintAsi(doc); } catch (e) {} }
     });
+    getJSON('/api/fx').then(function (doc) {
+      if (doc) { try { paintFxStrip(doc); } catch (e) {} }
+    });
     try { initStockChart(); } catch (e) {}
+  }
+
+  /* Homepage USD/NGN strip. Guarded: placeholders stay "—" if the feed fails. */
+  function paintFxStrip(doc) {
+    var latest = doc && doc.latest;
+    if (!latest) return;
+    var off = $('fxStripOfficial'), par = $('fxStripParallel');
+    if (off && latest.official > 0) off.textContent = '₦' + fmt2(latest.official);
+    if (par && latest.parallel > 0) par.textContent = '₦' + fmt2(latest.parallel);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main);
