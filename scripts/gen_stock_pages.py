@@ -271,7 +271,7 @@ TEMPLATE = '''<!doctype html>
           </div>
           <div class="quote-price">@@PRICE@@</div>
           <div class="quote-chg @@CHG_CLASS@@">@@DAY_CHG@@</div>
-          <p class="asof">As of the @@TRADE_DATE@@ close &mdash; confirm before acting.</p>
+          <p class="asof">As of the @@TRADE_DATE@@ close.</p>
         </div>
       </div>
       <div class="hstat-grid">
@@ -287,12 +287,7 @@ TEMPLATE = '''<!doctype html>
           <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
         </div>
         <h2 class="guide-h2">How to buy @@SYM@@ shares</h2>
-        <ol class="guide-list">
-          <li>Open an account with a stockbroker licensed by the NGX.</li>
-          <li>Fund your account and place a buy order for <strong>@@SYM@@</strong> (@@NAME@@) at your chosen price.</li>
-          <li>Your shares are held electronically under your CSCS account.</li>
-          <li>Track the position on Nairaview&rsquo;s <a href="../portfolio">portfolio tracker</a>.</li>
-        </ol>
+        <p class="guide-p">Open an account with an NGX-licensed stockbroker, place a buy order for <strong>@@SYM@@</strong>, and track it in your <a href="../portfolio">portfolio tracker</a>. First time buying? <a href="../learn-buy-first-stock">This walkthrough</a> covers each step.</p>
         <h2 class="guide-h2">Frequently asked questions</h2>
         <details class="faq-item"><summary class="faq-q">What is the current @@SYM@@ share price?</summary><div class="faq-a"><p class="guide-p">@@NAME@@ (@@SYM@@) last closed at <strong>@@PRICE@@</strong> (@@DAY_CHG@@ on the day) on @@TRADE_DATE@@. Prices update here after each NGX trading session.</p></div></details>
         <details class="faq-item"><summary class="faq-q">What sector is @@SYM@@ in?</summary><div class="faq-a"><p class="guide-p">@@SYM@@ is listed on the NGX @@BOARD@@ under the @@SECTOR@@ sector.</p></div></details>
@@ -302,10 +297,7 @@ TEMPLATE = '''<!doctype html>
         <ul class="guide-list">
 @@PEERS@@
 @@CURATED@@
-          <li><a href="../stocks">All listed stocks</a></li>
-          <li><a href="../screener">Stock screener</a></li>
         </ul>
-        <p class="guide-p"><em>Figures from Nairaview&rsquo;s NGX daily-close feed, trade date @@TRADE_DATE@@. Not investment advice.</em></p>
       </div>
     </main>
   </div>
