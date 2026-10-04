@@ -202,14 +202,14 @@ def cmd_pull():
     raw = kv_get("fx:hist")
     if raw:
         try:
-            hist = json.loads(raw)
-            if not isinstance(hist, dict):
-                hist = {}
+            parsed = json.loads(raw)
+            if isinstance(parsed, list):
+                # migrate legacy flat-list format (USD only)
+                hist = {"USD": parsed}
+            elif isinstance(parsed, dict):
+                hist = parsed
         except json.JSONDecodeError:
             hist = {}
-    # migrate legacy flat-list format (USD only) if present
-    if isinstance(hist, list):
-        hist = {"USD": hist}
     for base, legs in latest.items():
         if base == "pulled_at":
             continue
