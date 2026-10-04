@@ -1340,7 +1340,18 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .fx-dot-official { background: #087A4B; }
 .fx-dot-parallel { background: #C5A028; }
 .fine-print { font-size: 12.5px; color: var(--muted); max-width: 860px; line-height: 1.7; margin-top: 18px; }
-/* Homepage FX strip */
+/* Homepage FX tiles */
+.fx-tiles { margin: 28px 0 28px; }
+.fx-tiles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 860px) { .fx-tiles-grid { grid-template-columns: 1fr; } }
+.fx-tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.fx-tile-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.fx-tile-row { display: flex; align-items: baseline; justify-content: space-between; padding: 3px 0; font-size: 14px; }
+.fx-tile-row strong { font-weight: 700; font-size: 15px; }
+.fx-tile-key { color: var(--muted); }
+.fx-tiles-link { display: inline-block; margin-top: 12px; font-size: 13.5px; font-weight: 600; color: var(--green-strong); text-decoration: none; }
+.fx-tiles-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+/* Legacy single-row strip (kept until all references cleared) */
 .fx-strip { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; margin: 0 0 8px; }
 .fx-strip .fx-strip-label { font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .fx-strip .fx-strip-rate { font-size: 15px; }

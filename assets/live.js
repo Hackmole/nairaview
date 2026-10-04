@@ -584,13 +584,17 @@
     try { initStockChart(); } catch (e) {}
   }
 
-  /* Homepage USD/NGN strip. Guarded: placeholders stay "—" if the feed fails. */
+  /* Homepage FX tiles (USD/EUR/GBP). Guarded: "—" stays if the feed fails. */
   function paintFxStrip(doc) {
-    var latest = doc && doc.latest && doc.latest.USD;
+    var latest = doc && doc.latest;
     if (!latest) return;
-    var off = $('fxStripOfficial'), par = $('fxStripParallel');
-    if (off && latest.official > 0) off.textContent = '₦' + fmt2(latest.official);
-    if (par && latest.parallel > 0) par.textContent = '₦' + fmt2(latest.parallel);
+    [['USD', 'fxUsd'], ['EUR', 'fxEur'], ['GBP', 'fxGbp']].forEach(function (pair) {
+      var ccy = latest[pair[0]];
+      if (!ccy) return;
+      var off = $(pair[1] + 'Official'), par = $(pair[1] + 'Parallel');
+      if (off && ccy.official > 0) off.textContent = '₦' + fmt2(ccy.official);
+      if (par && ccy.parallel > 0) par.textContent = '₦' + fmt2(ccy.parallel);
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main);
