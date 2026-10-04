@@ -80,7 +80,16 @@ def main():
     ytd_base = (asi_hist.get("ytd_base") or {}).get("value") or 0
     ytd = (asi - ytd_base) / ytd_base * 100 if ytd_base else 0
     hist = asi_hist.get("history") or []
-    wk_chg = ((hist[-1]["value"] - hist[-6]["value"]) / hist[-6]["value"] * 100) if len(hist) >= 6 else 0.0
+    # week change: first trading session of the trade date's week -> latest close
+    wk_chg = 0.0
+    if hist:
+        yw = dt.isocalendar()[:2]
+        week_pts = [p for p in hist
+                    if datetime.strptime(p["date"][:10], "%Y-%m-%d").isocalendar()[:2] == yw]
+        if len(week_pts) >= 2:
+            wk_chg = (week_pts[-1]["value"] - week_pts[0]["value"]) / week_pts[0]["value"] * 100
+        elif len(hist) >= 6:
+            wk_chg = (hist[-1]["value"] - hist[-6]["value"]) / hist[-6]["value"] * 100
 
     pmap = {s["symbol"]: s for s in prices}
     gainers = sorted([s for s in prices if (s.get("pct_change") or 0) > 0],
