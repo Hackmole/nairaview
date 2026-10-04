@@ -275,7 +275,7 @@ TEMPLATE = '''<!doctype html>
         </div>
       </div>
       <div class="hstat-grid">
-        <div class="hstat"><div class="k">7-day change</div><div class="v @@W_CLASS@@">@@W_CHG@@</div><div class="s">vs 7 days ago</div></div>
+        <div class="hstat"><div class="k">7-day change</div><div class="v @@W_CLASS@@">@@W_CHG@@</div></div>
         <div class="hstat"><div class="k">Volume</div><div class="v">@@VOLUME@@</div></div>
         <div class="hstat"><div class="k">Market cap</div><div class="v">@@MCAP@@</div></div>
         <div class="hstat"><div class="k">Shares outstanding</div><div class="v">@@SHARES@@</div></div>
