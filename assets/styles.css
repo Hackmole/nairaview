@@ -1217,6 +1217,55 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .price-chart-card svg { display: block; width: 100%; height: auto; }
 .pc-note { font: 500 10.5px/1.6 "IBM Plex Mono", monospace; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-top: 10px; }
 
+/* ---- Stock page: key statistics panel ---- */
+.kstats { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin-top: 18px; }
+.kstats-title { font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.kstats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.kstat { padding: 12px 16px 12px 0; border-top: 1px solid var(--line); }
+.kstat .k { font: 600 10.5px/1.4 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.kstat .v { font: 700 17px/1.3 "Newsreader", Georgia, serif; margin-top: 4px; }
+.kstat .v.up { color: var(--green-strong); }
+.kstat .v.down { color: var(--red); }
+@media (max-width: 900px) { .kstats-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---- Stock page: interactive chart ---- */
+.pchart { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin-top: 18px; }
+.pchart-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+.pchart-title { font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pchart-ret { font: 700 26px/1.2 "Newsreader", Georgia, serif; }
+.pchart-ret.up { color: var(--green-strong); }
+.pchart-ret.down { color: var(--red); }
+.pchart-pills { display: flex; gap: 8px; margin: 12px 0 4px; flex-wrap: wrap; }
+.pchart-pill { font: 600 11px/1 "IBM Plex Mono", monospace; letter-spacing: .06em; padding: 8px 14px; border: 1px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--muted); cursor: pointer; }
+.pchart-pill[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+.pchart-pill:disabled { opacity: .35; cursor: default; }
+.pchart-wrap { position: relative; }
+.pchart-wrap svg { display: block; width: 100%; height: auto; }
+.pchart-tip { position: absolute; pointer-events: none; background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; font-size: 12px; line-height: 1.6; white-space: nowrap; display: none; z-index: 2; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.pchart-tip .t-date { font: 600 10.5px/1.4 "IBM Plex Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.pchart-tip .t-close { font: 700 16px/1.3 "Newsreader", Georgia, serif; }
+.pchart-tip .t-row { display: flex; justify-content: space-between; gap: 18px; color: var(--muted); }
+.pchart-tip .t-row b { color: var(--ink); font-weight: 600; }
+
+/* ---- Stock page: history table ---- */
+.hist-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin-top: 18px; overflow-x: auto; }
+.hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.hist-table th { font: 600 10.5px/1.4 "IBM Plex Mono", monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--line-strong); white-space: nowrap; }
+.hist-table th:first-child, .hist-table td:first-child { text-align: left; }
+.hist-table td { text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hist-table td.up { color: var(--green-strong); font-weight: 600; }
+.hist-table td.down { color: var(--red); font-weight: 600; }
+.hist-table tr:last-child td { border-bottom: 0; }
+
+/* ---- Stock page: tracked range widget ---- */
+.prange { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin-top: 18px; }
+.prange-bar { position: relative; height: 10px; border-radius: 999px; background: linear-gradient(90deg, var(--red-soft), var(--amber-soft), var(--green-soft)); border: 1px solid var(--line); margin: 30px 6px 10px; }
+.prange-marker { position: absolute; top: 50%; width: 20px; height: 20px; border-radius: 50%; background: var(--ink); border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--line-strong); transform: translate(-50%, -50%); }
+.prange-labels { display: flex; justify-content: space-between; gap: 12px; }
+.prange-labels .pl { font-size: 12px; color: var(--muted); }
+.prange-labels .pl b { display: block; font: 700 16px/1.3 "Newsreader", Georgia, serif; color: var(--ink); margin-top: 2px; }
+.prange-labels .pl:last-child { text-align: right; }
+
 /* ---- Dark footer (Figma pattern) ---- */
 .site-footer {
   background: #102019;

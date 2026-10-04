@@ -83,6 +83,16 @@ def fnum(x):
 def fmt_price(p):
     return '₦' + format(fnum(p), ',.2f')
 
+def fmt2(p):
+    return format(fnum(p), ',.2f')
+
+def fmt_date_iso(iso):
+    m = re.match(r'^(\d{4})-(\d{2})-(\d{2})', str(iso or ''))
+    if not m:
+        return ''
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return '%d %s %s' % (int(m.group(3)), months[int(m.group(2)) - 1], m.group(1))
+
 def fmt_pct(p):
     v = fnum(p)
     return ('+' if v > 0 else '') + format(v, '.2f') + '%'
@@ -131,48 +141,6 @@ def badge(sym):
 def arrow(p):
     v = fnum(p)
     return '▲' if v > 0 else ('▼' if v < 0 else '■')
-
-def chart_svg(sym, closes, dates=None):
-    """Build an SVG price chart from session closes (oldest -> newest)."""
-    if len(closes) < 2:
-        return ''
-    w, h = 720, 240
-    lo, hi = min(closes), max(closes)
-    rng = (hi - lo) or 1
-    n = len(closes)
-    pts = []
-    for i, v in enumerate(closes):
-        x = 44 + (w - 64) * i / (n - 1)
-        y = h - 30 - (h - 66) * (v - lo) / rng
-        pts.append((x, y))
-    dd = 'M' + ' L'.join(f'{x:.1f},{y:.1f}' for x, y in pts)
-    up = closes[-1] >= closes[0]
-    col = '#087A4B' if up else '#B43B3B'
-    area = f'{dd} L{pts[-1][0]:.1f},{h-30} L{pts[0][0]:.1f},{h-30} Z'
-    lx, ly = pts[-1]
-    ret = (closes[-1] / closes[0] - 1) * 100
-    grid = ''
-    for frac in (0.25, 0.5, 0.75):
-        gy = h - 30 - (h - 66) * frac
-        grid += (f'<line x1="44" y1="{gy:.1f}" x2="{w-20}" y2="{gy:.1f}" '
-                 f'style="stroke:var(--line)" stroke-width="1" stroke-dasharray="3 5" opacity="0.8"/>')
-    lbl = ('font-family:"IBM Plex Mono",monospace;font-size:11px;fill:var(--muted)')
-    labels = (f'<text x="8" y="{pts[0][1]+4:.1f}" style="{lbl}" text-anchor="start">₦{hi:,.0f}</text>'
-              f'<text x="8" y="{h-26:.1f}" style="{lbl}" text-anchor="start">₦{lo:,.0f}</text>')
-    if dates and len(dates) == n:
-        d0 = esc(dates[0][5:].replace('-', ' '))
-        d1 = esc(dates[-1][5:].replace('-', ' '))
-        labels += (f'<text x="44" y="{h-8:.1f}" style="{lbl}" text-anchor="start">{d0}</text>'
-                   f'<text x="{w-20:.1f}" y="{h-8:.1f}" style="{lbl}" text-anchor="end">{d1}</text>')
-    return (f'<div class="price-chart-card"><div class="pc-head">'
-            f'<span class="pc-title">Price history &middot; last {n} sessions</span>'
-            f'<span class="pc-ret {"up" if up else "down"}">{ret:+.2f}%</span></div>'
-            f'<svg viewBox="0 0 {w} {h}" role="img" aria-label="{esc(sym)} price chart, last {n} sessions">'
-            f'{grid}<path d="{area}" fill="{col}" opacity="0.10"/>'
-            f'<path d="{dd}" fill="none" stroke="{col}" stroke-width="2.5" stroke-linecap="round"/>'
-            f'{labels}'
-            f'<circle cx="{lx:.1f}" cy="{ly:.1f}" r="5" fill="{col}" stroke="#fff" stroke-width="2.5"/>'
-            f'</svg><div class="pc-note">Daily closes to {esc(trade_date)} &middot; not intraday</div></div>')
 
 def footer():
     return '''    <footer class="site-footer">
@@ -274,13 +242,10 @@ TEMPLATE = '''<!doctype html>
           <p class="asof">As of the @@TRADE_DATE@@ close.</p>
         </div>
       </div>
-      <div class="hstat-grid">
-        <div class="hstat"><div class="k">7-day change</div><div class="v @@W_CLASS@@">@@W_CHG@@</div></div>
-        <div class="hstat"><div class="k">Volume</div><div class="v">@@VOLUME@@</div></div>
-        <div class="hstat"><div class="k">Market cap</div><div class="v">@@MCAP@@</div></div>
-        <div class="hstat"><div class="k">Shares outstanding</div><div class="v">@@SHARES@@</div></div>
-      </div>
-@@CHART@@
+@@KSTATS@@
+@@CHARTMOUNT@@
+@@PRANGE@@
+@@HISTTABLE@@
       <div class="section" style="padding-top:34px">
         <div class="ad-slot ad-leaderboard" aria-hidden="true">
           <div class="ad-label">Advertisement</div>
@@ -341,25 +306,120 @@ for s in stocks:
     mcap = fmt_mcap(s.get('market_cap'))
     shares = fmt_int(s.get('shares_outstanding'))
 
-    # price history for the chart
-    chart, trend_answer = '', ''
+    # price history for the chart + key statistics (OHLCV per session)
+    hist = []
     try:
         h = get_json('/api/history?symbol=' + sym, timeout=15)
-        prices = [p for p in (h.get('prices') or []) if p.get('close')]
-        closes = [p['close'] for p in prices]
-        cdates = [str(p.get('date') or '')[:10] for p in prices]
-        if len(closes) >= 2:
-            chart = chart_svg(sym, closes[-9:], cdates[-9:])
-            trend_answer = ('The chart above shows the last %d trading sessions. Use the '
-                            '<a href="../screener">stock screener</a> to compare %s against '
-                            'its sector peers.' % (min(len(closes), 9), sym))
-    except Exception as e:
+        for p in (h.get('prices') or []):
+            if not p.get('close'):
+                continue
+            hist.append({
+                'date': str(p.get('date') or '')[:10],
+                'open': round(fnum(p.get('open')), 2),
+                'high': round(fnum(p.get('high')), 2),
+                'low': round(fnum(p.get('low')), 2),
+                'close': round(fnum(p.get('close')), 2),
+                'volume': int(fnum(p.get('volume'))),
+            })
+    except Exception:
         pass
-    if not chart:
+    if len(hist) >= 2:
+        last, prevh = hist[-1], hist[-2]
+        vols = [x['volume'] for x in hist]
+        avg_v = sum(vols) / len(vols)
+        hi_t = max(x['high'] for x in hist)
+        lo_t = min(x['low'] for x in hist)
+        w0 = hist[-8] if len(hist) > 7 else hist[0]
+        w_chg_live = (last['close'] / w0['close'] - 1) * 100 if w0['close'] else 0
+        ret_all = (hist[-1]['close'] / hist[0]['close'] - 1) * 100 if hist[0]['close'] else 0
+        d_open = '₦' + fmt2(last['open'])
+        d_high = '₦' + fmt2(last['high'])
+        d_low = '₦' + fmt2(last['low'])
+        d_prev = '₦' + fmt2(prevh['close'])
+        d_vol = fmt_vol(last['volume'])
+        d_avgv = fmt_vol(avg_v)
+        d_hit = '₦' + fmt2(hi_t)
+        d_lot = '₦' + fmt2(lo_t)
+        d_valtraded = '₦' + fmt_vol(last['volume'] * last['close'])
+        # tracked-range widget (honest: only the sessions we have)
+        span = (hi_t - lo_t) or 1
+        pos = max(0, min(100, (last['close'] - lo_t) / span * 100))
+        prange = (
+            '<div class="prange"><div class="kstats-title">Tracked range &middot; since ' + esc(fmt_date_iso(hist[0]['date'])) + '</div>'
+            '<div class="prange-bar"><span class="prange-marker" style="left:' + ('%.1f' % pos) + '%"></span></div>'
+            '<div class="prange-labels">'
+            '<span class="pl">Low<b>' + d_lot + '</b></span>'
+            '<span class="pl">Now<b>₦' + fmt2(last['close']) + '</b></span>'
+            '<span class="pl">High<b>' + d_hit + '</b></span>'
+            '</div></div>')
+        d_wchg = '%s %s' % (fmt_pct(w_chg_live), arrow(w_chg_live))
+        d_wcls = 'up' if w_chg_live > 0 else ('down' if w_chg_live < 0 else '')
+        n_hist = len(hist)
+        chart_ret = '%s%.2f%%' % ('+' if ret_all >= 0 else '−', abs(ret_all))
+        chart_rcls = 'up' if ret_all >= 0 else 'down'
+        hist_json = json.dumps({'symbol': sym, 'prices': hist}, separators=(',', ':'))
+        rows = []
+        for x in reversed(hist):
+            i = hist.index(x)
+            pc = (x['close'] / hist[i - 1]['close'] - 1) * 100 if i > 0 and hist[i - 1]['close'] else 0
+            rows.append(
+                '<tr><td>%s</td><td>₦%s</td><td>₦%s</td><td>₦%s</td><td>₦%s</td>'
+                '<td class="%s">%s</td><td>%s</td></tr>' % (
+                    esc(fmt_date_iso(x['date'])), fmt2(x['open']), fmt2(x['high']),
+                    fmt2(x['low']), fmt2(x['close']),
+                    'up' if pc > 0 else ('down' if pc < 0 else ''),
+                    '%s%.2f%%' % ('+' if pc >= 0 else '−', abs(pc)),
+                    fmt_vol(x['volume'])))
+        hist_table = ('<div class="hist-card"><div class="kstats-title">Historical data &middot; daily closes</div>'
+                      '<div style="overflow-x:auto"><table class="hist-table"><thead><tr>'
+                      '<th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Change</th><th>Volume</th>'
+                      '</tr></thead><tbody id="histBody">' + ''.join(rows) + '</tbody></table></div></div>')
+        trend_answer = ('The interactive chart above covers all %d tracked sessions for %s — hover any point for the day&rsquo;s open, high, low and volume. Use the '
+                        '<a href="../screener">stock screener</a> to compare %s against '
+                        'its sector peers.' % (n_hist, sym, sym))
+    else:
         nochart.append(sym)
+        d_open = d_high = d_low = d_prev = d_avgv = d_hit = d_lot = d_valtraded = '—'
+        d_vol = volume
+        d_wchg, d_wcls = w_chg, ('up' if w > 0 else ('down' if w < 0 else ''))
+        n_hist, chart_ret, chart_rcls = 0, '', ''
+        hist_json, hist_table, prange = '', '', ''
         trend_answer = ('Nairaview updates %s after each NGX trading day. Use the '
                         '<a href="../screener">stock screener</a> to compare %s against '
                         'its sector peers.' % (sym, sym))
+
+    # key statistics panel (ngnmarket-style)
+    kstats = (
+        '<div class="kstats"><div class="kstats-title">Key statistics &middot; ' + esc(trade_date) + ' close</div>'
+        '<div class="kstats-grid">'
+        '<div class="kstat" data-stat="prevclose"><div class="k">Previous close</div><div class="v">' + d_prev + '</div></div>'
+        '<div class="kstat" data-stat="open"><div class="k">Open</div><div class="v">' + d_open + '</div></div>'
+        '<div class="kstat" data-stat="dayhigh"><div class="k">Day high</div><div class="v">' + d_high + '</div></div>'
+        '<div class="kstat" data-stat="daylow"><div class="k">Day low</div><div class="v">' + d_low + '</div></div>'
+        '<div class="kstat" data-stat="volume"><div class="k">Volume</div><div class="v">' + d_vol + '</div></div>'
+        '<div class="kstat" data-stat="avgvol"><div class="k">Avg volume</div><div class="v">' + d_avgv + '</div></div>'
+        '<div class="kstat"><div class="k">Value traded</div><div class="v">' + d_valtraded + '</div></div>'
+        '<div class="kstat"><div class="k">Market cap</div><div class="v">' + mcap + '</div></div>'
+        '<div class="kstat"><div class="k">Shares outstanding</div><div class="v">' + shares + '</div></div>'
+        '<div class="kstat" data-stat="chg7d"><div class="k">7-day change</div><div class="v ' + d_wcls + '">' + esc(d_wchg) + '</div></div>'
+        '<div class="kstat" data-stat="hitracked"><div class="k">High &middot; tracked</div><div class="v">' + d_hit + '</div></div>'
+        '<div class="kstat" data-stat="lotracked"><div class="k">Low &middot; tracked</div><div class="v">' + d_lot + '</div></div>'
+        '<div class="kstat"><div class="k">Sector</div><div class="v" style="font-size:15px">' + esc(sector) + '</div></div>'
+        '</div></div>')
+    # interactive chart mount + embedded history (live.js renders + refreshes from /api/history)
+    if n_hist >= 2:
+        chart_mount = (
+            '<div class="pchart" id="pchartMount">'
+            '<div class="pchart-head"><div class="pchart-title">Price history &middot; ' + str(n_hist) + ' sessions</div>'
+            '<div class="pchart-ret ' + chart_rcls + '">' + esc(chart_ret) + '</div></div>'
+            '<div class="pchart-pills"></div>'
+            '<div class="pchart-wrap"></div>'
+            '<div class="pc-note">Daily closes &middot; not intraday</div>'
+            '</div>'
+            '<script>window.NV_HIST=' + hist_json + ';</script>')
+    else:
+        chart_mount = ''
+        hist_table = ''
 
     peers = [p for p in by_sector.get(sector, []) if p['symbol'] != sym][:6]
     peer_lis = '\n'.join(
@@ -403,7 +463,8 @@ for s in stocks:
             'W_CHG': esc(w_chg), 'W_CLASS': 'up' if w > 0 else ('down' if w < 0 else ''),
             'VOLUME': volume, 'MCAP': mcap, 'SHARES': shares,
             'NAME': esc(name), 'PEERS': peer_lis, 'CURATED': curated_lis,
-            'CHART': chart, 'TREND_ANSWER': trend_answer,
+            'KSTATS': kstats, 'CHARTMOUNT': chart_mount, 'PRANGE': prange, 'HISTTABLE': hist_table,
+            'TREND_ANSWER': trend_answer,
             'OG_TITLE': esc(og_title), 'OG_DESC': esc(og_desc),
             'TITLE': esc(title), 'META_DESC': esc(meta_desc), 'JSONLD': jsonld,
             'FOOTER': footer()}

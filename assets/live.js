@@ -277,6 +277,214 @@
       '<circle cx="' + lastX[0] + '" cy="' + lastX[1] + '" r="3" fill="' + color + '"/></svg>';
   }
 
+  /* ---------- stock pages: interactive price chart ---------- */
+  function fmtVolShort(n) {
+    n = Number(n) || 0;
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'bn';
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'm';
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + 'k';
+    return String(Math.round(n));
+  }
+  function shortDate(iso) {
+    var m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    return Number(m[3]) + ' ' + MONTHS[Number(m[2]) - 1];
+  }
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  function drawStockChart(mount, prices, days) {
+    /* prices: [{date,open,high,low,close,volume}] oldest -> newest */
+    var data = days ? prices.slice(-days) : prices.slice();
+    var head = mount.querySelector('.pchart-head');
+    var wrap = mount.querySelector('.pchart-wrap');
+    var pills = mount.querySelector('.pchart-pills');
+    var note = mount.querySelector('.pc-note');
+    if (!data || data.length < 2) {
+      if (head) head.style.display = 'none';
+      if (pills) pills.style.display = 'none';
+      wrap.innerHTML = '<p class="guide-p" style="padding:26px 4px">Price history is still accumulating for this stock — check back after the next trading sessions.</p>';
+      if (note) note.style.display = 'none';
+      return;
+    }
+    var n = data.length;
+    var closes = data.map(function (p) { return Number(p.close); });
+    var lo = Math.min.apply(null, data.map(function (p) { return Number(p.low || p.close); }));
+    var hi = Math.max.apply(null, data.map(function (p) { return Number(p.high || p.close); }));
+    var rng = (hi - lo) || 1;
+    var up = closes[n - 1] >= closes[0];
+    var col = up ? 'var(--green-strong)' : 'var(--red)';
+    var ret = (closes[n - 1] / closes[0] - 1) * 100;
+
+    var W = 760, H = 320, padL = 6, padR = 64, padT = 10;
+    var pxTop = padT, pxBot = 272, xBot = 300;
+    function X(i) { return padL + (W - padL - padR) * (n === 1 ? 0.5 : i / (n - 1)); }
+    function Y(v) { return pxBot - (pxBot - pxTop) * (v - lo) / rng; }
+
+    var i, d = '', pts = [];
+    for (i = 0; i < n; i++) { pts.push(X(i).toFixed(1) + ',' + Y(closes[i]).toFixed(1)); }
+    d = 'M' + pts.join(' L');
+    var area = d + ' L' + X(n - 1).toFixed(1) + ',' + pxBot + ' L' + X(0).toFixed(1) + ',' + pxBot + ' Z';
+
+    var grid = '', gl;
+    for (i = 0; i <= 4; i++) {
+      gl = pxBot - (pxBot - pxTop) * i / 4;
+      var gv = lo + rng * i / 4;
+      grid += '<line x1="' + padL + '" y1="' + gl.toFixed(1) + '" x2="' + (W - padR + 8) + '" y2="' + gl.toFixed(1) + '" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 5" opacity="0.7"/>' +
+        '<text x="' + (W - padR + 14) + '" y="' + (gl + 4).toFixed(1) + '" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace">₦' + fmt2(gv) + '</text>';
+    }
+    var bars = '';
+    var xl = '', ticks = 5, ti;
+    for (ti = 0; ti < ticks; ti++) {
+      i = Math.round(ti * (n - 1) / (ticks - 1));
+      xl += '<text x="' + X(i).toFixed(1) + '" y="' + xBot + '" font-size="11" fill="var(--muted)" font-family="IBM Plex Mono,monospace" text-anchor="middle">' + esc(shortDate(data[i].date)) + '</text>';
+    }
+    var lx = X(n - 1), ly = Y(closes[n - 1]);
+    var gid = 'pg' + Math.random().toString(36).slice(2, 8);
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Price history chart">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + col + '" stop-opacity="0.25"/><stop offset="1" stop-color="' + col + '" stop-opacity="0"/></linearGradient></defs>' +
+      grid + '<path d="' + area + '" fill="url(#' + gid + ')"/>' +
+      '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      bars + xl +
+      '<line id="pchart-xhair" y1="' + pxTop + '" y2="' + pxBot + '" stroke="var(--muted)" stroke-width="1" stroke-dasharray="3 3" opacity="0" style="display:none"/>' +
+      '<circle id="pchart-dot" r="5" fill="' + col + '" stroke="#fff" stroke-width="2.5" opacity="0" style="display:none"/>' +
+      '<rect id="pchart-hit" x="' + padL + '" y="' + pxTop + '" width="' + (W - padL - padR) + '" height="' + (pxBot - pxTop) + '" fill="transparent"/>' +
+      '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="5" fill="' + col + '" stroke="#fff" stroke-width="2.5"/></svg>';
+    wrap.innerHTML = svg + '<div class="pchart-tip" id="pchartTip"></div>';
+
+    var retEl = mount.querySelector('.pchart-ret');
+    if (retEl) {
+      retEl.textContent = (ret >= 0 ? '+' : '−') + Math.abs(ret).toFixed(2) + '%';
+      retEl.className = 'pchart-ret ' + (up ? 'up' : 'down');
+    }
+    if (note) note.textContent = 'Daily closes · ' + n + ' sessions · ' + shortDate(data[0].date) + ' → ' + shortDate(data[n - 1].date) + ' · not intraday';
+
+    /* timeframe pills */
+    if (pills && !pills.dataset.built) {
+      pills.dataset.built = '1';
+      var defs = [['7D', 7], ['1M', 21], ['3M', 63], ['All', 0]];
+      defs.forEach(function (df) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'pchart-pill'; b.textContent = df[0];
+        b.setAttribute('aria-pressed', df[1] === days ? 'true' : 'false');
+        if (df[1] && prices.length < df[1]) b.disabled = true;
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          var all = pills.querySelectorAll('.pchart-pill');
+          for (var k = 0; k < all.length; k++) all[k].setAttribute('aria-pressed', 'false');
+          b.setAttribute('aria-pressed', 'true');
+          drawStockChart(mount, prices, df[1]);
+        });
+        pills.appendChild(b);
+      });
+    }
+
+    /* hover crosshair */
+    var hit = wrap.querySelector('#pchart-hit'), xh = wrap.querySelector('#pchart-xhair'),
+        dot = wrap.querySelector('#pchart-dot'), tip = wrap.querySelector('#pchartTip');
+    if (hit) {
+      hit.addEventListener('mousemove', function (ev) {
+        var r = hit.getBoundingClientRect();
+        var mx = (ev.clientX - r.left) / r.width * (W - padL - padR) + padL;
+        var idx = Math.round((mx - padL) / (W - padL - padR) * (n - 1));
+        idx = Math.max(0, Math.min(n - 1, idx));
+        var p = data[idx], cx = X(idx), cy = Y(Number(p.close));
+        xh.setAttribute('x1', cx); xh.setAttribute('x2', cx);
+        xh.style.display = 'block'; xh.setAttribute('opacity', '1');
+        dot.setAttribute('cx', cx); dot.setAttribute('cy', cy);
+        dot.style.display = 'block'; dot.setAttribute('opacity', '1');
+        var pc = idx > 0 ? (Number(p.close) / Number(data[idx - 1].close) - 1) * 100 : 0;
+        tip.innerHTML = '<div class="t-date">' + esc(fmtDate(p.date)) + '</div>' +
+          '<div class="t-close">₦' + fmt2(p.close) + '</div>' +
+          '<div class="t-row"><span>Open</span><b>₦' + fmt2(p.open) + '</b></div>' +
+          '<div class="t-row"><span>High</span><b>₦' + fmt2(p.high) + '</b></div>' +
+          '<div class="t-row"><span>Low</span><b>₦' + fmt2(p.low) + '</b></div>' +
+          '<div class="t-row"><span>Change</span><b>' + signedPct(pc) + '</b></div>' +
+          '<div class="t-row"><span>Volume</span><b>' + fmtVolShort(p.volume) + '</b></div>';
+        tip.style.display = 'block';
+        var wr = wrap.getBoundingClientRect();
+        var tx = (cx / W) * wr.width + 14, ty = (cy / H) * wr.height - 10;
+        tip.style.left = Math.min(tx, wr.width - 190) + 'px';
+        tip.style.top = Math.max(ty - 120, 0) + 'px';
+      });
+      hit.addEventListener('mouseleave', function () {
+        xh.style.display = 'none'; dot.style.display = 'none'; tip.style.display = 'none';
+      });
+    }
+  }
+
+  function refreshStockStats(prices) {
+    if (!prices || prices.length < 1) return;
+    var last = prices[prices.length - 1];
+    var prev = prices.length > 1 ? prices[prices.length - 2] : last;
+    var vols = prices.map(function (p) { return Number(p.volume) || 0; });
+    var avgV = vols.reduce(function (a, b) { return a + b; }, 0) / vols.length;
+    var hiT = Math.max.apply(null, prices.map(function (p) { return Number(p.high || p.close); }));
+    var loT = Math.min.apply(null, prices.map(function (p) { return Number(p.low || p.close); }));
+    var w0 = prices.length > 7 ? prices[prices.length - 8] : prices[0];
+    var wchg = (Number(last.close) / Number(w0.close) - 1) * 100;
+    function set(k, txt, cls) {
+      var el = document.querySelector('[data-stat="' + k + '"] .v');
+      if (!el) return;
+      el.textContent = txt;
+      if (cls) { el.classList.remove('up', 'down'); if (cls) el.classList.add(cls); }
+    }
+    set('open', '₦' + fmt2(last.open));
+    set('dayhigh', '₦' + fmt2(last.high));
+    set('daylow', '₦' + fmt2(last.low));
+    set('prevclose', '₦' + fmt2(prev.close));
+    set('volume', fmtVolShort(last.volume));
+    set('avgvol', fmtVolShort(avgV));
+    set('chg7d', signedPct(wchg), wchg > 0 ? 'up' : (wchg < 0 ? 'down' : ''));
+    set('hitracked', '₦' + fmt2(hiT));
+    set('lotracked', '₦' + fmt2(loT));
+    /* rebuild the history table from live data */
+    var tb = document.getElementById('histBody');
+    if (tb) {
+      var html = '';
+      for (var i = prices.length - 1; i >= 0; i--) {
+        var p = prices[i];
+        var pc = i > 0 ? (Number(p.close) / Number(prices[i - 1].close) - 1) * 100 : 0;
+        html += '<tr><td>' + esc(fmtDate(p.date)) + '</td><td>₦' + fmt2(p.open) + '</td><td>₦' + fmt2(p.high) +
+          '</td><td>₦' + fmt2(p.low) + '</td><td>₦' + fmt2(p.close) + '</td>' +
+          '<td class="' + (pc > 0 ? 'up' : (pc < 0 ? 'down' : '')) + '">' + signedPct(pc) + '</td>' +
+          '<td>' + fmtVolShort(p.volume) + '</td></tr>';
+      }
+      tb.innerHTML = html;
+    }
+  }
+
+  function initStockChart() {
+    var mount = document.getElementById('pchartMount');
+    if (!mount) return;
+    var sym = (window.NV_HIST && window.NV_HIST.symbol) || '';
+    var embedded = (window.NV_HIST && window.NV_HIST.prices) || [];
+    drawStockChart(mount, embedded, 0);
+    refreshStockStats(embedded);
+    if (!sym) return;
+    /* pull live history and re-render if it is fresher */
+    getJSON('/api/history?symbol=' + encodeURIComponent(sym)).then(function (doc) {
+      var prices = doc && doc.prices;
+      if (!prices || prices.length < 2) return;
+      var cur = embedded.length ? embedded[embedded.length - 1].date : '';
+      var fresh = prices[prices.length - 1].date;
+      if (fresh !== cur || prices.length !== embedded.length) {
+        window.NV_HIST.prices = prices;
+        var active = mount.querySelector('.pchart-pill[aria-pressed="true"]');
+        var days = 0;
+        if (active) {
+          var t = active.textContent;
+          days = t === '7D' ? 7 : (t === '1M' ? 21 : (t === '3M' ? 63 : 0));
+        }
+        var pills = mount.querySelector('.pchart-pills');
+        if (pills) pills.dataset.built = '';
+        pills.innerHTML = '';
+        drawStockChart(mount, prices, days);
+        refreshStockStats(prices);
+      }
+    });
+  }
+
   /* ---------- stock pages: live price + 7-session sparkline ---------- */
   function paintStockPage(map) {
     var m = window.location.pathname.match(/\/stocks\/([A-Za-z0-9]+)/);
@@ -299,7 +507,7 @@
       priceEl.textContent = '₦' + fmt2(px);
       var asof = document.querySelector('p.asof');
       if (asof && window.NVLiveAsOf) tradeDate = fmtDate(window.NVLiveAsOf);
-      if (asof) asof.textContent = 'As of the ' + (tradeDate || 'latest') + ' close — refreshed daily. Confirm before acting.';
+      if (asof) asof.textContent = 'As of the ' + (tradeDate || 'latest') + ' close.';
     }
     /* Keep the "last closed at" guide paragraph and trade-date stamp in sync
        with the live feed, so they can't contradict the hero price above. */
@@ -366,6 +574,7 @@
     getJSON('/api/asi-history').then(function (doc) {
       if (doc) { try { paintAsi(doc); } catch (e) {} }
     });
+    try { initStockChart(); } catch (e) {}
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main);
