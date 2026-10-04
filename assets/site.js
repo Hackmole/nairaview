@@ -163,6 +163,19 @@
       else setTimeout(paint, 0);
     }());
     (function () {
+      /* Open a collapsible section when its anchor is targeted (e.g. news.html#news). */
+      function openHash() {
+        var id = (location.hash || '').slice(1);
+        if (!id) return;
+        var sec = document.getElementById(id);
+        var det = sec && sec.querySelector('details.collapse');
+        if (det) det.open = true;
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', openHash);
+      else openHash();
+      window.addEventListener('hashchange', openHash);
+    }());
+    (function () {
       /* Direction arrow for a row: ▲/▼ double-encodes the color signal.
          Volume and no-snapshot rows carry no direction. */
       function dirArrow(r) {
