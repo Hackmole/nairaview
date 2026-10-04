@@ -109,18 +109,18 @@
         header.appendChild(btn);
       }
     }());
-    /* ---- Market status: NGX trades Mon–Fri 10:00–14:30 WAT (UTC+1) ---- */
+    /* ---- Market status: NGX trades Mon–Fri 9:30–16:00 WAT (continuous session) ---- */
     (function marketStatus() {
       var statusEl = document.querySelector('.topline .status');
       if (!statusEl) return;
       var now = new Date();
       var wat = new Date(now.getTime() + (now.getTimezoneOffset() + 60) * 60000);
       var day = wat.getDay(), mins = wat.getHours() * 60 + wat.getMinutes();
-      var open = day >= 1 && day <= 5 && mins >= 570 && mins < 870;
+      var open = day >= 1 && day <= 5 && mins >= 570 && mins < 960;
       statusEl.innerHTML = '<i class="status-dot" aria-hidden="true"></i> ' + (open ? 'MARKET OPEN' : 'MARKET CLOSED');
       statusEl.classList.toggle('closed', !open);
       var hh = String(wat.getHours()).padStart(2, '0'), mm = String(wat.getMinutes()).padStart(2, '0');
-      statusEl.title = 'Nigerian Exchange trading hours: Mon–Fri 10:00–14:30 WAT. Now ' + hh + ':' + mm + ' WAT.';
+      statusEl.title = 'Nigerian Exchange trading hours: Mon–Fri 9:30–16:00 WAT. Now ' + hh + ':' + mm + ' WAT.';
     }());
     /* ---- Auth nav: runs FIRST so links appear even if a widget below throws ---- */
     (function authNav() {

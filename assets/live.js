@@ -1,7 +1,7 @@
 /* Nairaview live market layer.
    Fetches the NGX feed (nairaview-api worker -> Cloudflare KV): a full pull
    each weekday after close plus a lighter session poll every 30 minutes
-   while the market is open (Mon-Fri 10:00-14:30 WAT). Session snapshots are
+   while the market is open (Mon-Fri 9:30-16:00 WAT). Session snapshots are
    ~30 minutes delayed and labeled as such; outside session hours the page
    shows the latest daily close. Repaints the hero, metrics, ASI chart,
    ticker tape, heatmap, movers tables, directory, screener, stock pages and
@@ -26,6 +26,10 @@
   }
   function fmt2(n) {
     return Number(n).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  /* Nullable OHLC: corrupt/missing fields arrive as null — show "—", never ₦0.00. */
+  function fmtN(n) {
+    return (n === null || n === undefined || n === '') ? '—' : '₦' + fmt2(n);
   }
   function fmtInt(n) { return Math.round(Number(n)).toLocaleString('en-NG'); }
   function compact(n) {
@@ -59,7 +63,7 @@
   function watWeekdayNow() {
     return new Date(Date.now() + 3600000).getUTCDay();
   }
-  /* True only during the NGX continuous session (Mon-Fri 10:00-14:30 WAT),
+  /* True only during the NGX continuous session (Mon-Fri 9:30-16:00 WAT),
      visitor-timezone-proof. The provider's own open/closed flag has been
      observed stale (still "open" hours after the close), so the clock is
      the primary signal; the provider can only veto with a closure
@@ -69,7 +73,7 @@
     var wd = d.getUTCDay();
     if (wd === 0 || wd === 6) return false;
     var mins = d.getUTCHours() * 60 + d.getUTCMinutes();
-    return mins >= 600 && mins <= 870;
+    return mins >= 570 && mins <= 960;
   }
   function signedPct(x) {
     x = Number(x) || 0;
@@ -396,9 +400,9 @@
         var pc = idx > 0 ? (Number(p.close) / Number(data[idx - 1].close) - 1) * 100 : 0;
         tip.innerHTML = '<div class="t-date">' + esc(fmtDate(p.date)) + '</div>' +
           '<div class="t-close">₦' + fmt2(p.close) + '</div>' +
-          '<div class="t-row"><span>Open</span><b>₦' + fmt2(p.open) + '</b></div>' +
-          '<div class="t-row"><span>High</span><b>₦' + fmt2(p.high) + '</b></div>' +
-          '<div class="t-row"><span>Low</span><b>₦' + fmt2(p.low) + '</b></div>' +
+          '<div class="t-row"><span>Open</span><b>' + fmtN(p.open) + '</b></div>' +
+          '<div class="t-row"><span>High</span><b>' + fmtN(p.high) + '</b></div>' +
+          '<div class="t-row"><span>Low</span><b>' + fmtN(p.low) + '</b></div>' +
           '<div class="t-row"><span>Change</span><b>' + signedPct(pc) + '</b></div>' +
           '<div class="t-row"><span>Volume</span><b>' + fmtVolShort(p.volume) + '</b></div>';
         tip.style.display = 'block';
@@ -429,9 +433,9 @@
       el.textContent = txt;
       if (cls) { el.classList.remove('up', 'down'); if (cls) el.classList.add(cls); }
     }
-    set('open', '₦' + fmt2(last.open));
-    set('dayhigh', '₦' + fmt2(last.high));
-    set('daylow', '₦' + fmt2(last.low));
+    set('open', fmtN(last.open));
+    set('dayhigh', fmtN(last.high));
+    set('daylow', fmtN(last.low));
     set('prevclose', '₦' + fmt2(prev.close));
     set('volume', fmtVolShort(last.volume));
     set('avgvol', fmtVolShort(avgV));
@@ -445,8 +449,8 @@
       for (var i = prices.length - 1; i >= 0; i--) {
         var p = prices[i];
         var pc = i > 0 ? (Number(p.close) / Number(prices[i - 1].close) - 1) * 100 : 0;
-        html += '<tr><td>' + esc(fmtDate(p.date)) + '</td><td>₦' + fmt2(p.open) + '</td><td>₦' + fmt2(p.high) +
-          '</td><td>₦' + fmt2(p.low) + '</td><td>₦' + fmt2(p.close) + '</td>' +
+        html += '<tr><td>' + esc(fmtDate(p.date)) + '</td><td>' + fmtN(p.open) + '</td><td>' + fmtN(p.high) +
+          '</td><td>' + fmtN(p.low) + '</td><td>₦' + fmt2(p.close) + '</td>' +
           '<td class="' + (pc > 0 ? 'up' : (pc < 0 ? 'down' : '')) + '">' + signedPct(pc) + '</td>' +
           '<td>' + fmtVolShort(p.volume) + '</td></tr>';
       }

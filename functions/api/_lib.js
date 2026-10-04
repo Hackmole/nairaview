@@ -26,7 +26,7 @@ export async function hashPassword(password, saltHex) {
 }
 
 export function sessionCookie(token, maxAge) {
-  const parts = [`nv_sess=${token}`, 'HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/'];
+  const parts = [`nv_sess=${token}`, 'HttpOnly', 'Secure', 'SameSite=None', 'Path=/'];
   if (maxAge !== undefined) parts.push(`Max-Age=${maxAge}`);
   else parts.push('Max-Age=0');
   return parts.join('; ');

@@ -11,7 +11,7 @@ import json, os, html, re, urllib.request
 from datetime import datetime
 
 ROOT = os.path.expanduser('~/workspace/nairaview')
-ASSET_V = '20261001c'
+ASSET_V = '20261004a'
 API = 'https://nairaview-api.meetomidiora.workers.dev'
 SKIP = {'ACCESS', 'FBNH', 'GUARANTY'}  # ticker-alias redirect stubs
 ALIAS = {'GUARANTY': 'GTCO', 'ACCESS': 'ACCESSCORP', 'TOTALNG': 'TOTAL', 'CCNN': 'BUACEMENT'}
@@ -85,6 +85,10 @@ def fmt_price(p):
 
 def fmt2(p):
     return format(fnum(p), ',.2f')
+
+def fmt_ohlc(p):
+    """Nullable OHLC: corrupt/missing fields arrive as None — show "—", never ₦0.00."""
+    return '—' if p is None else '₦' + format(float(p), ',.2f')
 
 def fmt_date_iso(iso):
     m = re.match(r'^(\d{4})-(\d{2})-(\d{2})', str(iso or ''))
@@ -202,8 +206,6 @@ TEMPLATE = '''<!doctype html>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
-     crossorigin="anonymous"></script>
 <script type="application/ld+json">
 @@JSONLD@@
 </script>
@@ -249,7 +251,16 @@ TEMPLATE = '''<!doctype html>
       <div class="section" style="padding-top:34px">
         <div class="ad-slot ad-leaderboard" aria-hidden="true">
           <div class="ad-label">Advertisement</div>
-          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>
+  atOptions = {
+    'key' : '66835af5f63b0f5a7059b9333d8d655e',
+    'format' : 'iframe',
+    'height' : 90,
+    'width' : 728,
+    'params' : {}
+  };
+</script>
+<script src="https://www.highrevenueformat.com/66835af5f63b0f5a7059b9333d8d655e/invoke.js"></script>
         </div>
         <h2 class="guide-h2">How to buy @@SYM@@ shares</h2>
         <p class="guide-p">Open an account with an NGX-licensed stockbroker, place a buy order for <strong>@@SYM@@</strong>, and track it in your <a href="../portfolio">portfolio tracker</a>. First time buying? <a href="../learn-buy-first-stock">This walkthrough</a> covers each step.</p>
@@ -271,7 +282,6 @@ TEMPLATE = '''<!doctype html>
   <script src="../assets/logos.js"></script>
   <script src="../assets/site.js?v=@@V@@"></script>
   <script src="../assets/live.js?v=@@V@@"></script>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "a9f4136dd40547a7b1acca41e62cc7a5"}}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
@@ -310,14 +320,21 @@ for s in stocks:
     hist = []
     try:
         h = get_json('/api/history?symbol=' + sym, timeout=15)
+        def _nn(x):
+            # nullable OHLC: keep None as None so the page can show "—"
+            try:
+                v = float(x)
+            except (TypeError, ValueError):
+                return None
+            return round(v, 2) if v > 0 else None
         for p in (h.get('prices') or []):
             if not p.get('close'):
                 continue
             hist.append({
                 'date': str(p.get('date') or '')[:10],
-                'open': round(fnum(p.get('open')), 2),
-                'high': round(fnum(p.get('high')), 2),
-                'low': round(fnum(p.get('low')), 2),
+                'open': _nn(p.get('open')),
+                'high': _nn(p.get('high')),
+                'low': _nn(p.get('low')),
                 'close': round(fnum(p.get('close')), 2),
                 'volume': int(fnum(p.get('volume'))),
             })
@@ -327,14 +344,14 @@ for s in stocks:
         last, prevh = hist[-1], hist[-2]
         vols = [x['volume'] for x in hist]
         avg_v = sum(vols) / len(vols)
-        hi_t = max(x['high'] for x in hist)
-        lo_t = min(x['low'] for x in hist)
+        hi_t = max((x['high'] if x['high'] is not None else x['close']) for x in hist)
+        lo_t = min((x['low'] if x['low'] is not None else x['close']) for x in hist)
         w0 = hist[-8] if len(hist) > 7 else hist[0]
         w_chg_live = (last['close'] / w0['close'] - 1) * 100 if w0['close'] else 0
         ret_all = (hist[-1]['close'] / hist[0]['close'] - 1) * 100 if hist[0]['close'] else 0
-        d_open = '₦' + fmt2(last['open'])
-        d_high = '₦' + fmt2(last['high'])
-        d_low = '₦' + fmt2(last['low'])
+        d_open = fmt_ohlc(last['open'])
+        d_high = fmt_ohlc(last['high'])
+        d_low = fmt_ohlc(last['low'])
         d_prev = '₦' + fmt2(prevh['close'])
         d_vol = fmt_vol(last['volume'])
         d_avgv = fmt_vol(avg_v)
@@ -363,10 +380,10 @@ for s in stocks:
             i = hist.index(x)
             pc = (x['close'] / hist[i - 1]['close'] - 1) * 100 if i > 0 and hist[i - 1]['close'] else 0
             rows.append(
-                '<tr><td>%s</td><td>₦%s</td><td>₦%s</td><td>₦%s</td><td>₦%s</td>'
+                '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>₦%s</td>'
                 '<td class="%s">%s</td><td>%s</td></tr>' % (
-                    esc(fmt_date_iso(x['date'])), fmt2(x['open']), fmt2(x['high']),
-                    fmt2(x['low']), fmt2(x['close']),
+                    esc(fmt_date_iso(x['date'])), fmt_ohlc(x['open']), fmt_ohlc(x['high']),
+                    fmt_ohlc(x['low']), fmt2(x['close']),
                     'up' if pc > 0 else ('down' if pc < 0 else ''),
                     '%s%.2f%%' % ('+' if pc >= 0 else '−', abs(pc)),
                     fmt_vol(x['volume'])))
