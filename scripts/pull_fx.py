@@ -24,7 +24,6 @@ left out and the failure is reported (the page renders "—" for missing legs).
 from __future__ import annotations
 
 import json
-import os
 import re
 import sys
 import time
@@ -46,16 +45,22 @@ CF_CRED = "custom.cloudflare"
 CF_ACCOUNT = "78f7403e4711bd80041a4100bf94ca3b"
 CF_KV_NS = "dce1bca7fcd34b3485791a2b3762974f"
 
+# Major currencies tracked (vs NGN). USD is the headline pair; EUR/GBP follow.
+CURRENCIES = ["USD", "EUR", "GBP"]
+CURRENCY_NAMES = {"USD": "US dollar", "EUR": "Euro", "GBP": "British pound"}
+
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
-FRANKFURTER_URL = "https://api.frankfurter.dev/v2/rate/USD/NGN"
+FRANKFURTER_URL = "https://api.frankfurter.dev/v2/rate/{base}/NGN"
 FRANKFURTER_HOSTS = ["api.frankfurter.dev"]
 ABOKI_URL = ("https://abokiforex.app/currency-converter/"
              "black-market-usd-dollars-to-naira-rate")
 ABOKI_HOSTS = ["abokiforex.app"]
-MONIERATE_URL = "https://api.monierate.com/v1/rates?from=USD&to=NGN"
+MONIERATE_URL = ("https://api.monierate.com/core/rates/latest.json"
+                 "?base={base}&market=parallel")
 MONIERATE_HOSTS = ["api.monierate.com"]
+MONIERATE_CRED = "custom.monierate"
 
 
 def http_get(url, hosts, headers=None, timeout=40):
@@ -67,33 +72,46 @@ def http_get(url, hosts, headers=None, timeout=40):
         return resp.read().decode("utf-8", errors="replace")
 
 
-def fetch_official():
-    """Official USD/NGN from Frankfurter. Returns (rate, date) or (None, None)."""
+def fetch_official(base):
+    """Official {base}/NGN from Frankfurter. Returns (rate, date) or (None, None)."""
     try:
-        data = json.loads(http_get(FRANKFURTER_URL, FRANKFURTER_HOSTS,
+        data = json.loads(http_get(FRANKFURTER_URL.format(base=base),
+                                   FRANKFURTER_HOSTS,
                                    {"Accept": "application/json"}))
         rate = float(data["rate"])
         if rate > 0:
             return rate, data.get("date")
     except Exception as exc:  # noqa: BLE001 - never invent, just report
-        print(f"official fetch failed: {exc}", file=sys.stderr)
+        print(f"official fetch failed ({base}): {exc}", file=sys.stderr)
     return None, None
 
 
-def fetch_parallel_monierate(token):
-    """Parallel USD/NGN from Monierate. Returns (rate, updated_at) or (None, None)."""
+def fetch_parallel_monierate(base):
+    """Parallel {base}/NGN from Monierate (market=parallel aggregate).
+    Returns (rate, updated_at_iso) or (None, None)."""
     try:
-        data = json.loads(http_get(
-            MONIERATE_URL, MONIERATE_HOSTS,
-            {"Accept": "application/json",
-             "Authorization": f"Bearer {token}"}))
-        # payload: {"data": {"attributes": {"rate": ..., "updated_at": ...}}}
-        attrs = data.get("data", {}).get("attributes", data)
-        rate = float(attrs.get("rate") or attrs.get("mid") or 0)
+        url = MONIERATE_URL.format(base=base)
+        ensure_allowed_url(url, MONIERATE_HOSTS)
+        req = urllib.request.Request(
+            url,
+            headers={"Accept": "application/json", "User-Agent": UA})
+        add_surrogate_to_request(req, MONIERATE_CRED,
+                                 allowed_hosts=MONIERATE_HOSTS)
+        with urllib.request.urlopen(req, timeout=40) as resp:
+            data = read_json_response(resp)
+        d = data.get("data", {})
+        rate = float(d.get("rates", {}).get("NGN") or 0)
+        ts_ms = d.get("timestamp")
+        updated = None
+        if ts_ms:
+            updated = (datetime.fromtimestamp(ts_ms / 1000, tz=timezone.utc)
+                       .strftime("%Y-%m-%dT%H:%M:%SZ"))
         if rate > 0:
-            return rate, attrs.get("updated_at")
+            return rate, updated
+        print(f"monierate: no NGN rate in response ({base}, market={d.get('market')})",
+              file=sys.stderr)
     except Exception as exc:  # noqa: BLE001
-        print(f"monierate fetch failed: {exc}", file=sys.stderr)
+        print(f"monierate fetch failed ({base}): {exc}", file=sys.stderr)
     return None, None
 
 
@@ -148,51 +166,66 @@ def cmd_pull():
     now_iso = now.strftime("%Y-%m-%dT%H:%M:%SZ")
     today = now.strftime("%Y-%m-%d")
 
-    official, official_date = fetch_official()
+    latest = {}
+    for base in CURRENCIES:
+        official, official_date = fetch_official(base)
 
-    token = os.environ.get("MONIERATE_TOKEN", "").strip()
-    if token:
-        parallel, parallel_updated = fetch_parallel_monierate(token)
+        # Parallel: Monierate first (structured, aggregated); abokiforex.app
+        # scrape as fallback for USD only.
+        parallel, parallel_updated = fetch_parallel_monierate(base)
         parallel_source = "monierate"
-    else:
-        parallel, parallel_updated = fetch_parallel_aboki()
-        parallel_source = "abokiforex.app"
+        if parallel is None and base == "USD":
+            parallel, parallel_updated = fetch_parallel_aboki()
+            parallel_source = "abokiforex.app"
 
-    if official is None and parallel is None:
-        print("both sources failed; nothing written", file=sys.stderr)
+        if official is None and parallel is None:
+            print(f"{base}: both sources failed; skipped", file=sys.stderr)
+            continue
+
+        latest[base] = {
+            "official": round(official, 2) if official else None,
+            "official_date": official_date,
+            "parallel": round(parallel, 2) if parallel else None,
+            "parallel_updated_at": parallel_updated,
+            "parallel_source": parallel_source,
+        }
+
+    if not latest:
+        print("all currencies failed; nothing written", file=sys.stderr)
         sys.exit(1)
 
-    latest = {
-        "official": round(official, 2) if official else None,
-        "official_date": official_date,
-        "parallel": round(parallel, 2) if parallel else None,
-        "parallel_updated_at": parallel_updated,
-        "parallel_source": parallel_source,
-        "pulled_at": now_iso,
-    }
+    latest["pulled_at"] = now_iso
     kv_put("fx:latest", json.dumps(latest), ttl=172800)
 
-    # accumulate one point per day
-    hist = []
+    # accumulate one point per day, per currency
+    hist = {}
     raw = kv_get("fx:hist")
     if raw:
         try:
             hist = json.loads(raw)
+            if not isinstance(hist, dict):
+                hist = {}
         except json.JSONDecodeError:
-            hist = []
-    point = {"date": today,
-             "official": round(official, 2) if official else None,
-             "parallel": round(parallel, 2) if parallel else None}
-    if hist and hist[-1].get("date") == today:
-        # refresh today's point, preferring non-null legs
-        prev = hist[-1]
-        for leg in ("official", "parallel"):
-            if point[leg] is None:
-                point[leg] = prev.get(leg)
-        hist[-1] = point
-    else:
-        hist.append(point)
-    hist = hist[-120:]
+            hist = {}
+    # migrate legacy flat-list format (USD only) if present
+    if isinstance(hist, list):
+        hist = {"USD": hist}
+    for base, legs in latest.items():
+        if base == "pulled_at":
+            continue
+        points = hist.get(base, [])
+        point = {"date": today,
+                 "official": legs["official"],
+                 "parallel": legs["parallel"]}
+        if points and points[-1].get("date") == today:
+            prev = points[-1]
+            for leg in ("official", "parallel"):
+                if point[leg] is None:
+                    point[leg] = prev.get(leg)
+            points[-1] = point
+        else:
+            points.append(point)
+        hist[base] = points[-120:]
     kv_put("fx:hist", json.dumps(hist), ttl=10368000)
 
     print(json.dumps(latest))
@@ -201,9 +234,12 @@ def cmd_pull():
 def cmd_latest():
     raw = kv_get("fx:latest")
     hist_raw = kv_get("fx:hist")
+    hist = json.loads(hist_raw) if hist_raw else {}
+    if isinstance(hist, list):  # legacy flat format
+        hist = {"USD": hist}
     print(json.dumps({
         "latest": json.loads(raw) if raw else None,
-        "history_points": len(json.loads(hist_raw)) if hist_raw else 0,
+        "history_points": {k: len(v) for k, v in hist.items()},
     }, indent=2))
 
 

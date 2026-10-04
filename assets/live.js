@@ -586,7 +586,7 @@
 
   /* Homepage USD/NGN strip. Guarded: placeholders stay "—" if the feed fails. */
   function paintFxStrip(doc) {
-    var latest = doc && doc.latest;
+    var latest = doc && doc.latest && doc.latest.USD;
     if (!latest) return;
     var off = $('fxStripOfficial'), par = $('fxStripParallel');
     if (off && latest.official > 0) off.textContent = '₦' + fmt2(latest.official);
