@@ -502,7 +502,6 @@
         var isDir = found.list === 'directory';
         currentModal = s; lastFocused = opener || document.activeElement;
         var snapShort = window.NVTradeDate || '25 Sep 2026';
-        var snapLong = window.NVTradeDateLong || '25 September 2026';
         document.getElementById('modalList').textContent = isDir ? 'Market directory' : (listNames[found.list] + ' \u00b7 Snapshot ' + snapShort);
         var msEl = document.getElementById('modalSymbol');
         msEl.innerHTML = '';
@@ -514,10 +513,6 @@
         var mm = document.getElementById('modalMove');
         mm.textContent = r.noSnap ? r.g : (r.vol ? r.m + ' shares' : dirArrow(r) + r.m);
         mm.style.color = r.noSnap ? 'inherit' : (r.d === 'up' ? 'var(--green-strong)' : 'var(--red)');
-        document.getElementById('modalNote').innerHTML = r.noSnap
-          ? 'No snapshot price held for this stock. <a href="https://ngnmarket.com/stocks/' + s + '" target="_blank" rel="noopener noreferrer">See its live quote on NGN Market ↗</a>'
-          : 'Figures are fixed at the ' + snapLong + ' close and are not live. <a href="https://ngxgroup.com/" target="_blank" rel="noopener noreferrer">Check official NGX data ↗</a>';
-        document.getElementById('modalLive').href = 'https://ngnmarket.com/stocks/' + s;
         var mpEl = document.getElementById('modalPage');
         if (mpEl) {
           var hasPage = !!(window.NV_STOCK_PAGES && window.NV_STOCK_PAGES[s]);
