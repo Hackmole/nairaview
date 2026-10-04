@@ -1330,6 +1330,15 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .fx-empty { fill: var(--muted); font-size: 15px; }
 /* breathing room between the rate cards and the trend chart */
 .fx-ccy .chart-card { margin-top: 30px; }
+/* FX converter */
+.fx-convert-card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 26px 24px; max-width: 560px; }
+.fx-convert-card h2 { margin: 6px 0 18px; }
+.fx-convert-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.fx-amount { flex: 1 1 160px; font: inherit; font-size: 20px; font-weight: 700; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); min-width: 0; }
+.fx-ccy-select { font: inherit; font-weight: 700; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); }
+.fx-rate-toggle { border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-weight: 600; font-size: 13.5px; padding: 8px 20px; border-radius: 999px; cursor: pointer; }
+.fx-rate-toggle.active { background: var(--green-strong); border-color: var(--green-strong); color: #fff; }
+.fx-convert-result { font: 650 40px/1.2 "Newsreader", serif; margin: 14px 0 4px; }
 .fx-legend { display: inline-flex; align-items: center; gap: 6px; margin-right: 16px; font-size: 13px; }
 .fx-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .fx-dot-official { background: #087A4B; }

@@ -8,12 +8,12 @@
   <meta name="theme-color" content="#087a4b" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Nairaview" />
-<meta property="og:title" content="Dollar to Naira — Official &amp; Parallel Market Rates | Nairaview" />
+<meta property="og:title" content="Currency Exchange Rates to Naira — USD, EUR, GBP | Nairaview" />
 <meta property="og:description" content="Track major currency to naira exchange rates daily: the official NFEM rate and the parallel (street) market rate for USD, EUR and GBP, with the spread between them." />
 <meta property="og:url" content="https://nairaview.com/fx" />
 <meta property="og:image" content="https://nairaview.com/assets/og-default.png" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Dollar to Naira — Official &amp; Parallel Market Rates | Nairaview" />
+<meta name="twitter:title" content="Currency Exchange Rates to Naira — USD, EUR, GBP | Nairaview" />
 <meta name="twitter:description" content="Track major currency to naira exchange rates daily: the official NFEM rate and the parallel (street) market rate for USD, EUR and GBP, with the spread between them." />
 <meta name="twitter:image" content="https://nairaview.com/assets/og-default.png" />
 <link rel="canonical" href="https://nairaview.com/fx" />
@@ -24,10 +24,38 @@
   <link rel="icon" href="assets/favicon-96.png" sizes="96x96" type="image/png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <title>Currency Exchange Rates to Naira — USD, EUR, GBP | Nairaview</title>
-  <link rel="stylesheet" href="assets/styles.css?v=20261004i" />
+  <link rel="stylesheet" href="assets/styles.css?v=20261004j" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the official dollar to naira rate?",
+        "acceptedAnswer": {"@type": "Answer", "text": "The volume-weighted average rate from the Nigerian Foreign Exchange Market (NFEM) \u2014 the rate the CBN recognises for the day. It updates once per business day, so Friday's rate carries through the weekend."}
+      },
+      {
+        "@type": "Question",
+        "name": "What is the parallel market (black market) dollar to naira rate?",
+        "acceptedAnswer": {"@type": "Answer", "text": "The street rate \u2014 what dealers outside the official market actually trade at. It moves through the day and differs by dealer and city, so treat our number as indicative, not a quote you can trade on."}
+      },
+      {
+        "@type": "Question",
+        "name": "Why is the parallel market rate different from the official rate?",
+        "acceptedAnswer": {"@type": "Answer", "text": "The official rate reflects transactions inside the formal market; the street rate reflects supply and demand outside it. When demand for foreign currency outruns official supply, the street rate trades higher."}
+      },
+      {
+        "@type": "Question",
+        "name": "How often are the naira exchange rates updated?",
+        "acceptedAnswer": {"@type": "Answer", "text": "The official rate refreshes once daily; the street rate is pulled once a day. Each card shows exactly when its number was last updated."}
+      }
+    ]
+  }
+  </script>
   </head>
 <body>
   <header class="site-header">
@@ -55,6 +83,27 @@
         </div>
         <div><span class="status-pill"><span class="dot"></span><span id="fxHeroDate">Updated daily</span></span></div>
       </div>
+
+      <section class="section fx-convert" aria-label="Currency converter">
+        <div class="fx-convert-card">
+          <div class="eyebrow">Converter</div>
+          <h2>How much is that in naira?</h2>
+          <div class="fx-convert-row">
+            <input id="fxAmount" class="fx-amount" type="number" min="0" step="any" value="100" inputmode="decimal" aria-label="Amount" />
+            <select id="fxCcy" class="fx-ccy-select" aria-label="Currency">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </div>
+          <div class="fx-convert-row">
+            <button class="fx-rate-toggle active" data-leg="official" aria-pressed="true">Official</button>
+            <button class="fx-rate-toggle" data-leg="parallel" aria-pressed="false">Street</button>
+          </div>
+          <div class="fx-convert-result" id="fxConvertResult">₦—</div>
+          <div class="fx-sub" id="fxConvertNote">Rate loading…</div>
+        </div>
+      </section>
 
       <section class="section fx-ccy" aria-label="US dollar to naira">
         <div class="section-heading">
@@ -199,8 +248,8 @@
       </div>
     </div>
   </footer>
-  <script src="assets/data.js?v=20261004i"></script>
-  <script src="assets/site.js?v=20261004i"></script>
+  <script src="assets/data.js?v=20261004j"></script>
+  <script src="assets/site.js?v=20261004j"></script>
   <script>
   /* FX page: fetch /api/fx and paint all three currency sections.
      Fully guarded — static "₦—" placeholders stay if the feed fails. */
@@ -279,10 +328,48 @@
       }
       drawChart('fx' + P + 'Chart', 'fx' + P + 'ChartRange', history);
     }
+    /* Converter: amount x selected currency/leg. Guarded on doc. */
+    var convLeg = 'official';
+    function convert() {
+      var res = $('fxConvertResult'), note = $('fxConvertNote');
+      if (!res) return;
+      var latest = convDoc && convDoc.latest;
+      var ccy = $('fxCcy') ? $('fxCcy').value : 'USD';
+      var legs = latest && latest[ccy];
+      var amt = $('fxAmount') ? parseFloat($('fxAmount').value) : NaN;
+      if (!legs || !(legs[convLeg] > 0) || !(amt >= 0)) {
+        res.textContent = '₦—';
+        if (note) note.textContent = 'Rate loading…';
+        return;
+      }
+      res.textContent = fmt(amt * legs[convLeg]);
+      if (note) {
+        var legName = convLeg === 'official' ? 'official NFEM rate' : 'indicative street rate';
+        note.textContent = amt.toLocaleString('en-NG') + ' ' + ccy + ' at the ' + legName + ' · ' + fmtDate(legs.official_date);
+      }
+    }
+    var convDoc = null;
+    var amtEl = $('fxAmount'), ccyEl = $('fxCcy');
+    if (amtEl) amtEl.addEventListener('input', convert);
+    if (ccyEl) ccyEl.addEventListener('change', convert);
+    var toggles = document.querySelectorAll('.fx-rate-toggle');
+    for (var t = 0; t < toggles.length; t++) {
+      toggles[t].addEventListener('click', function () {
+        convLeg = this.getAttribute('data-leg');
+        for (var k = 0; k < toggles.length; k++) {
+          var on = toggles[k] === this;
+          toggles[k].classList.toggle('active', on);
+          toggles[k].setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+        convert();
+      });
+    }
     fetch(API + '/api/fx').then(function (r) {
       if (!r.ok) throw new Error('bad status');
       return r.json();
     }).then(function (doc) {
+      convDoc = doc;
+      convert();
       var latest = (doc && doc.latest) || {};
       var history = (doc && doc.history) || {};
       CCYS.forEach(function (ccy) { renderCcy(ccy, latest[ccy], history[ccy]); });
