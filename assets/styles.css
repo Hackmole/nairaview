@@ -1289,6 +1289,9 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; }
 .footer-brand .brand { color: #fff; padding: 0; }
 .footer-brand p { font-size: 13.5px; color: #a9bcb1; margin: 12px 0 0; max-width: 340px; line-height: 1.6; }
+.footer-x { display: inline-flex; margin-top: 14px; color: #a9bcb1; }
+.footer-x:hover { color: #E8C15A; }
+.footer-x svg { display: block; }
 .footer-col h4 { font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: #8fa398; margin: 0 0 12px; }
 .footer-col a { display: block; color: #dfe9e2; text-decoration: none; font-size: 14px; padding: 5px 0; }
 .footer-col a:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
