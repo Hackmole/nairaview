@@ -202,9 +202,23 @@
 
       table.querySelectorAll('[data-del]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          if (!confirm('Remove ' + btn.getAttribute('data-del') + ' from your portfolio?')) return;
-          fetch(API + '/api/holdings?ticker=' + encodeURIComponent(btn.getAttribute('data-del')), { method: 'DELETE', credentials: 'include' })
-            .then(function () { load(); });
+          var ticker = btn.getAttribute('data-del');
+          if (btn.getAttribute('data-armed') === '1') {
+            btn.disabled = true;
+            btn.textContent = 'Removing\u2026';
+            fetch(API + '/api/holdings?ticker=' + encodeURIComponent(ticker), { method: 'DELETE', credentials: 'include' })
+              .then(function () { load(); })
+              .catch(function () { btn.disabled = false; btn.textContent = 'Remove'; btn.removeAttribute('data-armed'); });
+            return;
+          }
+          btn.setAttribute('data-armed', '1');
+          btn.textContent = 'Confirm remove?';
+          setTimeout(function () {
+            if (btn.isConnected && btn.getAttribute('data-armed') === '1') {
+              btn.removeAttribute('data-armed');
+              btn.textContent = 'Remove';
+            }
+          }, 5000);
         });
       });
     }
