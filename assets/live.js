@@ -591,9 +591,13 @@
     [['USD', 'fxUsd'], ['EUR', 'fxEur'], ['GBP', 'fxGbp']].forEach(function (pair) {
       var ccy = latest[pair[0]];
       if (!ccy) return;
-      var off = $(pair[1] + 'Official'), par = $(pair[1] + 'Parallel');
+      var off = $(pair[1] + 'Official'), par = $(pair[1] + 'Parallel'),
+          spr = $(pair[1] + 'Spread');
       if (off && ccy.official > 0) off.textContent = '₦' + fmt2(ccy.official);
       if (par && ccy.parallel > 0) par.textContent = '₦' + fmt2(ccy.parallel);
+      if (spr && ccy.official > 0 && ccy.parallel > 0) {
+        spr.textContent = '₦' + fmt2(Math.abs(ccy.parallel - ccy.official));
+      }
     });
   }
 
