@@ -1323,13 +1323,13 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .fx-label { font: 600 11px/1.5 "IBM Plex Mono", monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .fx-value { font: 650 34px/1.2 "Newsreader", serif; margin: 8px 0 4px; }
 .fx-sub { font-size: 13px; color: var(--muted); }
-.fx-note { font-size: 13px; line-height: 1.6; color: var(--muted); margin: 12px 0 0; }
 .fx-tag { display: inline-block; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; background: #C5A028; color: #1a1a1a; border-radius: 4px; padding: 2px 6px; margin-left: 6px; vertical-align: 2px; }
 .fx-line-official { stroke: #087A4B; }
 .fx-line-parallel { stroke: #C5A028; stroke-dasharray: 7 4; }
 .fx-axis { stroke: var(--line); stroke-width: 1; }
 .fx-empty { fill: var(--muted); font-size: 15px; }
-.fx-ccy + .fx-ccy { border-top: 1px solid var(--line); padding-top: 8px; }
+/* breathing room between the rate cards and the trend chart */
+.fx-ccy .chart-card { margin-top: 30px; }
 .fx-legend { display: inline-flex; align-items: center; gap: 6px; margin-right: 16px; font-size: 13px; }
 .fx-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .fx-dot-official { background: #087A4B; }
