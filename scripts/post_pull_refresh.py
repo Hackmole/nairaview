@@ -40,9 +40,19 @@ def log(msg):
 
 
 def get_json(path, timeout=30):
-    req = urllib.request.Request(API + path, headers={"User-Agent": "nairaview-refresh/1.0"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.load(r)
+    # NOTE 2026-10-06: stdlib urllib consistently gets truncated bodies
+    # (IncompleteRead) for /api/prices through the egress proxy, while
+    # `requests` succeeds every time. Prefer requests; keep urllib fallback.
+    try:
+        import requests
+        r = requests.get(API + path, headers={"User-Agent": "nairaview-refresh/1.0"},
+                         timeout=timeout)
+        r.raise_for_status()
+        return r.json()
+    except ImportError:
+        req = urllib.request.Request(API + path, headers={"User-Agent": "nairaview-refresh/1.0"})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.load(r)
 
 
 def run(cmd, **kw):
