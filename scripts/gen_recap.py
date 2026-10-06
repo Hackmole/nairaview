@@ -263,10 +263,6 @@ def main():
         <div class="section-heading">
           <p class="kicker">WEEKLY RECAP &middot; WEEK ENDED {satlabel}</p>
           <h1>{h1}</h1>
-          <div class="tldr">
-            <span class="tldr-label">In short</span>
-            <p>{tldr}</p>
-          </div>
         </div>
         <h2 class="guide-h2">Market summary</h2>
         <ul class="guide-list">
@@ -307,10 +303,6 @@ def main():
         </ul>
         <h2 class="guide-h2">Corporate actions</h2>
         <p class="guide-p">Dividends, listings, delistings and offers due in the coming sessions are tracked on our <a href="calendar">market calendar</a> &mdash; check qualification dates before acting.</p>
-        <h2 class="guide-h2">Quick summary</h2>
-        <ul class="guide-list">
-          {quick}
-        </ul>
         <p class="guide-p">Figures compiled from NGX session data for the week ended {satlabel}. Not investment advice. <a href="market-recap">All weekly recaps &rarr;</a></p>
       </section>
     </main>
