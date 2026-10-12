@@ -4,7 +4,7 @@
 Renders a square (1080x1080) and wide (1200x675) "IPO closing week" PNG in the
 site's green/gold treatment, reusing only sourced facts from the IPO cluster:
   - Offer price ₦525 per share, ₦5,250 minimum subscription
-  - Offer closes 13 October 2026, ~55 subscription channels
+  - Offer closes 27 October 2026 (extended from 13 Oct by SEC approval, 12 Oct), ~55 subscription channels
   - November allotment, early-December NGX listing target
 No day-count is baked in (it would rot); the close date is the honest anchor.
 
@@ -41,10 +41,10 @@ FACTS = [
 
 def draw(ax, wide):
     # kicker + headline
-    kicker(ax, 0.5, 0.90, "Dangote Refinery IPO · Closing week", 26 if not wide else 22)
+    kicker(ax, 0.5, 0.90, "Dangote Refinery IPO · Offer extended", 26 if not wide else 22)
     ax.text(0.5, 0.80, "Offer closes", ha="center", va="center", fontsize=34,
             color=MUTED, transform=ax.transAxes, zorder=4)
-    ax.text(0.5, 0.71, "13 October 2026", ha="center", va="center", fontsize=64 if not wide else 56,
+    ax.text(0.5, 0.71, "27 October 2026", ha="center", va="center", fontsize=64 if not wide else 56,
             fontweight="bold", color=WHITE, transform=ax.transAxes, zorder=4)
     hline(ax, 0.62)
     # facts
