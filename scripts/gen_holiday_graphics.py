@@ -278,7 +278,7 @@ def main():
     if "--test" in sys.argv:
         render({"name": "Independence Day",
                 "greeting": "Happy Independence Day, Nigeria!",
-                "message": "67 years strong. To the builders, the believers — and the bull market ahead.",
+                "message": "67 years strong. To the builders, the believers, and the bull market ahead.",
                 "post_date": "2027-10-01", "date": "test", "theme": "nigeria"},
                1080, 1080, "square")
         return 0

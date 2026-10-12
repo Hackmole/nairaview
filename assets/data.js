@@ -35,11 +35,11 @@ var tables = {
           { s: 'FIRSTHOLDCO', c: 'First HoldCo', p: '₦156.60', m: '−5.09%', d: 'down', pv: 156.60, cv: -5.09 , mc: 7108145532127}
         ],
         volume: [
-          { s: 'FIDELITYBK', c: 'Fidelity Bank', p: '—', m: '212.77m', d: 'up', pv: null, cv: 212.77, vol: true },
-          { s: 'ACCESSCORP', c: 'Access Holdings', p: '—', m: '72.60m', d: 'up', pv: null, cv: 72.60, vol: true },
-          { s: 'TRANSCORP', c: 'Transnational Corporation', p: '—', m: '65.74m', d: 'up', pv: null, cv: 65.74, vol: true },
-          { s: 'CHAMS', c: 'Chams Holding Company', p: '—', m: '33.27m', d: 'up', pv: null, cv: 33.27, vol: true },
-          { s: 'UBA', c: 'United Bank for Africa', p: '—', m: '23.14m', d: 'up', pv: null, cv: 23.14, vol: true }
+          { s: 'FIDELITYBK', c: 'Fidelity Bank', p: '·', m: '212.77m', d: 'up', pv: null, cv: 212.77, vol: true },
+          { s: 'ACCESSCORP', c: 'Access Holdings', p: '·', m: '72.60m', d: 'up', pv: null, cv: 72.60, vol: true },
+          { s: 'TRANSCORP', c: 'Transnational Corporation', p: '·', m: '65.74m', d: 'up', pv: null, cv: 65.74, vol: true },
+          { s: 'CHAMS', c: 'Chams Holding Company', p: '·', m: '33.27m', d: 'up', pv: null, cv: 33.27, vol: true },
+          { s: 'UBA', c: 'United Bank for Africa', p: '·', m: '23.14m', d: 'up', pv: null, cv: 23.14, vol: true }
         ]
       };
       var listNames = { gainers: 'Top gainer', losers: 'Top loser', volume: 'Most traded', directory: 'Market directory' };
@@ -196,5 +196,5 @@ var tables = {
       directory.forEach(function (e) {
         var snap = snapBySymbol[e.s];
         if (snap) { e.p = snap.p; e.m = snap.m; e.d = snap.d; e.pv = snap.pv; e.cv = snap.cv; e.vol = !!snap.vol; e.noSnap = false; }
-        else { e.p = '—'; e.m = e.g; e.d = ''; e.pv = null; e.cv = 0; e.noSnap = true; }
+        else { e.p = '·'; e.m = e.g; e.d = ''; e.pv = null; e.cv = 0; e.noSnap = true; }
       });
